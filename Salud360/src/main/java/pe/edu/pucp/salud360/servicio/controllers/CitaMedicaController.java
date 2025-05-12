@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 import pe.edu.pucp.salud360.servicio.services.CitaMedicaService;
 
 import java.util.List;

@@ -26,8 +26,8 @@ public class CitaMedica {
     @Column(name = "fecha", unique = false, nullable = false, updatable = true)
     private LocalDate fecha;
 
-    @Column(name = "horaInicio", unique = false, nullable = false, updatable = true)
-    private LocalTime horaInicio;
+    @Column(name = "hora", unique = false, nullable = false, updatable = true)
+    private LocalTime hora;
 
     @Column(name = "estado", unique = false, nullable = false, updatable = true)
     private String estado;
@@ -41,6 +41,9 @@ public class CitaMedica {
     @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
 
+    @Column(name = "motivo", nullable = true, updatable = true)
+    private String motivo;
+
     @ManyToOne
     @JoinColumn(name = "idServicio")
     private Servicio servicio;
@@ -52,8 +55,8 @@ public class CitaMedica {
     private List<Reserva> reservas;
 
     @ManyToOne
-    @JoinColumn(name = "idPersona")
-    private Persona persona;
+    @JoinColumn(name = "idPaciente")
+    private Persona paciente;
 
     @ManyToOne
     @JoinColumn(name = "idMedico")

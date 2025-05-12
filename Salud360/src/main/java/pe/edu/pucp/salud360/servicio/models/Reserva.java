@@ -10,6 +10,7 @@ import pe.edu.pucp.salud360.usuario.models.Notificacion;
 import pe.edu.pucp.salud360.usuario.models.Persona;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -37,6 +38,15 @@ public class Reserva {
 
     @Column(name = "fechaReprogramacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaReprogramacion;
+
+    @Column(name = "horaInicio", nullable = false)
+    private LocalTime horaInicio;
+
+    @Column(name = "horaFin", nullable = false)
+    private LocalTime horaFin;
+
+    @Column(name = "activo", unique = false, nullable = false, updatable = true)
+    private Boolean activo;
 
     @ManyToOne
     @JoinColumn(name = "idUsuario")

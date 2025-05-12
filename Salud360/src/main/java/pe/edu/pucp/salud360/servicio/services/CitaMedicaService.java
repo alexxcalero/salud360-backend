@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.servicio.services;
 
-import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 
 import java.util.List;
 

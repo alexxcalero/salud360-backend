@@ -5,13 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.usuario.models.Persona;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+
 
 @Getter
 @Setter
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -21,38 +26,40 @@ public class Clase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idClase;
 
-    @Column(name = "nombre", unique = false, nullable = false, updatable = true)
+    @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @Column(name = "descripcion", unique = false, nullable = false, updatable = true)
+    @Column(name = "descripcion", nullable = false)
     private String descripcion;
 
-    @Column(name = "fechaClase", unique = false, nullable = false, updatable = true)
-    private LocalDateTime fechaClase;
+    @Column(name = "fecha", nullable = false)
+    private LocalDate fecha;
 
-    @Column(name = "horaInicio", unique = false, nullable = false, updatable = true)
-    private LocalDateTime horaInicio;
+    @Column(name = "horaInicio", nullable = false)
+    private LocalTime horaInicio;
 
-    @Column(name = "horaFin", unique = false, nullable = false, updatable = true)
-    private LocalDateTime horaFin;
+    @Column(name = "horaFin", nullable = false)
+    private LocalTime horaFin;
 
-    @Column(name = "capacidad", unique = false, nullable = false, updatable = true)
+    @Column(name = "capacidad", nullable = false)
     private Integer capacidad;
 
-    @Column(name = "cantAsistentes", unique = false, nullable = false, updatable = true)
+    @Column(name = "cantAsistentes", nullable = false)
     private Integer cantAsistentes;
 
-    @Column(name = "estado", unique = false, nullable = false, updatable = true)
+    @Column(name = "estado", nullable = false)
     private String estado;
 
-    @Column(name = "activo", unique = false, nullable = false, updatable = true)
+    @Column(name = "activo", nullable = false)
     private Boolean activo;
 
-    @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = false)
+    @Column(name = "fechaCreacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
+    @Column(name = "fechaDesactivacion")
     private LocalDateTime fechaDesactivacion;
+
+
 
     @ManyToMany
     @JoinTable(

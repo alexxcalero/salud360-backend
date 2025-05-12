@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.servicio.services;
 
-import pe.edu.pucp.salud360.servicio.dto.ClaseDTO;
+import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
 
 import java.util.List;
 

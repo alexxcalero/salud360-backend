@@ -20,6 +20,9 @@ public class DocumentoMedico {
     @Column(name = "documento", unique = false, nullable = false, updatable = true)
     private String documento;
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo;
+
     @ManyToOne
     @JoinColumn(name = "idCitaMedica")
     private CitaMedica citaMedica;

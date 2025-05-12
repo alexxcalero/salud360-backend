@@ -1,37 +1,23 @@
 package pe.edu.pucp.salud360.servicio.mappers;
 
-import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO;
+
+import org.mapstruct.Mapper;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.models.CitaMedica;
-import pe.edu.pucp.salud360.servicio.models.Servicio;
-import pe.edu.pucp.salud360.usuario.models.Medico;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 
-public class CitaMedicaMapper {
+import java.util.List;
 
-    public static CitaMedicaDTO mapToDTO(CitaMedica c) {
-        if (c == null) return null;
+@Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
+public interface CitaMedicaMapper {
+    CitaMedicaDTO mapToDTO(CitaMedica citaMedica);
+    CitaMedica mapToModel(CitaMedicaDTO dto);
 
-        return CitaMedicaDTO.builder()
-                .idCitaMedica(c.getIdCitaMedica())
-                .fecha(c.getFecha())
-                .horaInicio(c.getHoraInicio())
-                .estado(c.getEstado())
-                .activo(c.getActivo())
-                .build();
-    }
+    CitaMedicaResumenDTO mapToResumenDTO(CitaMedica citaMedica);
+    CitaMedica mapToModel(CitaMedicaResumenDTO resumenDTO);
 
-    public static CitaMedica mapToModel(CitaMedicaDTO dto, Servicio servicio, Persona usuario, Medico medico) {
-        if (dto == null) return null;
-
-        return CitaMedica.builder()
-                .idCitaMedica(dto.getIdCitaMedica())
-                .fecha(dto.getFecha())
-                .horaInicio(dto.getHoraInicio())
-                .estado(dto.getEstado())
-                .activo(dto.getActivo())
-                .servicio(servicio)
-                .persona(usuario)
-                .medico(medico)
-                .build();
-    }
+    List<CitaMedicaDTO> mapToDTOList(List<CitaMedica> citas);
+    List<CitaMedica> mapToModelList(List<CitaMedicaDTO> citasDTO);
 }
+

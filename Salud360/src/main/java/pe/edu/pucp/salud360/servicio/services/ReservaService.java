@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.servicio.services;
 
-import pe.edu.pucp.salud360.servicio.dto.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 
 import java.util.List;
 
