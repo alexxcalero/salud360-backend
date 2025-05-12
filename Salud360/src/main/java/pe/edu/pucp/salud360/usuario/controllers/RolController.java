@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.pucp.salud360.usuario.dtos.permisoDTO.PermisoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.services.RolService;
 
@@ -22,7 +23,8 @@ public class RolController {
     }
 
     @PutMapping("{idRol}")
-    public ResponseEntity<RolVistaAdminDTO> actualizarRol(@PathVariable("idRol") Integer idRol, @RequestBody RolVistaAdminDTO rolDTO) {
+    public ResponseEntity<RolVistaAdminDTO> actualizarRol(@PathVariable("idRol") Integer idRol,
+                                                          @RequestBody RolVistaAdminDTO rolDTO) {
         RolVistaAdminDTO rolBuscado = rolService.buscarRolPorId(idRol);
         if(rolBuscado != null) {
             RolVistaAdminDTO rolActualizado = rolService.actualizarRol(idRol, rolDTO);
@@ -54,5 +56,16 @@ public class RolController {
             return new ResponseEntity<>(rolBuscado, HttpStatus.OK);
         else
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("{idRol}/editarPermisos")
+    public ResponseEntity<RolVistaAdminDTO> editarPermisos(@PathVariable("idRol") Integer idRol,
+                                                           @RequestBody List<PermisoResumenDTO> permisos) {
+        RolVistaAdminDTO rolBuscado = rolService.buscarRolPorId(idRol);
+        if(rolBuscado != null) {
+            RolVistaAdminDTO rolActualizado = rolService.editarPermisos(idRol, permisos);
+            return new ResponseEntity<>(rolActualizado, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 }

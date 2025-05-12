@@ -6,16 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
-import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoVistaClienteDTO;
+import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsuarioDTO {
+public class UsuarioRegistroDTO {
     protected Integer idUsuario;
     protected String nombres;
     protected String apellidos;
@@ -24,9 +25,14 @@ public class UsuarioDTO {
     protected String contrasenha;
     protected String telefono;
     protected String sexo;
-    protected String fotoPefil;
     protected LocalDate fechaNacimiento;
+    protected String fotoPerfil;
+    protected Boolean notiCorreo;
+    protected Boolean notiSMS;
+    protected Boolean notiWhatsApp;
     protected Boolean activo;
-    protected TipoDocumentoVistaClienteDTO tipoDocumento;
+    protected LocalDateTime fechaCreacion;
+    protected LocalDateTime fechaDesactivacion;
+    protected TipoDocumentoResumenDTO tipoDocumento;
     protected RolVistaClienteDTO rol;
 }

@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.usuario.dtos.permisoDTO.PermisoVistaAdminDTO;
+import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolResumenDTO;
 import pe.edu.pucp.salud360.usuario.services.PermisoService;
 
 import java.util.List;
@@ -22,7 +23,8 @@ public class PermisoController {
     }
 
     @PutMapping("{idPermiso}")
-    public ResponseEntity<PermisoVistaAdminDTO> actualizarPermiso(@PathVariable("idPermiso") Integer idPermiso, @RequestBody PermisoVistaAdminDTO permisoDTO) {
+    public ResponseEntity<PermisoVistaAdminDTO> actualizarPermiso(@PathVariable("idPermiso") Integer idPermiso,
+                                                                  @RequestBody PermisoVistaAdminDTO permisoDTO) {
         PermisoVistaAdminDTO permisoBuscado = permisoService.buscarPermisoPorId(idPermiso);
         if (permisoBuscado != null) {
             PermisoVistaAdminDTO permisoActualizado = permisoService.actualizarPermiso(idPermiso, permisoDTO);
@@ -54,5 +56,16 @@ public class PermisoController {
             return new ResponseEntity<>(permisoBuscado, HttpStatus.OK);
         else
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("{idPermiso}/editarRoles")
+    public ResponseEntity<PermisoVistaAdminDTO> editarRoles(@PathVariable("idPermiso") Integer idPermiso,
+                                                            @RequestBody List<RolResumenDTO> roles) {
+        PermisoVistaAdminDTO permisoBuscado = permisoService.buscarPermisoPorId(idPermiso);
+        if (permisoBuscado != null) {
+            PermisoVistaAdminDTO permisoActualizado = permisoService.editarRoles(idPermiso, roles);
+            return new ResponseEntity<>(permisoActualizado, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 }

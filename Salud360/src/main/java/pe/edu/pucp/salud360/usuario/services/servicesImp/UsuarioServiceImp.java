@@ -3,11 +3,14 @@ package pe.edu.pucp.salud360.usuario.services.servicesImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioDTO;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
+import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
-import pe.edu.pucp.salud360.usuario.models.TipoDocumento;
+import pe.edu.pucp.salud360.usuario.models.Rol;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
-import pe.edu.pucp.salud360.usuario.repositories.TipoDocumentoRepository;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 import pe.edu.pucp.salud360.usuario.services.UsuarioService;
 
@@ -21,14 +24,17 @@ public class UsuarioServiceImp implements UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private TipoDocumentoRepository tipoDocumentoRepository;
+    private UsuarioMapper usuarioMapper;
+
+    @Autowired
+    private TipoDocumentoMapper tipoDocumentoMapper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
-        Usuario usuario = UsuarioMapper.mapToModel(usuarioDTO);
+    public UsuarioVistaAdminDTO crearUsuario(UsuarioRegistroDTO usuarioDTO) {
+        Usuario usuario = usuarioMapper.mapToModel(usuarioDTO);
 
         // Cifro la contrasenha antes de guardarla en BD
         String contrasenhaCifrada = passwordEncoder.encode(usuario.getContrasenha());
@@ -38,30 +44,38 @@ public class UsuarioServiceImp implements UsuarioService {
         usuario.setFechaCreacion(LocalDateTime.now());
         usuario.setFechaDesactivacion(null);
         Usuario usuarioCreado = usuarioRepository.save(usuario);
-        return UsuarioMapper.mapToDTO(usuarioCreado);
+        return usuarioMapper.mapToVistaAdminDTO(usuarioCreado);
     }
 
     @Override
-    public UsuarioDTO actualizarUsuario(Integer idUsuario, UsuarioDTO usuarioDTO) {
+    public UsuarioVistaClienteDTO actualizarUsuario(Integer idUsuario, UsuarioVistaClienteDTO usuarioDTO) {
         if(usuarioRepository.findById(idUsuario).isPresent()){
             Usuario usuario = usuarioRepository.findById(idUsuario).get();
             usuario.setNombres(usuarioDTO.getNombres());
             usuario.setApellidos(usuarioDTO.getApellidos());
+            usuario.setNumeroDocumento(usuarioDTO.getNumeroDocumento());
+            usuario.setTipoDocumento(tipoDocumentoMapper.mapToModel(usuarioDTO.getTipoDocumento()));
             usuario.setCorreo(usuarioDTO.getCorreo());
             usuario.setTelefono(usuarioDTO.getTelefono());
             usuario.setSexo(usuarioDTO.getSexo());
             usuario.setFechaNacimiento(usuarioDTO.getFechaNacimiento());
             Usuario usuarioActualizado = usuarioRepository.save(usuario);
-            return UsuarioMapper.mapToDTO(usuarioActualizado);
+            return usuarioMapper.mapToVistaClienteDTO(usuarioActualizado);
         } else {
             return null;
         }
     }
 
     @Override
+    @Transactional
     public void eliminarUsuario(Integer idUsuario) {
         if(usuarioRepository.findById(idUsuario).isPresent()) {
             Usuario usuarioEliminar = usuarioRepository.findById(idUsuario).get();
+
+            // Elimino al usuario de la lista de usuarios asignados al rol al que pertenezca
+            Rol rol = usuarioEliminar.getRol();
+            rol.getUsuarios().remove(usuarioEliminar);
+
             usuarioEliminar.setActivo(false);
             usuarioEliminar.setFechaDesactivacion(LocalDateTime.now());
             usuarioRepository.save(usuarioEliminar);
@@ -69,75 +83,100 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public List<UsuarioDTO> listarUsuariosTodos() {
+    public List<UsuarioVistaAdminDTO> listarUsuariosTodos() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         if(!(usuarios.isEmpty())) {
-            return usuarios.stream().map(UsuarioMapper::mapToDTO).toList();
+            return usuarios.stream().map(usuarioMapper::mapToVistaAdminDTO).toList();
         } else {
             return new ArrayList<>();
         }
     }
 
     @Override
-    public UsuarioDTO buscarUsuarioPorId(Integer idUsuario) {
+    public UsuarioVistaAdminDTO buscarUsuarioPorIdEnAdmin(Integer idUsuario) {
         if(usuarioRepository.findById(idUsuario).isPresent()) {
             Usuario usuarioBuscado = usuarioRepository.findById(idUsuario).get();
-            return UsuarioMapper.mapToDTO(usuarioBuscado);
+            return usuarioMapper.mapToVistaAdminDTO(usuarioBuscado);
         } else {
             return null;
         }
     }
 
     @Override
-    public UsuarioDTO actualizarNumeroDocumento(Integer idUsuario, Integer idTipoDocumento, String numeroDocumento) {
-        if(usuarioRepository.findById(idUsuario).isPresent()){
-            Usuario usuario = usuarioRepository.findById(idUsuario).get();
-
-            if(tipoDocumentoRepository.findById(idTipoDocumento).isPresent()){
-                TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento).get();
-                usuario.setTipoDocumento(tipoDocumento);
-            }
-
-            usuario.setNumeroDocumento(numeroDocumento);
-            Usuario usuarioActualizado = usuarioRepository.save(usuario);
-            return UsuarioMapper.mapToDTO(usuarioActualizado);
+    public UsuarioVistaClienteDTO buscarUsuarioPorIdEnCliente(Integer idUsuario) {
+        if(usuarioRepository.findById(idUsuario).isPresent()) {
+            Usuario usuarioBuscado = usuarioRepository.findById(idUsuario).get();
+            return usuarioMapper.mapToVistaClienteDTO(usuarioBuscado);
         } else {
             return null;
         }
     }
 
     @Override
-    public UsuarioDTO actualizarFotoPerfil(Integer idUsuario, String fotoPerfil) {
+    public UsuarioVistaClienteDTO actualizarFotoPerfil(Integer idUsuario, String fotoPerfil) {
         if(usuarioRepository.findById(idUsuario).isPresent()){
             Usuario usuario = usuarioRepository.findById(idUsuario).get();
             usuario.setFotoPerfil(fotoPerfil);
             Usuario usuarioActualizado = usuarioRepository.save(usuario);
-            return UsuarioMapper.mapToDTO(usuarioActualizado);
+            return usuarioMapper.mapToVistaClienteDTO(usuarioActualizado);
         } else {
             return null;
         }
     }
 
     @Override
-    public UsuarioDTO actualizarContrasenha(Integer idUsuario, String contrasenhaNueva) {
+    public UsuarioVistaClienteDTO actualizarMetodosDeNotificacion(Integer idUsuario, List<Boolean> ajustes) {
+        if(usuarioRepository.findById(idUsuario).isPresent()){
+            Usuario usuario = usuarioRepository.findById(idUsuario).get();
+            usuario.setNotiCorreo(ajustes.get(0));
+            usuario.setNotiSMS(ajustes.get(1));
+            usuario.setNotiWhatsApp(ajustes.get(2));
+            Usuario usuarioActualizado = usuarioRepository.save(usuario);
+            return usuarioMapper.mapToVistaClienteDTO(usuarioActualizado);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Boolean actualizarContrasenha(Integer idUsuario, String contrasenhaNueva) {
         if(usuarioRepository.findById(idUsuario).isPresent()){
             Usuario usuario = usuarioRepository.findById(idUsuario).get();
             String contrasenhaCifrada = passwordEncoder.encode(contrasenhaNueva);
             usuario.setContrasenha(contrasenhaCifrada);
             Usuario usuarioActualizado = usuarioRepository.save(usuario);
-            return UsuarioMapper.mapToDTO(usuarioActualizado);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public UsuarioVistaClienteDTO buscarUsuarioPorCorreoEnCliente(String correo) {
+        if(usuarioRepository.findByCorreo(correo).isPresent()) {
+            Usuario usuario = usuarioRepository.findByCorreo(correo).get();
+            return usuarioMapper.mapToVistaClienteDTO(usuario);
         } else {
             return null;
         }
     }
 
     @Override
-    public UsuarioDTO buscarUsuarioPorCorreo(String correo) {
+    public Usuario buscarUsuarioPorCorreoEnLogin(String correo) {
         if(usuarioRepository.findByCorreo(correo).isPresent()) {
-            Usuario usuarioBuscado = usuarioRepository.findByCorreo(correo).get();
-            return UsuarioMapper.mapToDTO(usuarioBuscado);
+            return usuarioRepository.findByCorreo(correo).get();
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public List<UsuarioVistaAdminDTO> listarUsuariosTodosPorCorreo(String correo) {
+        List<Usuario> usuarios = usuarioRepository.findByCorreoContainingIgnoreCase(correo);
+        if(!(usuarios.isEmpty())) {
+            return usuarios.stream().map(usuarioMapper::mapToVistaAdminDTO).toList();
+        } else {
+            return new ArrayList<>();
         }
     }
 }

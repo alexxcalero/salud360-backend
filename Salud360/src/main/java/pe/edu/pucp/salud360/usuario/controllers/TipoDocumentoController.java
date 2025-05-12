@@ -22,7 +22,8 @@ public class TipoDocumentoController {
     }
 
     @PutMapping("{idTipoDocumento}")
-    public ResponseEntity<TipoDocumentoVistaAdminDTO> actualizarTipoDocumento(@PathVariable("idTipoDocumento") Integer idTipoDocumento, @RequestBody TipoDocumentoVistaAdminDTO tipoDocumentoDTO) {
+    public ResponseEntity<TipoDocumentoVistaAdminDTO> actualizarTipoDocumento(@PathVariable("idTipoDocumento") Integer idTipoDocumento,
+                                                                              @RequestBody TipoDocumentoVistaAdminDTO tipoDocumentoDTO) {
         TipoDocumentoVistaAdminDTO tipoDocumentoBuscado = tipoDocumentoService.buscarTipoDocumentoPorId(idTipoDocumento);
         if(tipoDocumentoBuscado != null) {
             TipoDocumentoVistaAdminDTO tipoDocumentoActualizado = tipoDocumentoService.actualizarTipoDocumento(idTipoDocumento, tipoDocumentoDTO);
@@ -50,9 +51,10 @@ public class TipoDocumentoController {
     @GetMapping("{idTipoDocumento}")
     public ResponseEntity<TipoDocumentoVistaAdminDTO> buscarTipoDocumentoPorId(@PathVariable("idTipoDocumento") Integer idTipoDocumento) {
         TipoDocumentoVistaAdminDTO tipoDocumentoBuscado = tipoDocumentoService.buscarTipoDocumentoPorId(idTipoDocumento);
-        if(tipoDocumentoBuscado != null)
+        if(tipoDocumentoBuscado != null) {
             return new ResponseEntity<>(tipoDocumentoBuscado, HttpStatus.OK);
-        else
+        } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 }

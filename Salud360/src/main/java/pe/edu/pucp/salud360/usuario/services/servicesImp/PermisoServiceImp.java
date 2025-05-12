@@ -2,6 +2,7 @@ package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pe.edu.pucp.salud360.usuario.dtos.permisoDTO.PermisoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolResumenDTO;
 import pe.edu.pucp.salud360.usuario.mappers.PermisoMapper;
@@ -54,16 +55,17 @@ public class PermisoServiceImp implements PermisoService {
     }
 
     @Override
+    @Transactional
     public void eliminarPermiso(Integer idPermiso) {
         if(permisoRepository.findById(idPermiso).isPresent()) {
             Permiso permisoEliminar = permisoRepository.findById(idPermiso).get();
 
             for(Rol rol : permisoEliminar.getRoles()) {
                 rol.getPermisos().remove(permisoEliminar);  // Elimino al permiso de la lista del rol
-                rolRepository.save(rol);  // Actualizo la lista de permisos de ese rol
             }
 
             permisoEliminar.getRoles().clear();  // Limpio la lista de roles asociados al permiso eliminado
+
             permisoEliminar.setActivo(false);
             permisoEliminar.setFechaDesactivacion(LocalDateTime.now());
             permisoRepository.save(permisoEliminar);
@@ -91,14 +93,24 @@ public class PermisoServiceImp implements PermisoService {
     }
 
     @Override
+    @Transactional
     public PermisoVistaAdminDTO editarRoles(Integer idPermiso, List<RolResumenDTO> roles) {
         if(permisoRepository.findById(idPermiso).isPresent()) {
             Permiso permiso = permisoRepository.findById(idPermiso).get();
 
-            permiso.getRoles().clear();
+            // Limpio todas las relaciones de roles con el permiso que estoy editando
+            for(Rol rol : permiso.getRoles()) {
+                rol.getPermisos().remove(permiso);  // Elimino al permiso de la lista del rol
+            }
+
+            permiso.getRoles().clear();  // Limpio la lista de roles asociados
+
             List<Rol> nuevosRoles = rolMapper.mapToModelList(roles);
             if(nuevosRoles != null) {
-                permiso.getRoles().addAll(nuevosRoles);
+                for(Rol rol : nuevosRoles) {
+                    permiso.getRoles().add(rol);  // Agrego el rol a la nueva lista de roles que contendran este permiso
+                    rol.getPermisos().add(permiso);  // Mantengo la relación en el otro lado (el arreglo de permisos en un rol)
+                }
             }
 
             Permiso permisoEditado = permisoRepository.save(permiso);

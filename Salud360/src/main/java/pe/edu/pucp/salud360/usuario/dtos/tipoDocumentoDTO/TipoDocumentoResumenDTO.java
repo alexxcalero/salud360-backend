@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TipoDocumentoVistaClienteDTO {
+public class TipoDocumentoResumenDTO {
     private Integer idTipoDocumento;
     private String nombre;
 }

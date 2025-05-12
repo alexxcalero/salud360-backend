@@ -1,18 +1,24 @@
 package pe.edu.pucp.salud360.usuario.services;
 
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
+import pe.edu.pucp.salud360.usuario.models.Usuario;
 
 import java.util.List;
 
 public interface UsuarioService {
-    UsuarioDTO crearUsuario(UsuarioDTO usuarioRegistroDTO);
-    UsuarioDTO actualizarUsuario(Integer idUsuario, UsuarioDTO usuarioDTO);
+    UsuarioVistaAdminDTO crearUsuario(UsuarioRegistroDTO usuarioDTO);
+    UsuarioVistaClienteDTO actualizarUsuario(Integer idUsuario, UsuarioVistaClienteDTO usuarioDTO);
     void eliminarUsuario(Integer idUsuario);
-    List<UsuarioDTO> listarUsuariosTodos();
-    UsuarioDTO buscarUsuarioPorId(Integer idUsuario);
+    List<UsuarioVistaAdminDTO> listarUsuariosTodos();
+    UsuarioVistaAdminDTO buscarUsuarioPorIdEnAdmin(Integer idUsuario);
 
-    UsuarioDTO actualizarNumeroDocumento(Integer idUsuario, Integer idTipoDocumento, String numeroDocumento);
-    UsuarioDTO actualizarFotoPerfil(Integer idUsuario, String fotoPerfil);
-    UsuarioDTO actualizarContrasenha(Integer idUsuario, String contrasenhaNueva);
-    UsuarioDTO buscarUsuarioPorCorreo(String correo);
+    UsuarioVistaClienteDTO buscarUsuarioPorIdEnCliente(Integer idUsuario);
+    UsuarioVistaClienteDTO actualizarFotoPerfil(Integer idUsuario, String fotoPerfil);
+    UsuarioVistaClienteDTO actualizarMetodosDeNotificacion(Integer idUsuario, List<Boolean> ajustes);
+    Boolean actualizarContrasenha(Integer idUsuario, String contrasenhaNueva);
+    UsuarioVistaClienteDTO buscarUsuarioPorCorreoEnCliente(String correo);
+    Usuario buscarUsuarioPorCorreoEnLogin(String correo);  // No lo devuelvo al front, así que no rompo el disenho DTO
+    List<UsuarioVistaAdminDTO> listarUsuariosTodosPorCorreo(String correo);
 }

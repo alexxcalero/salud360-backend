@@ -19,14 +19,23 @@ public class PersonaServiceImp implements PersonaService {
     @Autowired
     private PersonaRepository personaRepository;
 
+    @Autowired
+    private PersonaMapper personaMapper;
+
+    @Autowired
+    private TipoDocumentoMapper tipoDocumentoMapper;
+
+    @Autowired
+    private RolMapper rolMapper;
+
     @Override
     public PersonaDTO crearPersona(PersonaDTO personaDTO) {
-        Persona persona = PersonaMapper.mapToModel(personaDTO);
+        Persona persona = personaMapper.mapToModel(personaDTO);
         persona.setActivo(true);
         persona.setFechaCreacion(LocalDateTime.now());
         persona.setFechaDesactivacion(null);
         Persona personaCreada = personaRepository.save(persona);
-        return PersonaMapper.mapToDTO(personaCreada);
+        return personaMapper.mapToDTO(personaCreada);
     }
 
     @Override
@@ -38,11 +47,10 @@ public class PersonaServiceImp implements PersonaService {
             persona.setNumeroDocumento(personaDTO.getNumeroDocumento());
             persona.setTelefono(personaDTO.getTelefono());
             persona.setFechaNacimiento(personaDTO.getFechaNacimiento());
-            persona.setTipoDocumento(TipoDocumentoMapper.mapToModel(personaDTO.getTipoDocumento()));
-            persona.setRol(RolMapper.mapToModel(personaDTO.getRol()));
-            persona.setFotoPerfil(personaDTO.getFotoPefil());
+            persona.setTipoDocumento(tipoDocumentoMapper.mapToModel(personaDTO.getTipoDocumento()));
+            persona.setFotoPerfil(personaDTO.getFotoPerfil());
             Persona personaModificada = personaRepository.save(persona);
-            return PersonaMapper.mapToDTO(personaModificada);
+            return personaMapper.mapToDTO(personaModificada);
         } else {
             return null;
         }
@@ -65,7 +73,7 @@ public class PersonaServiceImp implements PersonaService {
         if(personas.isEmpty()) {
             return null;
         } else {
-            return personas.stream().map(PersonaMapper::mapToDTO).toList();
+            return personas.stream().map(personaMapper::mapToDTO).toList();
         }
     }
 
@@ -73,7 +81,7 @@ public class PersonaServiceImp implements PersonaService {
     public PersonaDTO buscarPersonaPorId(Integer idPersona) {
         if(personaRepository.findById(idPersona).isPresent()) {
             Persona personaBuscada = personaRepository.findById(idPersona).get();
-            return PersonaMapper.mapToDTO(personaBuscada);
+            return personaMapper.mapToDTO(personaBuscada);
         } else {
             return null;
         }

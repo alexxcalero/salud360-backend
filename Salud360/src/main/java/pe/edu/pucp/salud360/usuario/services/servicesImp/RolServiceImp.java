@@ -2,6 +2,8 @@ package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.pucp.salud360.usuario.dtos.permisoDTO.PermisoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.PermisoMapper;
 import pe.edu.pucp.salud360.usuario.mappers.RolMapper;
@@ -41,19 +43,6 @@ public class RolServiceImp implements RolService {
             Rol rol = rolRepository.findById(idRol).get();
             rol.setNombre(rolDTO.getNombre());
             rol.setDescripcion(rolDTO.getDescripcion());
-
-            rol.getUsuarios().clear();
-
-
-
-            // Limpio la lista de permisos asignados a un rol
-            rol.getPermisos().clear();
-
-            // Creo una lista temporal
-            List<Permiso> nuevosPermisos = permisoMapper.mapToModelList(rolDTO.getPermisos());
-            if(nuevosPermisos != null)
-                rol.getPermisos().addAll(nuevosPermisos);
-
             Rol rolActualizado = rolRepository.save(rol);
             return rolMapper.mapToVistaAdminDTO(rolActualizado);
         } else {
@@ -62,9 +51,14 @@ public class RolServiceImp implements RolService {
     }
 
     @Override
+    @Transactional
     public void eliminarRol(Integer idRol) {
         if(rolRepository.findById(idRol).isPresent()) {
             Rol rolEliminar = rolRepository.findById(idRol).get();
+
+            for(Permiso permiso : rolEliminar.getPermisos()) {
+                permiso.getRoles().remove(rolEliminar);  // Elimino al rol de la lista del permiso
+            }
 
             // Desasocio los permisos de un rol que se va a eliminar
             // de esta manera se eliminan los registros de la tabla intermedia
@@ -91,6 +85,33 @@ public class RolServiceImp implements RolService {
         if(rolRepository.findById(idRol).isPresent()) {
             Rol rolBuscado = rolRepository.findById(idRol).get();
             return rolMapper.mapToVistaAdminDTO(rolBuscado);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public RolVistaAdminDTO editarPermisos(Integer idRol, List<PermisoResumenDTO> permisos) {
+        if(rolRepository.findById(idRol).isPresent()) {
+            Rol rol = rolRepository.findById(idRol).get();
+
+            for(Permiso permiso : rol.getPermisos()) {
+                permiso.getRoles().remove(rol);  // Elimino al rol de la lista del permiso
+            }
+
+            rol.getPermisos().clear();  // Limpio la lista de permisos asociados
+
+            List<Permiso> nuevosPermisos = permisoMapper.mapToModelList(permisos);
+            if(nuevosPermisos != null) {
+                for(Permiso permiso : nuevosPermisos) {
+                    rol.getPermisos().add(permiso);  // Agrego el permiso a la nueva lista de permisos que contendra este rol
+                    permiso.getRoles().add(rol);  // Mantengo la relación en el otro lado (el arreglo de roles en un permiso)
+                }
+            }
+
+            Rol rolActualizado = rolRepository.save(rol);
+            return rolMapper.mapToVistaAdminDTO(rolActualizado);
         } else {
             return null;
         }

@@ -17,7 +17,6 @@ import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.models.Clase;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -29,14 +28,14 @@ import java.util.List;
 @Table(name = "persona")
 @PrimaryKeyJoinColumn(name = "idUsuario")
 public class Persona extends Usuario {
-    @Column(name = "telefono", unique = true, nullable = false, updatable = true)
-    protected String telefono;
-
-    @Column(name = "fechaNacimiento", unique = false, nullable = false, updatable = false)
-    protected LocalDate fechaNacimiento;  // Va a tener que contactar con el admin si quiere cambiar su fecha de nacimiento
+    @Column(name = "direccion", unique = false, nullable = false, updatable = true)
+    private String direccion;
 
     @ManyToMany(mappedBy = "persona")
     private List<Comunidad> comunidades;
+
+    @ManyToMany(mappedBy = "personas")
+    private List<Clase> clases;
 
     @OneToMany(mappedBy = "persona")
     private List<Afiliacion> afiliaciones;
@@ -52,9 +51,6 @@ public class Persona extends Usuario {
 
     @OneToMany(mappedBy = "persona")
     private List<Testimonio> testimonios;
-
-    @ManyToMany(mappedBy = "personas")
-    private List<Clase> clases;
 
     @OneToMany(mappedBy = "usuario")
     private List<Notificacion> notificaciones;

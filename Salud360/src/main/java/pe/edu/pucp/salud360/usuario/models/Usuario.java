@@ -45,11 +45,20 @@ public class Usuario {
     @Column(name = "sexo", unique = false, nullable = false, updatable = true)
     protected String sexo;
 
+    @Column(name = "fechaNacimiento", unique = false, nullable = false, updatable = true)
+    protected LocalDate fechaNacimiento;
+
     @Column(name = "fotoPerfil", unique = false, nullable = true, updatable = true)
     protected String fotoPerfil;
 
-    @Column(name = "fechaNacimiento", unique = false, nullable = false, updatable = true)
-    protected LocalDate fechaNacimiento;
+    @Column(name = "notiCorreo", unique = false, nullable = false, updatable = true)
+    protected Boolean notiCorreo;
+
+    @Column(name = "notiSMS", unique = false, nullable = false, updatable = true)
+    protected Boolean notiSMS;
+
+    @Column(name = "notiWhatsApp", unique = false, nullable = false, updatable = true)
+    protected Boolean notiWhatsApp;
 
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     protected Boolean activo;

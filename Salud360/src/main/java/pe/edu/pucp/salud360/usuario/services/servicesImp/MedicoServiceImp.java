@@ -19,14 +19,17 @@ public class MedicoServiceImp implements MedicoService {
     @Autowired
     private MedicoRepository medicoRepository;
 
+    @Autowired
+    private MedicoMapper medicoMapper;
+
     @Override
     public MedicoDTO crearMedico(MedicoDTO medicoDTO) {
-        Medico medico = MedicoMapper.mapToModel(medicoDTO);
+        Medico medico = medicoMapper.mapToModel(medicoDTO);
         medico.setActivo(true);
         medico.setFechaCreacion(LocalDateTime.now());
         medico.setFechaDesactivacion(null);
         Medico medicoCreado = medicoRepository.save(medico);
-        return MedicoMapper.mapToDTO(medicoCreado);
+        return medicoMapper.mapToDTO(medicoCreado);
     }
 
     @Override
@@ -41,7 +44,7 @@ public class MedicoServiceImp implements MedicoService {
             medico.setEspecialidad(medicoDTO.getEspecialidad());
             medico.setDescripcion(medicoDTO.getDescripcion());
             Medico medicoActualizado = medicoRepository.save(medico);
-            return MedicoMapper.mapToDTO(medicoActualizado);
+            return medicoMapper.mapToDTO(medicoActualizado);
         } else {
             return null;
         }
@@ -62,7 +65,7 @@ public class MedicoServiceImp implements MedicoService {
     public List<MedicoDTO> listarMedicosTodos() {
         List<Medico> medicos = medicoRepository.findAll();
         return medicos.stream().map(medico -> {
-            MedicoDTO dto = MedicoMapper.mapToDTO(medico);
+            MedicoDTO dto = medicoMapper.mapToDTO(medico);
             System.out.println("Especialidad: " + dto.getEspecialidad()); // 👈 revisa en consola
             return dto;
         }).toList();
@@ -72,7 +75,7 @@ public class MedicoServiceImp implements MedicoService {
     public MedicoDTO buscarMedicoPorId(Integer idMedico) {
         if(medicoRepository.findById(idMedico).isPresent()) {
             Medico medicoBuscado = medicoRepository.findById(idMedico).get();
-            return MedicoMapper.mapToDTO(medicoBuscado);
+            return medicoMapper.mapToDTO(medicoBuscado);
         } else {
             return null;
         }
