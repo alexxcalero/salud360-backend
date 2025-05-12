@@ -1,0 +1,125 @@
+package pe.edu.pucp.salud360.usuario.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
+import pe.edu.pucp.salud360.usuario.models.Usuario;
+import pe.edu.pucp.salud360.usuario.services.UsuarioService;
+
+import java.util.List;
+
+@CrossOrigin(origins = "http://localhost:5173") // PARA QUE SE CONECTE CON EL FRONT
+@RestController
+@RequestMapping("/api/usuarios")
+public class UsuarioController {
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping
+    public ResponseEntity<UsuarioVistaAdminDTO> crearUsuario(@RequestBody UsuarioRegistroDTO usuarioDTO) {
+        UsuarioVistaAdminDTO usuarioCreado = usuarioService.crearUsuario(usuarioDTO);
+        return new ResponseEntity<>(usuarioService.buscarUsuarioPorIdEnAdmin(usuarioCreado.getIdUsuario()), HttpStatus.CREATED);
+    }
+
+    @PutMapping("{idUsuario}")
+    public ResponseEntity<UsuarioVistaClienteDTO> actualizarUsuario(@PathVariable("idUsuario") Integer idUsuario,
+                                                                    @RequestBody UsuarioVistaClienteDTO usuarioDTO) {
+        UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
+        if(usuarioBuscado != null) {
+            UsuarioVistaClienteDTO usuarioActualizado = usuarioService.actualizarUsuario(idUsuario, usuarioDTO);
+            return new ResponseEntity<>(usuarioActualizado, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("{idUsuario}")
+    public ResponseEntity<String> eliminarUsuario(@PathVariable("idUsuario") Integer idUsuario) {
+        UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
+        if(usuarioBuscado != null) {
+            usuarioService.eliminarUsuario(idUsuario);
+            return new ResponseEntity<>("Usuario eliminado satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UsuarioVistaAdminDTO>> listarUsuariosTodos() {
+        List<UsuarioVistaAdminDTO> usuarios = usuarioService.listarUsuariosTodos();
+        return new ResponseEntity<>(usuarios, HttpStatus.OK);
+    }
+
+    @GetMapping("{idUsuario}")
+    public ResponseEntity<UsuarioVistaAdminDTO> buscarUsuarioPorIdEnAdmin(@PathVariable("idUsuario") Integer idUsuario) {
+        UsuarioVistaAdminDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnAdmin(idUsuario);
+        if(usuarioBuscado != null)
+            return new ResponseEntity<>(usuarioBuscado, HttpStatus.OK);
+        else
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("{idUsuario}/cambiarFotoPerfil")
+    public ResponseEntity<UsuarioVistaClienteDTO> actualizarFotoPerfil(@PathVariable("idUsuario") Integer idUsuario,
+                                                                       @RequestParam("fotoPerfil") String fotoPerfil) {
+        UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
+        if(usuarioBuscado != null) {
+            UsuarioVistaClienteDTO usuarioActualizado = usuarioService.actualizarFotoPerfil(idUsuario, fotoPerfil);
+            return new ResponseEntity<>(usuarioActualizado, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("{idUsuario}/actualizarMetodosDeNotificacion")
+    public ResponseEntity<UsuarioVistaClienteDTO> actualizarMetodosDeNotificacion(@PathVariable("idUsuario") Integer idUsuario,
+                                                                       @RequestParam("ajustes") List<Boolean> ajustes) {
+        UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
+        if(usuarioBuscado != null) {
+            UsuarioVistaClienteDTO usuarioActualizado = usuarioService.actualizarMetodosDeNotificacion(idUsuario, ajustes);
+            return new ResponseEntity<>(usuarioActualizado, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("{idUsuario}/cambiarContrasenha")
+    public ResponseEntity<String> actualizarContrasenha(@PathVariable("idUsuario") Integer idUsuario,
+                                                        @RequestParam("contrasenha") String contrasenhaNueva) {
+        UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
+        if(usuarioBuscado != null) {
+            if(usuarioService.actualizarContrasenha(idUsuario, contrasenhaNueva))
+                return new ResponseEntity<>("Se actualizó la contraseña correctamente", HttpStatus.OK);
+            else
+                return new ResponseEntity<>("No se pudo actualizar la contraseña", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioVistaClienteDTO> iniciarSesion(@RequestParam("correo") String correo,
+                                                                @RequestParam("contrasenha") String contrasenhaIngresada) {
+        // Recupero el model tal cual, y no el DTO, esto para obtener la contrasenha
+        Usuario usuarioBuscado = usuarioService.buscarUsuarioPorCorreoEnLogin(correo);
+        if(usuarioBuscado != null) {
+            String contrasenhaUsuario = usuarioBuscado.getContrasenha();
+            if(passwordEncoder.matches(contrasenhaIngresada, contrasenhaUsuario)) {
+                return new ResponseEntity<>(usuarioService.buscarUsuarioPorCorreoEnCliente(correo), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/listarUsuariosPorCorreo")
+    public ResponseEntity<List<UsuarioVistaAdminDTO>> listarUsuariosTodosPorCorreo(@RequestParam("correo") String correo) {
+        List<UsuarioVistaAdminDTO> usuarios = usuarioService.listarUsuariosTodosPorCorreo(correo);
+        return new ResponseEntity<>(usuarios, HttpStatus.OK);
+    }
+}
