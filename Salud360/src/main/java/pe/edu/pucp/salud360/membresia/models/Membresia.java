@@ -8,6 +8,7 @@ import lombok.Setter;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -53,6 +54,9 @@ public class Membresia {
 
     @Column(name = "fechaDesactivacion", unique = false, nullable = false, updatable = true)
     private LocalDateTime fechaDesactivacion;
+
+    @OneToMany(mappedBy = "membresia")
+    private List<Afiliacion> afiliacion;
 
     @ManyToOne
     @JoinColumn(name = "idComunidad")

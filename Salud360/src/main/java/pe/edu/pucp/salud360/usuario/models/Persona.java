@@ -58,6 +58,6 @@ public class Persona extends Usuario {
     @OneToMany(mappedBy = "persona")
     private List<Reserva> reservas;
 
-    @OneToMany(mappedBy = "persona")
+    @OneToMany(mappedBy = "paciente")
     private List<CitaMedica> citasMedicas;
 }

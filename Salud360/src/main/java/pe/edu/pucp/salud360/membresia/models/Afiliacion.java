@@ -18,9 +18,10 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "afiliacion")
-@PrimaryKeyJoinColumn(name = "idMembresia")
-public class Afiliacion extends Membresia {
+public class Afiliacion {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idAfiliacion", unique = true, nullable = false, updatable = false)
     private Integer idAfiliacion;
 
     @Column(name = "estado", unique = false, nullable = false, updatable = true)
@@ -34,6 +35,10 @@ public class Afiliacion extends Membresia {
 
     @Column(name = "fechaReactivacion", unique = false, nullable = false, updatable = true)
     private LocalDate fechaReactivacion;
+
+    @ManyToOne
+    @JoinColumn(name = "idMembresia")
+    private Membresia membresia;
 
     @ManyToMany(mappedBy = "afiliacion")
     private List<Reporte> reportes;

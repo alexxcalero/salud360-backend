@@ -1,8 +1,10 @@
 package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.membresia.dtos.PeriodoDTO;
+import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
 import pe.edu.pucp.salud360.membresia.models.Periodo;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.PeriodoRepository;
@@ -16,8 +18,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PeriodoImp implements PeriodoService {
 
+    @Autowired
     private final PeriodoRepository periodoRepository;
+
+    @Autowired
     private final AfiliacionRepository afiliacionRepository;
+
+    @Autowired
+    private final AfiliacionMapper afiliacionMapper;
 
     @Override
     public List<PeriodoDTO> listarPeriodos() {
@@ -43,7 +51,7 @@ public class PeriodoImp implements PeriodoService {
         Periodo periodo = periodoOptional.get();
         periodo.setFechaFin(dto.getFechaFin());
         periodo.setCantReservas(dto.getCantReservas());
-        periodo.setAfiliacion(afiliacionRepository.findById(dto.getIdAfiliacion()).orElse(null));
+        periodo.setAfiliacion(afiliacionRepository.findById(dto.getAfiliacion().getIdAfiliacion()).orElse(null));
 
         return convertirADTO(periodoRepository.save(periodo));
     }
@@ -59,7 +67,7 @@ public class PeriodoImp implements PeriodoService {
                 periodo.getFechaInicio(),
                 periodo.getFechaFin(),
                 periodo.getCantReservas(),
-                periodo.getAfiliacion() != null ? periodo.getAfiliacion().getIdMembresia() : null
+                periodo.getAfiliacion() != null ? afiliacionMapper.mapToAfiliacionDTO(periodo.getAfiliacion()) : null
         );
     }
 
@@ -68,8 +76,7 @@ public class PeriodoImp implements PeriodoService {
         periodo.setFechaInicio(dto.getFechaInicio());
         periodo.setFechaFin(dto.getFechaFin());
         periodo.setCantReservas(dto.getCantReservas());
-        periodo.setAfiliacion(afiliacionRepository.findById(dto.getIdAfiliacion()).orElse(null));
+        periodo.setAfiliacion(afiliacionRepository.findById(dto.getAfiliacion().getIdAfiliacion()).orElse(null));
         return periodo;
     }
 }
-
