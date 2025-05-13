@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -21,5 +22,8 @@ public class ClaseDTO {
     private LocalDate fecha;
     private Integer capacidad;
     private Integer cantAsistentes;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaDesactivacion;
+
 }
 

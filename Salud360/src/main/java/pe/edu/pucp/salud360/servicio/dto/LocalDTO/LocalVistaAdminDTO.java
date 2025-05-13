@@ -23,6 +23,8 @@ public class LocalVistaAdminDTO {
     private List<String> imagenes;          // Lista de URLs
     private String tipoServicio;
     private Boolean activo;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaDesactivacion;
 
     private ServicioResumenDTO servicio;    // 🧠 Para mostrar nombre y tipo del servicio
 }

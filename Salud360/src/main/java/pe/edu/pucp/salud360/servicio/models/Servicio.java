@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

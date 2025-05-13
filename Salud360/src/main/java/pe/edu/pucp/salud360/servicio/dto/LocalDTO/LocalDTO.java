@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.servicio.dto.LocalDTO;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,6 +21,8 @@ public class LocalDTO {
     private String telefonoContacto;
     private List<String> imagenes;
     private String tipoServicio;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaDesactivacion;
 
     private Integer idServicio; // Relación simplificada para registrar el local con su servicio
 }

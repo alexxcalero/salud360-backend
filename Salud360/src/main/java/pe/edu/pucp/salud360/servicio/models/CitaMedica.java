@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.servicio.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 import pe.edu.pucp.salud360.usuario.models.Persona;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

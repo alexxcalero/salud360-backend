@@ -10,6 +10,7 @@ import pe.edu.pucp.salud360.servicio.repositories.DocumentoMedicoRepository;
 import pe.edu.pucp.salud360.servicio.services.DocumentoMedicoService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class DocumentoMedicoServiceImp implements DocumentoMedicoService {
     @Override
     public DocumentoMedicoDTO crearDocumentoMedico(DocumentoMedicoDTO dto) {
         DocumentoMedico documento = documentoMapper.mapToModel(dto);
-        //documento.setFechaCreacion(LocalDate.now());
+        documento.setFechaCreacion(LocalDate.now());
         documento.setActivo(true);
         return documentoMapper.mapToDTO(documentoRepository.save(documento));
     }
@@ -48,6 +49,7 @@ public class DocumentoMedicoServiceImp implements DocumentoMedicoService {
         if (optional.isPresent()) {
             DocumentoMedico doc = optional.get();
             doc.setActivo(false);
+            doc.setFechaDesactivacion(LocalDateTime.now());
             documentoRepository.save(doc);
         }
     }
