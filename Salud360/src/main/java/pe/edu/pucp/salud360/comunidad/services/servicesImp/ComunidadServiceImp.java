@@ -40,7 +40,7 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setNombre(dto.getNombre());
         comunidad.setDescripcion(dto.getDescripcion());
         comunidad.setProposito(dto.getProposito());
-        comunidad.setImagen(dto.getImagen());
+        comunidad.setImagenes(dto.getImagen());
         comunidad.setActivo(dto.getActivo());
         comunidad.setFechaDesactivacion(dto.getFechaDesactivacion());
 
