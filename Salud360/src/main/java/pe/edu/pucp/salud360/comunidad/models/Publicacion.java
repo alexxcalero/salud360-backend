@@ -27,10 +27,10 @@ public class Publicacion {
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     private Boolean activo;
 
-    @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = true)
+    @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fechaDesactivacion", unique = false, nullable = false, updatable = true)
+    @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
 
     @OneToMany(mappedBy = "publicacion")
