@@ -13,7 +13,7 @@ public class ComunidadMapper {
                 comunidad.getNombre(),
                 comunidad.getDescripcion(),
                 comunidad.getProposito(),
-                comunidad.getImagen(),
+                comunidad.getImagenes(),
                 comunidad.getActivo(),
                 comunidad.getFechaCreacion(),
                 comunidad.getFechaDesactivacion(),
@@ -27,7 +27,7 @@ public class ComunidadMapper {
         comunidad.setNombre(dto.getNombre());
         comunidad.setDescripcion(dto.getDescripcion());
         comunidad.setProposito(dto.getProposito());
-        comunidad.setImagen(dto.getImagen());
+        comunidad.setImagenes(dto.getImagen());
         comunidad.setActivo(dto.getActivo());
         comunidad.setFechaCreacion(dto.getFechaCreacion());
         comunidad.setFechaDesactivacion(dto.getFechaDesactivacion());
