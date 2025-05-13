@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
-import pe.edu.pucp.salud360.membresia.dto.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
@@ -22,30 +23,33 @@ public class MembresiaServiceImp implements MembresiaService {
     @Autowired
     private ComunidadRepository comunidadRepository;
 
+    @Autowired
+    private MembresiaMapper membresiaMapper;
+
     @Override
     public MembresiaDTO crearMembresia(MembresiaDTO dto) {
-        Comunidad comunidad = comunidadRepository.findById(dto.getIdComunidad()).orElse(null);
-        Membresia m = MembresiaMapper.mapToModel(dto, comunidad);
-        return MembresiaMapper.mapToDTO(membresiaRepository.save(m));
+        Comunidad comunidad = comunidadRepository.findById(dto.getComunidad().getIdComunidad()).orElse(null);
+        Membresia m = membresiaMapper.mapToModel(dto);
+        return membresiaMapper.mapToDTO(membresiaRepository.save(m));
     }
 
     @Override
-    public List<MembresiaDTO> listarMembresias() {
-        return membresiaRepository.findAll().stream().map(MembresiaMapper::mapToDTO).collect(Collectors.toList());
+    public List<MembresiaResumenDTO> listarMembresias() {
+        return membresiaRepository.findAll().stream().map(membresiaMapper::mapToMembresiaDTO).collect(Collectors.toList());
     }
 
     @Override
-    public MembresiaDTO buscarMembresiaPorId(Integer id) {
-        return membresiaRepository.findById(id).map(MembresiaMapper::mapToDTO).orElse(null);
+    public MembresiaResumenDTO buscarMembresiaPorId(Integer id) {
+        return membresiaRepository.findById(id).map(membresiaMapper::mapToMembresiaDTO).orElse(null);
     }
 
     @Override
-    public MembresiaDTO actualizarMembresia(Integer id, MembresiaDTO dto) {
+    public MembresiaResumenDTO actualizarMembresia(Integer id, MembresiaDTO dto) {
         if (!membresiaRepository.existsById(id)) return null;
         dto.setIdMembresia(id);
-        Comunidad comunidad = comunidadRepository.findById(dto.getIdComunidad()).orElse(null);
-        Membresia m = MembresiaMapper.mapToModel(dto, comunidad);
-        return MembresiaMapper.mapToDTO(membresiaRepository.save(m));
+        Comunidad comunidad = comunidadRepository.findById(dto.getComunidad().getIdComunidad()).orElse(null);
+        Membresia m = membresiaMapper.mapToModel(dto);
+        return membresiaMapper.mapToMembresiaDTO(membresiaRepository.save(m));
     }
 
     @Override

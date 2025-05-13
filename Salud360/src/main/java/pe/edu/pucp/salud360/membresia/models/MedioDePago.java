@@ -24,6 +24,15 @@ public class MedioDePago {
     @Column(name = "tipo", unique = false, nullable = false, updatable = true)
     private String tipo;
 
+    @Column(name = "ncuenta", unique = false, nullable = false, updatable = true)
+    private Integer ncuenta;
+
+    @Column(name = "vencimiento", unique = false, nullable = false, updatable = true)
+    private LocalDateTime vencimiento;
+
+    @Column(name = "cvv", unique = false, nullable = false, updatable = true)
+    private Integer cvv;
+
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     private Boolean activo;
 

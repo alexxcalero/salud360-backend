@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.comunidad.services;
 
-import pe.edu.pucp.salud360.comunidad.dto.ComunidadDTO;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 
 import java.util.List;
 

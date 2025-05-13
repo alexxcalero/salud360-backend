@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.comunidad.mappers;
 
-import pe.edu.pucp.salud360.comunidad.dto.ComunidadDTO;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.models.Foro;
 

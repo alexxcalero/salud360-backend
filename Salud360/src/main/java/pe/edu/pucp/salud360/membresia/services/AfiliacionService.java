@@ -1,14 +1,15 @@
 package pe.edu.pucp.salud360.membresia.services;
 
-import pe.edu.pucp.salud360.membresia.dto.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 
 import java.util.List;
 
 public interface AfiliacionService {
-    AfiliacionDTO crearAfiliacion(AfiliacionDTO dto);
-    List<AfiliacionDTO> listarAfiliaciones();
+    AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto);
+    List<AfiliacionResumenDTO> listarAfiliaciones();
     boolean eliminarAfiliacion(Integer id);
-    AfiliacionDTO buscarAfiliacionPorId(Integer id);
-    AfiliacionDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto);
+    AfiliacionResumenDTO buscarAfiliacionPorId(Integer id);
+    AfiliacionResumenDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto);
 }
 

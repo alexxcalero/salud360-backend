@@ -20,8 +20,7 @@ import java.util.List;
 @Table(name = "afiliacion")
 @PrimaryKeyJoinColumn(name = "idMembresia")
 public class Afiliacion extends Membresia {
-    private static int contador = 1;
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idAfiliacion;
 
     @Column(name = "estado", unique = false, nullable = false, updatable = true)
@@ -32,9 +31,6 @@ public class Afiliacion extends Membresia {
 
     @Column(name = "fechaDesafiliacion", unique = false, nullable = false, updatable = true)
     private LocalDateTime fechaDesafiliacion;
-
-    @Column(name = "maxReservas", unique = false, nullable = false, updatable = true)
-    private Integer maxReservas;
 
     @Column(name = "fechaReactivacion", unique = false, nullable = false, updatable = true)
     private LocalDate fechaReactivacion;

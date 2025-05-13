@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.membresia.dto.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.services.MembresiaService;
 
 import java.util.List;
@@ -22,19 +23,19 @@ public class MembresiaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MembresiaDTO>> listar() {
+    public ResponseEntity<List<MembresiaResumenDTO>> listar() {
         return new ResponseEntity<>(membresiaService.listarMembresias(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MembresiaDTO> buscar(@PathVariable Integer id) {
-        MembresiaDTO dto = membresiaService.buscarMembresiaPorId(id);
+    public ResponseEntity<MembresiaResumenDTO> buscar(@PathVariable Integer id) {
+        MembresiaResumenDTO dto = membresiaService.buscarMembresiaPorId(id);
         return dto != null ? new ResponseEntity<>(dto, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MembresiaDTO> actualizar(@PathVariable Integer id, @RequestBody MembresiaDTO dto) {
-        MembresiaDTO actualizado = membresiaService.actualizarMembresia(id, dto);
+    public ResponseEntity<MembresiaResumenDTO> actualizar(@PathVariable Integer id, @RequestBody MembresiaDTO dto) {
+        MembresiaResumenDTO actualizado = membresiaService.actualizarMembresia(id, dto);
         return actualizado != null ? new ResponseEntity<>(actualizado, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 

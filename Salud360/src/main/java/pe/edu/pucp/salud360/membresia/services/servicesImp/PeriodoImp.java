@@ -2,8 +2,7 @@ package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.membresia.dto.PeriodoDTO;
-import pe.edu.pucp.salud360.membresia.models.Afiliacion;
+import pe.edu.pucp.salud360.membresia.dtos.PeriodoDTO;
 import pe.edu.pucp.salud360.membresia.models.Periodo;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.PeriodoRepository;

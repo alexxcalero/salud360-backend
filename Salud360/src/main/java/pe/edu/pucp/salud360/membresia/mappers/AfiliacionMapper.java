@@ -1,31 +1,24 @@
 package pe.edu.pucp.salud360.membresia.mappers;
 
-import pe.edu.pucp.salud360.membresia.dto.AfiliacionDTO;
+import org.mapstruct.Mapper;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.control.models.Reporte;
+import pe.edu.pucp.salud360.usuario.mappers.PermisoMapper;
+import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AfiliacionMapper {
+@Mapper(componentModel = "spring", uses = {MedioDePagoMapper.class, UsuarioMapper.class})
+public interface AfiliacionMapper {
+    AfiliacionResumenDTO mapToAfiliacionDTO(Afiliacion afiliacion);
+    Afiliacion mapToModel(AfiliacionResumenDTO afiliacionDTO);
 
-    public static AfiliacionDTO mapToDTO(Afiliacion afiliacion) {
-        if (afiliacion == null) return null;
+    AfiliacionDTO mapToDTO(Afiliacion afiliacion);
+    Afiliacion mapToModel(AfiliacionDTO afiliacionDTO);
 
-        List<Integer> idsReportes = afiliacion.getReportes() != null ?
-                afiliacion.getReportes().stream().map(Reporte::getIdReporte).collect(Collectors.toList()) : null;
-
-        return new AfiliacionDTO(
-                afiliacion.getIdMembresia(),
-                afiliacion.getEstado(),
-                afiliacion.getFechaAfiliacion(),
-                afiliacion.getFechaDesafiliacion(),
-                afiliacion.getMaxReservas(),
-                afiliacion.getFechaReactivacion(),
-                afiliacion.getMedioDePago() != null ? afiliacion.getMedioDePago().getIdMedioDePago() : null,
-                afiliacion.getPersona() != null ? afiliacion.getPersona().getIdUsuario() : null,
-                idsReportes
-        );
-    }
+    List<Afiliacion> mapToModelList(List<AfiliacionResumenDTO> afiliacionesDTO);
 }
 

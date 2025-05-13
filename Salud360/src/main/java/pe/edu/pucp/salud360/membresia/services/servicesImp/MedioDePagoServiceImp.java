@@ -3,7 +3,8 @@ package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.membresia.dto.MedioDePagoDTO;
+import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoDTO;
+import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
 import pe.edu.pucp.salud360.membresia.models.MedioDePago;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
@@ -23,24 +24,27 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
     @Autowired
     private PersonaRepository personaRepository;
 
+    @Autowired
+    private MedioDePagoMapper medioDePagoMapper;
+
     @Override
-    public List<MedioDePagoDTO> listar() {
+    public List<MedioDePagoResumenDTO> listar() {
         return medioDePagoRepository.findAll().stream()
-                .map(MedioDePagoMapper::mapToDTO)
+                .map(medioDePagoMapper::mapToMedioDePagoDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public MedioDePagoDTO crear(MedioDePagoDTO dto) {
-        Persona persona = personaRepository.findById(dto.getIdUsuario()).orElse(null);
-        MedioDePago m = MedioDePagoMapper.mapToModel(dto, persona);
-        return MedioDePagoMapper.mapToDTO(medioDePagoRepository.save(m));
+        Persona persona = personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null);
+        MedioDePago m = medioDePagoMapper.mapToModel(dto);
+        return medioDePagoMapper.mapToDTO(medioDePagoRepository.save(m));
     }
 
     @Override
-    public MedioDePagoDTO obtenerPorId(Integer id) {
+    public MedioDePagoResumenDTO obtenerPorId(Integer id) {
         return medioDePagoRepository.findById(id)
-                .map(MedioDePagoMapper::mapToDTO)
+                .map(medioDePagoMapper::mapToMedioDePagoDTO)
                 .orElse(null);
     }
 
@@ -56,10 +60,10 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
     @Override
     public MedioDePagoDTO actualizar(Integer id, MedioDePagoDTO dto) {
         if (!medioDePagoRepository.existsById(id)) return null;
-        Persona persona = personaRepository.findById(dto.getIdUsuario()).orElse(null);
+        Persona persona = personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null);
         dto.setIdMedioDePago(id);
-        MedioDePago m = MedioDePagoMapper.mapToModel(dto, persona);
-        return MedioDePagoMapper.mapToDTO(medioDePagoRepository.save(m));
+        MedioDePago m = medioDePagoMapper.mapToModel(dto);
+        return medioDePagoMapper.mapToDTO(medioDePagoRepository.save(m));
     }
 }
 
