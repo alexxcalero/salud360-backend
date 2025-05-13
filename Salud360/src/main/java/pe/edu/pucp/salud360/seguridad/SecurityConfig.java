@@ -25,7 +25,23 @@ public class SecurityConfig {
                                 "/api/personas/**",
                                 "/api/tiposDocumentos/**",
                                 "/api/permisos/**",
-                                "/api/roles/**").permitAll()  // Agregar los endpoints a probar, sino dara error
+                                "/api/roles/**",
+                                "/api/notificaciones/**",
+                                "/api/citas-medicas/**",
+                                "/api/documentos-medicos/**",
+                                "/api/locales/**",
+                                "/api/servicios/**",
+                                "/api/afiliaciones/**",
+                                "/api/mediosDePago/**",
+                                "/api/membresias/**",
+                                "/api/pagos/**",
+                                "/api/periodos/**",
+                                "/api/solicitudes/**",
+                                "/api/comentarios/**",
+                                "/api/comunidades/**",
+                                "/api/foros/**",
+                                "/api/publicaciones/**",
+                                "/api/testimonios/**").permitAll()  // Agregar los endpoints a probar, sino dara error
                         .anyRequest().authenticated()
                 )
                 .httpBasic();  // Soporta autenticación básica vía Postman
