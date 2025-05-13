@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.membresia.services;
 
-import pe.edu.pucp.salud360.membresia.dto.SolicitudDTO;
+import pe.edu.pucp.salud360.membresia.dtos.SolicitudDTO;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package pe.edu.pucp.salud360.membresia.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.membresia.dto.SolicitudDTO;
+import pe.edu.pucp.salud360.membresia.dtos.SolicitudDTO;
 import pe.edu.pucp.salud360.membresia.services.SolicitudService;
 
 import java.util.List;

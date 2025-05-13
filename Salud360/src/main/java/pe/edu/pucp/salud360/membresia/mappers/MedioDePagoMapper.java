@@ -1,33 +1,22 @@
 package pe.edu.pucp.salud360.membresia.mappers;
 
 
-import pe.edu.pucp.salud360.membresia.dto.MedioDePagoDTO;
+import org.mapstruct.Mapper;
+import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoDTO;
+import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
 import pe.edu.pucp.salud360.membresia.models.MedioDePago;
+import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 import pe.edu.pucp.salud360.usuario.models.Persona;
 
-public class MedioDePagoMapper {
+import java.util.List;
 
-    public static MedioDePagoDTO mapToDTO(MedioDePago m) {
-        if (m == null) return null;
+@Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
+public interface MedioDePagoMapper {
+    MedioDePagoResumenDTO mapToMedioDePagoDTO(MedioDePago medioDePago);
+    MedioDePago mapToModel(MedioDePagoResumenDTO afiliacionDTO);
 
-        return new MedioDePagoDTO(
-                m.getIdMedioDePago(),
-                m.getTipo(),
-                m.getActivo(),
-                m.getFechaCreacion(),
-                m.getFechaDesactivacion(),
-                m.getPersona() != null ? m.getPersona().getIdUsuario() : null
-        );
-    }
+    MedioDePagoDTO mapToDTO(MedioDePago afiliacion);
+    MedioDePago mapToModel(MedioDePagoDTO afiliacionDTO);
 
-    public static MedioDePago mapToModel(MedioDePagoDTO dto, Persona persona) {
-        MedioDePago m = new MedioDePago();
-        m.setIdMedioDePago(dto.getIdMedioDePago());
-        m.setTipo(dto.getTipo());
-        m.setActivo(dto.getActivo());
-        m.setFechaCreacion(dto.getFechaCreacion());
-        m.setFechaDesactivacion(dto.getFechaDesactivacion());
-        m.setPersona(persona);
-        return m;
-    }
+    List<MedioDePago> mapToModelList(List<MedioDePagoResumenDTO> afiliacionesDTO);
 }

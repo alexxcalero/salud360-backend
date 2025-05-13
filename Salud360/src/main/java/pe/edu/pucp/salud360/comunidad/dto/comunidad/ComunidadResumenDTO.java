@@ -1,4 +1,4 @@
-package pe.edu.pucp.salud360.comunidad.dto;
+package pe.edu.pucp.salud360.comunidad.dto.comunidad;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ComunidadDTO {
+public class ComunidadResumenDTO {
     private Integer idComunidad;
     private String nombre;
     private String descripcion;
@@ -23,4 +23,3 @@ public class ComunidadDTO {
     private LocalDateTime fechaDesactivacion;
     private Integer idForo;
 }
-

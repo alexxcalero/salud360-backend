@@ -4,7 +4,8 @@ package pe.edu.pucp.salud360.membresia.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.membresia.dto.MedioDePagoDTO;
+import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoDTO;
+import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
 import pe.edu.pucp.salud360.membresia.services.MedioDePagoService;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class MedioDePagoController {
     private MedioDePagoService medioDePagoService;
 
     @GetMapping
-    public ResponseEntity<List<MedioDePagoDTO>> listar() {
+    public ResponseEntity<List<MedioDePagoResumenDTO>> listar() {
         return ResponseEntity.ok(medioDePagoService.listar());
     }
 
@@ -27,7 +28,7 @@ public class MedioDePagoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MedioDePagoDTO> obtener(@PathVariable Integer id) {
+    public ResponseEntity<MedioDePagoResumenDTO> obtener(@PathVariable Integer id) {
         return ResponseEntity.ok(medioDePagoService.obtenerPorId(id));
     }
 

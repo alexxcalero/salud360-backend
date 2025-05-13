@@ -4,7 +4,8 @@ package pe.edu.pucp.salud360.membresia.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.membresia.dto.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
 
 import java.util.List;
@@ -17,22 +18,22 @@ public class AfiliacionController {
     private AfiliacionService afiliacionService;
 
     @PostMapping
-    public ResponseEntity<AfiliacionDTO> crearAfiliacion(@RequestBody AfiliacionDTO dto) {
+    public ResponseEntity<AfiliacionResumenDTO> crearAfiliacion(@RequestBody AfiliacionDTO dto) {
         return ResponseEntity.ok(afiliacionService.crearAfiliacion(dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<AfiliacionDTO>> listarAfiliaciones() {
+    public ResponseEntity<List<AfiliacionResumenDTO>> listarAfiliaciones() {
         return ResponseEntity.ok(afiliacionService.listarAfiliaciones());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AfiliacionDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<AfiliacionResumenDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(afiliacionService.buscarAfiliacionPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AfiliacionDTO> actualizarAfiliacion(@PathVariable Integer id, @RequestBody AfiliacionDTO dto) {
+    public ResponseEntity<AfiliacionResumenDTO> actualizarAfiliacion(@PathVariable Integer id, @RequestBody AfiliacionDTO dto) {
         return ResponseEntity.ok(afiliacionService.actualizarAfiliacion(id, dto));
     }
 

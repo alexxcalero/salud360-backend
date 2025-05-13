@@ -3,14 +3,13 @@ package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.membresia.dto.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
-import pe.edu.pucp.salud360.usuario.models.Persona;
 import pe.edu.pucp.salud360.usuario.repositories.PersonaRepository;
-import pe.edu.pucp.salud360.membresia.models.MedioDePago;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
 
 import java.util.List;
@@ -28,25 +27,28 @@ public class AfiliacionServiceImp implements AfiliacionService {
     @Autowired
     private MedioDePagoRepository medioDePagoRepository;
 
+    @Autowired
+    private AfiliacionMapper afiliacionMapper;
+
     @Override
-    public AfiliacionDTO crearAfiliacion(AfiliacionDTO dto) {
+    public AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto) {
         Afiliacion afiliacion = new Afiliacion();
         afiliacion.setEstado(dto.getEstado());
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
-        afiliacion.setMaxReservas(dto.getMaxReservas());
+        afiliacion.setMaxReservas(dto.getMembresia().getMaxReservas());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
 
-        afiliacion.setPersona(personaRepository.findById(dto.getIdUsuario()).orElse(null));
-        afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getIdMedioDePago()).orElse(null));
+        afiliacion.setPersona(personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
+        afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
-        return AfiliacionMapper.mapToDTO(afiliacionRepository.save(afiliacion));
+        return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
 
     @Override
-    public List<AfiliacionDTO> listarAfiliaciones() {
+    public List<AfiliacionResumenDTO> listarAfiliaciones() {
         return afiliacionRepository.findAll().stream()
-                .map(AfiliacionMapper::mapToDTO)
+                .map(afiliacionMapper::mapToAfiliacionDTO)
                 .collect(Collectors.toList());
     }
 
@@ -60,14 +62,14 @@ public class AfiliacionServiceImp implements AfiliacionService {
     }
 
     @Override
-    public AfiliacionDTO buscarAfiliacionPorId(Integer id) {
+    public AfiliacionResumenDTO buscarAfiliacionPorId(Integer id) {
         return afiliacionRepository.findById(id)
-                .map(AfiliacionMapper::mapToDTO)
+                .map(afiliacionMapper::mapToAfiliacionDTO)
                 .orElse(null);
     }
 
     @Override
-    public AfiliacionDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto) {
+    public AfiliacionResumenDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto) {
         if (!afiliacionRepository.existsById(id)) return null;
 
         Afiliacion afiliacion = new Afiliacion();
@@ -75,12 +77,12 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setEstado(dto.getEstado());
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
-        afiliacion.setMaxReservas(dto.getMaxReservas());
+        afiliacion.setMaxReservas(dto.getMembresia().getMaxReservas());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
-        afiliacion.setPersona(personaRepository.findById(dto.getIdUsuario()).orElse(null));
-        afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getIdMedioDePago()).orElse(null));
+        afiliacion.setPersona(personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
+        afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
-        return AfiliacionMapper.mapToDTO(afiliacionRepository.save(afiliacion));
+        return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
 }
 
