@@ -33,9 +33,9 @@ public class Comunidad {
     private String proposito;
 
     @ElementCollection
-    @CollectionTable(name = "strings", joinColumns = @JoinColumn(name = "idComunidad"))
-    @Column(name = "imagen")
-    private List<String> imagen;
+    @CollectionTable(name = "imagenesDeComunidad", joinColumns = @JoinColumn(name = "idComunidad"))
+    @Column(name = "urlImagen", unique = false, nullable = true, updatable = true)
+    private List<String> imagenes;
 
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     private Boolean activo;

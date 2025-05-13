@@ -35,7 +35,7 @@ public class Foro {
     @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = true)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fechaDesactivacion", unique = false, nullable = false, updatable = true)
+    @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
 
     @OneToMany(mappedBy = "foro")
