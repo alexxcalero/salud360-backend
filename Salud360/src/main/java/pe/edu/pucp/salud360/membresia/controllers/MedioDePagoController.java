@@ -11,7 +11,7 @@ import pe.edu.pucp.salud360.membresia.services.MedioDePagoService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/medioDePago")
+@RequestMapping("/api/mediosDePago")
 public class MedioDePagoController {
 
     @Autowired

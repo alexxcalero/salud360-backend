@@ -21,4 +21,5 @@ public interface UsuarioService {
     UsuarioVistaClienteDTO buscarUsuarioPorCorreoEnCliente(String correo);
     Usuario buscarUsuarioPorCorreoEnLogin(String correo);  // No lo devuelvo al front, así que no rompo el disenho DTO
     List<UsuarioVistaAdminDTO> listarUsuariosTodosPorCorreo(String correo);
+    List<UsuarioVistaAdminDTO> listarUsuariosTodosPorNombre(String nombre);
 }

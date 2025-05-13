@@ -89,10 +89,10 @@ public class UsuarioController {
 
     @PutMapping("{idUsuario}/cambiarContrasenha")
     public ResponseEntity<String> actualizarContrasenha(@PathVariable("idUsuario") Integer idUsuario,
-                                                        @RequestParam("contrasenha") String contrasenhaNueva) {
+                                                        @RequestParam("contrasenha") String contrasenha) {
         UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
         if(usuarioBuscado != null) {
-            if(usuarioService.actualizarContrasenha(idUsuario, contrasenhaNueva))
+            if(usuarioService.actualizarContrasenha(idUsuario, contrasenha))
                 return new ResponseEntity<>("Se actualizó la contraseña correctamente", HttpStatus.OK);
             else
                 return new ResponseEntity<>("No se pudo actualizar la contraseña", HttpStatus.BAD_REQUEST);
@@ -102,12 +102,12 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<UsuarioVistaClienteDTO> iniciarSesion(@RequestParam("correo") String correo,
-                                                                @RequestParam("contrasenha") String contrasenhaIngresada) {
+                                                                @RequestParam("contrasenha") String contrasenha) {
         // Recupero el model tal cual, y no el DTO, esto para obtener la contrasenha
         Usuario usuarioBuscado = usuarioService.buscarUsuarioPorCorreoEnLogin(correo);
         if(usuarioBuscado != null) {
             String contrasenhaUsuario = usuarioBuscado.getContrasenha();
-            if(passwordEncoder.matches(contrasenhaIngresada, contrasenhaUsuario)) {
+            if(passwordEncoder.matches(contrasenha, contrasenhaUsuario)) {
                 return new ResponseEntity<>(usuarioService.buscarUsuarioPorCorreoEnCliente(correo), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -120,6 +120,12 @@ public class UsuarioController {
     @GetMapping("/listarUsuariosPorCorreo")
     public ResponseEntity<List<UsuarioVistaAdminDTO>> listarUsuariosTodosPorCorreo(@RequestParam("correo") String correo) {
         List<UsuarioVistaAdminDTO> usuarios = usuarioService.listarUsuariosTodosPorCorreo(correo);
+        return new ResponseEntity<>(usuarios, HttpStatus.OK);
+    }
+
+    @GetMapping("/listarUsuariosPorNombre")
+    public ResponseEntity<List<UsuarioVistaAdminDTO>> listarUsuariosTodosPorNombre(@RequestParam("nombre") String nombre) {
+        List<UsuarioVistaAdminDTO> usuarios = usuarioService.listarUsuariosTodosPorNombre(nombre);
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
     }
 }
