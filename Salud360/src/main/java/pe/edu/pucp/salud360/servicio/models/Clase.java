@@ -63,7 +63,7 @@ public class Clase {
 
     @ManyToMany
     @JoinTable(
-            name = "claseXpersona",
+            name = "clase_persona",
             joinColumns = @JoinColumn(name = "idClase"),
             inverseJoinColumns = @JoinColumn(name = "idUsuario")
     )

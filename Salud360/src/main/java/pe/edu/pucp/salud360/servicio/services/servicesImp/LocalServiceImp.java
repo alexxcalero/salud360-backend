@@ -1,6 +1,5 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -103,6 +102,4 @@ public class LocalServiceImp implements LocalService {
         return localRepository.findByActivoTrue(pageable)
                 .map(localMapper::mapToVistaAdminDTO);
     }
-
 }
-

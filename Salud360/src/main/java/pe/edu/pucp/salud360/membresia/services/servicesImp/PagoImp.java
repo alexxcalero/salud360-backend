@@ -1,8 +1,10 @@
 package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
+import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
 import pe.edu.pucp.salud360.membresia.models.Pago;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
@@ -17,9 +19,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PagoImp implements PagoService {
 
+    @Autowired
     private final PagoRepository pagoRepository;
+
+    @Autowired
     private final AfiliacionRepository afiliacionRepository;
+
+    @Autowired
     private final MedioDePagoRepository medioDePagoRepository;
+
+    @Autowired
+    private final MedioDePagoMapper medioDePagoMapper;
 
     @Override
     public List<PagoDTO> listarPagos() {
@@ -46,7 +56,7 @@ public class PagoImp implements PagoService {
         pago.setMonto(dto.getMonto());
         pago.setFechaPago(dto.getFechaPago());
         pago.setAfiliacion(afiliacionRepository.findById(dto.getIdAfiliacion()).orElse(null));
-        pago.setMedioDePago(medioDePagoRepository.findById(dto.getIdMedioDePago()).orElse(null));
+        pago.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
         return convertirADTO(pagoRepository.save(pago));
     }
@@ -61,8 +71,8 @@ public class PagoImp implements PagoService {
                 pago.getIdPago(),
                 pago.getMonto(),
                 pago.getFechaPago(),
-                pago.getAfiliacion() != null ? pago.getAfiliacion().getIdMembresia() : null,
-                pago.getMedioDePago() != null ? pago.getMedioDePago().getIdMedioDePago() : null
+                pago.getAfiliacion() != null ? pago.getAfiliacion().getIdAfiliacion() : null,
+                pago.getMedioDePago() != null ? medioDePagoMapper.mapToMedioDePagoDTO(pago.getMedioDePago()) : null
         );
     }
 
@@ -71,7 +81,7 @@ public class PagoImp implements PagoService {
         pago.setMonto(dto.getMonto());
         pago.setFechaPago(dto.getFechaPago());
         pago.setAfiliacion(afiliacionRepository.findById(dto.getIdAfiliacion()).orElse(null));
-        pago.setMedioDePago(medioDePagoRepository.findById(dto.getIdMedioDePago()).orElse(null));
+        pago.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
         return pago;
     }
 }

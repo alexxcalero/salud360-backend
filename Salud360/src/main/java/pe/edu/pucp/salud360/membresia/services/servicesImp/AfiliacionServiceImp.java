@@ -1,6 +1,5 @@
 package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
@@ -36,7 +35,6 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setEstado(dto.getEstado());
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
-        afiliacion.setMaxReservas(dto.getMembresia().getMaxReservas());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
 
         afiliacion.setPersona(personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
@@ -73,11 +71,10 @@ public class AfiliacionServiceImp implements AfiliacionService {
         if (!afiliacionRepository.existsById(id)) return null;
 
         Afiliacion afiliacion = new Afiliacion();
-        afiliacion.setIdMembresia(id);
+        afiliacion.setIdAfiliacion(id);
         afiliacion.setEstado(dto.getEstado());
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
-        afiliacion.setMaxReservas(dto.getMembresia().getMaxReservas());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
         afiliacion.setPersona(personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));

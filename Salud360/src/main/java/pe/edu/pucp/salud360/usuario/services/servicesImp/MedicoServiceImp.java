@@ -2,10 +2,8 @@ package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.usuario.dtos.MedicoDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoDTO;
 import pe.edu.pucp.salud360.usuario.mappers.MedicoMapper;
-import pe.edu.pucp.salud360.usuario.mappers.RolMapper;
-import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
 import pe.edu.pucp.salud360.usuario.services.MedicoService;
