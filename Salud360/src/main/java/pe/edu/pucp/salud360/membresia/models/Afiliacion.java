@@ -30,10 +30,10 @@ public class Afiliacion {
     @Column(name = "fechaAfiliacion", unique = false, nullable = false, updatable = true)
     private LocalDateTime fechaAfiliacion;
 
-    @Column(name = "fechaDesafiliacion", unique = false, nullable = false, updatable = true)
+    @Column(name = "fechaDesafiliacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesafiliacion;
 
-    @Column(name = "fechaReactivacion", unique = false, nullable = false, updatable = true)
+    @Column(name = "fechaReactivacion", unique = false, nullable = true, updatable = true)
     private LocalDate fechaReactivacion;
 
     @ManyToOne
