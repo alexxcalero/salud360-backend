@@ -172,7 +172,17 @@ public class UsuarioServiceImp implements UsuarioService {
 
     @Override
     public List<UsuarioVistaAdminDTO> listarUsuariosTodosPorCorreo(String correo) {
-        List<Usuario> usuarios = usuarioRepository.findByCorreoContainingIgnoreCase(correo);
+        List<Usuario> usuarios = usuarioRepository.findAllByCorreoContainingIgnoreCase(correo);
+        if(!(usuarios.isEmpty())) {
+            return usuarios.stream().map(usuarioMapper::mapToVistaAdminDTO).toList();
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<UsuarioVistaAdminDTO> listarUsuariosTodosPorNombre(String nombre) {
+        List<Usuario> usuarios = usuarioRepository.findAllByNombresContainingIgnoreCase(nombre);
         if(!(usuarios.isEmpty())) {
             return usuarios.stream().map(usuarioMapper::mapToVistaAdminDTO).toList();
         } else {

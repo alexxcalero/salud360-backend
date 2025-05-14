@@ -11,7 +11,7 @@ import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = {MedioDePagoMapper.class, UsuarioMapper.class})
+@Mapper(componentModel = "spring", uses = {MedioDePagoMapper.class, UsuarioMapper.class, MembresiaMapper.class})
 public interface AfiliacionMapper {
     AfiliacionResumenDTO mapToAfiliacionDTO(Afiliacion afiliacion);
     Afiliacion mapToModel(AfiliacionResumenDTO afiliacionDTO);

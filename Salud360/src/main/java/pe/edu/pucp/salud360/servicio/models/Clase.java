@@ -56,14 +56,12 @@ public class Clase {
     @Column(name = "fechaCreacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fechaDesactivacion")
+    @Column(name = "fechaDesactivacion", nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
-
-
 
     @ManyToMany
     @JoinTable(
-            name = "claseXpersona",
+            name = "clase_persona",
             joinColumns = @JoinColumn(name = "idClase"),
             inverseJoinColumns = @JoinColumn(name = "idUsuario")
     )

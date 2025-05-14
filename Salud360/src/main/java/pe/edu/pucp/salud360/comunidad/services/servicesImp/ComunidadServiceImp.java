@@ -13,6 +13,7 @@ import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class ComunidadServiceImp implements ComunidadService {
@@ -40,7 +41,7 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setNombre(dto.getNombre());
         comunidad.setDescripcion(dto.getDescripcion());
         comunidad.setProposito(dto.getProposito());
-        comunidad.setImagen(dto.getImagen());
+        comunidad.setImagenes(dto.getImagen());
         comunidad.setActivo(dto.getActivo());
         comunidad.setFechaDesactivacion(dto.getFechaDesactivacion());
 
@@ -53,8 +54,14 @@ public class ComunidadServiceImp implements ComunidadService {
 
     @Override
     public boolean eliminarComunidad(Integer id) {
-        if (!comunidadRepository.existsById(id)) return false;
-        comunidadRepository.deleteById(id);
+        Optional<Comunidad> comunidadOpt = comunidadRepository.findById(id);
+        if (comunidadOpt.isEmpty()) return false;
+
+        Comunidad comunidad = comunidadOpt.get();
+        comunidad.setActivo(false);
+        comunidad.setFechaDesactivacion(LocalDateTime.now());
+
+        comunidadRepository.save(comunidad);
         return true;
     }
 
@@ -70,4 +77,18 @@ public class ComunidadServiceImp implements ComunidadService {
                 .map(ComunidadMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean restaurarComunidad(Integer id) {
+        Optional<Comunidad> comunidadOpt = comunidadRepository.findById(id);
+        if (comunidadOpt.isPresent()) {
+            Comunidad comunidad = comunidadOpt.get();
+            comunidad.setActivo(true);
+            comunidad.setFechaDesactivacion(null);
+            comunidadRepository.save(comunidad);
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -15,7 +15,7 @@ public class ReporteMapper {
         if (reporte == null) return null;
 
         List<Integer> idAfiliaciones = reporte.getAfiliacion() != null ?
-                reporte.getAfiliacion().stream().map(Afiliacion::getIdMembresia).collect(Collectors.toList()) : null;
+                reporte.getAfiliacion().stream().map(Afiliacion::getIdAfiliacion).collect(Collectors.toList()) : null;
 
         List<Integer> idPagos = reporte.getPago() != null ?
                 reporte.getPago().stream().map(Pago::getIdPago).collect(Collectors.toList()) : null;

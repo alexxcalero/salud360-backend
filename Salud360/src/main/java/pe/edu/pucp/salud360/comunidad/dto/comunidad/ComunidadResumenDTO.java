@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,4 +24,7 @@ public class ComunidadResumenDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private Integer idForo;
+
+
+    private List<ServicioDTO> servicios; //NUEVO
 }
