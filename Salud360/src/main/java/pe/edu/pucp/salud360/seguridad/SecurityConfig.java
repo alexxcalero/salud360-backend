@@ -2,6 +2,7 @@ package pe.edu.pucp.salud360.seguridad;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -20,28 +21,28 @@ public class SecurityConfig {
                 //.cors()  // Esto activa el CORS configurado en WebConfig
                 .csrf().disable()  // Solo para pruebas; idealmente manejar token CSRF luego
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuarios/**",
-                                "/api/medicos/**",
-                                "/api/personas/**",
-                                "/api/tiposDocumentos/**",
-                                "/api/permisos/**",
-                                "/api/roles/**",
-                                "/api/notificaciones/**",
-                                "/api/citas-medicas/**",
-                                "/api/documentos-medicos/**",
-                                "/api/locales/**",
-                                "/api/servicios/**",
-                                "/api/afiliaciones/**",
-                                "/api/mediosDePago/**",
-                                "/api/membresias/**",
-                                "/api/pagos/**",
-                                "/api/periodos/**",
-                                "/api/solicitudes/**",
-                                "/api/comentarios/**",
-                                "/api/comunidades/**",
-                                "/api/foros/**",
-                                "/api/publicaciones/**",
-                                "/api/testimonios/**",
+                        .requestMatchers("/api/usuarios/",
+                                "/api/medicos/",
+                                "/api/personas/",
+                                "/api/tiposDocumentos/",
+                                "/api/permisos/",
+                                "/api/roles/",
+                                "/api/notificaciones/",
+                                "/api/citas-medicas/",
+                                "/api/documentos-medicos/",
+                                "/api/locales/",
+                                "/api/servicios/",
+                                "/api/afiliaciones/",
+                                "/api/mediosDePago/",
+                                "/api/membresias/",
+                                "/api/pagos/",
+                                "/api/periodos/",
+                                "/api/solicitudes/",
+                                "/api/comentarios/",
+                                "/api/comunidades/",
+                                "/api/foros/",
+                                "/api/publicaciones/",
+                                "/api/testimonios/",
                                 "/api/reglas/**").permitAll()  // Agregar los endpoints a probar, sino dara error
                         .anyRequest().authenticated()
                 )
