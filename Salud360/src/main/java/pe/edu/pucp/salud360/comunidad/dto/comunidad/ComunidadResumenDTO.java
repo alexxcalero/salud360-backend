@@ -8,10 +8,12 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 
 @Getter
 @Setter
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ComunidadResumenDTO {

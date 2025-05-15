@@ -49,12 +49,14 @@ public class ComunidadServiceImp implements ComunidadService {
         Foro foro = foroRepository.findById(dto.getIdForo())
                 .orElseThrow(() -> new RuntimeException("Foro no encontrado"));
 
-        Comunidad comunidad = comunidadMapper.mapToModel(dto, foro);
+        Comunidad comunidad = comunidadMapper.mapToModel(dto); // ya no pasas foro
+        comunidad.setForo(foro); // se lo asignas tú
         comunidad.setFechaCreacion(LocalDateTime.now());
         comunidad.setActivo(true);
 
         return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
     }
+
 
     @Override
     public ComunidadDTO actualizarComunidad(Integer id, ComunidadDTO dto) {
