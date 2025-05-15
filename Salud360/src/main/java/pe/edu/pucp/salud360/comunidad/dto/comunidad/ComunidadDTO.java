@@ -8,7 +8,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
+import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 
 @Getter
 @Setter
@@ -28,6 +32,7 @@ public class ComunidadDTO {
     private Double calificacion;
 
 
-    private List<ServicioDTO> servicios; //agregado
+    private List<ServicioResumenDTO> servicios; //agregado
+    private List<MembresiaResumenDTO> membresias;
 }
 

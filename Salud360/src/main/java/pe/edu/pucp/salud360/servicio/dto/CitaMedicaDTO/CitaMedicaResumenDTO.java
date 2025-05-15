@@ -3,6 +3,8 @@ package pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.time.LocalDate;
@@ -19,7 +21,7 @@ public class CitaMedicaResumenDTO {
     private LocalDate fecha;
     private String estado;
 
-    private UsuarioResumenDTO paciente;
-    private UsuarioResumenDTO medico;
+    private PersonaResumenDTO paciente;
+    private MedicoResumenDTO medico;
 }
 

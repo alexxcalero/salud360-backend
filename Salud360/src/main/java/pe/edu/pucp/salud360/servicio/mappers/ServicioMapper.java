@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.servicio.mappers;
 
 import org.mapstruct.Mapper;
+import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
@@ -8,7 +9,7 @@ import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ComunidadMapper.class})
 public interface ServicioMapper {
 
     // CRUD: crear / editar

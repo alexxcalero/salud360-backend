@@ -112,16 +112,5 @@ public class ComunidadServiceImp implements ComunidadService {
         return true;
     }
 
-    @Override
-    public List<ServicioDTO> listarServiciosPorComunidad(Integer idComunidad) {
-        List<Servicio> servicios = comunidadRepository.findServiciosByComunidadId(idComunidad);
-        return servicioMapper.mapToDTOList(servicios);
-    }
-
-    @Override
-    public List<MembresiaDTO> listarMembresiasPorComunidad(Integer idComunidad) {
-        List<Membresia> membresias = membresiaRepository.findByComunidadId(idComunidad);
-        return membresiaMapper.mapToDTOList(membresias); // asegúrate de tener este método
-    }
 }
 

@@ -20,14 +20,10 @@ public class ComunidadResumenDTO {
     private String descripcion;
     private String proposito;
     private List<String> imagenes;
-    private Boolean activo;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaDesactivacion;
-    private Integer idForo;
     private Integer cantMiembros;
     private Double calificacion;
 
 
 
-    private List<ServicioResumenDTO> servicios; //NUEVO
+
 }

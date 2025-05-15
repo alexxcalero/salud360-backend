@@ -4,6 +4,8 @@ package pe.edu.pucp.salud360.servicio.dto.ServicioDTO;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -14,5 +16,6 @@ public class ServicioResumenDTO {
     private String nombre;
     private String tipo;
     private Boolean activo;
+    private List<String> imagenes;
 }
 
