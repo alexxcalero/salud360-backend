@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 
 import java.util.List;
 
@@ -31,10 +33,13 @@ public class ComunidadController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        return comunidadService.eliminarComunidad(id)
-                ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> eliminar(@PathVariable("id") Integer id) {
+        ComunidadDTO comunidadBuscada = comunidadService.obtenerComunidadPorId(id);
+        if (comunidadBuscada != null) {
+            comunidadService.eliminarComunidad(id);
+            return new ResponseEntity<>("Comunidad eliminada satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Comunidad no encontrada", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{id}")
@@ -49,4 +54,17 @@ public class ComunidadController {
     public ResponseEntity<List<ComunidadDTO>> listar() {
         return new ResponseEntity<>(comunidadService.listarComunidades(), HttpStatus.OK);
     }
+
+    @PutMapping("/{id}/restaurar")
+    public ResponseEntity<String> restaurarComunidad(@PathVariable Integer id) {
+        boolean restaurado = comunidadService.restaurarComunidad(id);
+        if (restaurado) {
+            return ResponseEntity.ok("Comunidad restaurada correctamente");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comunidad no encontrada");
+        }
+    }
+
+
+
 }

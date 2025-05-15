@@ -1,16 +1,17 @@
-package pe.edu.pucp.salud360.comunidad.dto;
+package pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
+@AllArgsConstructor
 public class TestimonioDTO {
     private Integer idTestimonio;
     private String comentario;
@@ -18,6 +19,8 @@ public class TestimonioDTO {
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
+
     private Integer idComunidad;
-    private Integer idUsuario;
+    private UsuarioResumenDTO autor;
 }
+

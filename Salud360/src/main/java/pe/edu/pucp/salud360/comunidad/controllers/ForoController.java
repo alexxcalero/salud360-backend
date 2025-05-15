@@ -4,7 +4,7 @@ package pe.edu.pucp.salud360.comunidad.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.comunidad.dto.ForoDTO;
+import pe.edu.pucp.salud360.comunidad.dto.ForoDTO.ForoDTO;
 import pe.edu.pucp.salud360.comunidad.services.ForoService;
 
 import java.util.List;

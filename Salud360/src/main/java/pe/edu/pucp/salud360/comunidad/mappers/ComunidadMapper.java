@@ -1,37 +1,44 @@
 package pe.edu.pucp.salud360.comunidad.mappers;
 
+
+import org.mapstruct.*;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.models.Foro;
+import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import pe.edu.pucp.salud360.servicio.models.Servicio;
+import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 
-public class ComunidadMapper {
-    public static ComunidadDTO mapToDTO(Comunidad comunidad) {
-        if (comunidad == null) return null;
+import java.util.List;
+import java.util.stream.Collectors;
 
-        return new ComunidadDTO(
-                comunidad.getIdComunidad(),
-                comunidad.getNombre(),
-                comunidad.getDescripcion(),
-                comunidad.getProposito(),
-                comunidad.getImagenes(),
-                comunidad.getActivo(),
-                comunidad.getFechaCreacion(),
-                comunidad.getFechaDesactivacion(),
-                comunidad.getForo() != null ? comunidad.getForo().getIdForo() : null
-        );
-    }
+@Mapper(componentModel = "spring", uses = {
+        ServicioMapper.class,
+        MembresiaMapper.class
+})
+public interface ComunidadMapper {
 
-    public static Comunidad mapToModel(ComunidadDTO dto, Foro foro) {
-        Comunidad comunidad = new Comunidad();
-        comunidad.setIdComunidad(dto.getIdComunidad());
-        comunidad.setNombre(dto.getNombre());
-        comunidad.setDescripcion(dto.getDescripcion());
-        comunidad.setProposito(dto.getProposito());
-        comunidad.setImagenes(dto.getImagen());
-        comunidad.setActivo(dto.getActivo());
-        comunidad.setFechaCreacion(dto.getFechaCreacion());
-        comunidad.setFechaDesactivacion(dto.getFechaDesactivacion());
+    @Mapping(source = "foro.idForo", target = "idForo")
+    ComunidadDTO mapToDTO(Comunidad comunidad);
+
+    @Mapping(target = "foro", ignore = true) // o usar @Context + @AfterMapping si lo seteas tú
+    @Mapping(target = "servicios", ignore = true)
+    @Mapping(target = "membresia", ignore = true)
+    @Mapping(target = "testimonios", ignore = true)
+    @Mapping(target = "persona", ignore = true)
+    Comunidad mapToModel(ComunidadDTO dto);
+
+    ComunidadResumenDTO mapToResumenDTO(Comunidad comunidad);
+    List<ComunidadResumenDTO> mapToResumenList(List<Comunidad> comunidades);
+
+    List<ComunidadDTO> mapToDTOList(List<Comunidad> comunidades);
+
+    @AfterMapping
+    default void setForo(@MappingTarget Comunidad comunidad, @Context Foro foro) {
         comunidad.setForo(foro);
-        return comunidad;
     }
 }
+
+

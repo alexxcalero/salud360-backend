@@ -1,38 +1,32 @@
 package pe.edu.pucp.salud360.comunidad.mappers;
 
-import pe.edu.pucp.salud360.comunidad.dto.ComentarioDTO;
+import org.mapstruct.Mapper;
+import pe.edu.pucp.salud360.comunidad.dto.ComentarioDTO.ComentarioDTO;
+import pe.edu.pucp.salud360.comunidad.dto.ComentarioDTO.ComentarioResumenDTO;
+import pe.edu.pucp.salud360.comunidad.dto.ComentarioDTO.ComentarioVistaAdminDTO;
 import pe.edu.pucp.salud360.comunidad.models.Comentario;
-import pe.edu.pucp.salud360.comunidad.models.Publicacion;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 
-public class ComentarioMapper {
+import java.util.List;
 
-    public static ComentarioDTO mapToDTO(Comentario comentario) {
-        if (comentario == null) return null;
+@Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
+public interface ComentarioMapper {
 
-        return new ComentarioDTO(
-                comentario.getIdComentario(),
-                comentario.getContenido(),
-                comentario.getActivo(),
-                comentario.getFechaCreacion(),
-                comentario.getFechaDesactivacion(),
-                comentario.getPersona() != null ? comentario.getPersona().getIdUsuario() : null,
-                comentario.getPublicacion() != null ? comentario.getPublicacion().getIdPublicacion() : null
-        );
-    }
+    // Crear / Editar
+    ComentarioDTO mapToDTO(Comentario comentario);
+    Comentario mapToModel(ComentarioDTO dto);
 
-    public static Comentario mapToModel(ComentarioDTO dto, Persona persona, Publicacion publicacion) {
-        if (dto == null) return null;
+    // Para vista simple en publicaciones
+    ComentarioResumenDTO mapToResumenDTO(Comentario comentario);
+    Comentario mapToModel(ComentarioResumenDTO dto);
 
-        Comentario comentario = new Comentario();
-        comentario.setIdComentario(dto.getIdComentario());
-        comentario.setContenido(dto.getContenido());
-        comentario.setActivo(dto.getActivo());
-        comentario.setFechaCreacion(dto.getFechaCreacion());
-        comentario.setFechaDesactivacion(dto.getFechaDesactivacion());
-        comentario.setPersona(persona);
-        comentario.setPublicacion(publicacion);
-        return comentario;
-    }
+    // Para vista admin con usuario
+    ComentarioVistaAdminDTO mapToVistaAdminDTO(Comentario comentario);
+    Comentario mapToModel(ComentarioVistaAdminDTO dto);
+
+    // Listas
+    List<ComentarioDTO> mapToDTOList(List<Comentario> comentarios);
+    List<ComentarioResumenDTO> mapToResumenList(List<Comentario> comentarios);
+    List<ComentarioVistaAdminDTO> mapToVistaAdminList(List<Comentario> comentarios);
 }
 

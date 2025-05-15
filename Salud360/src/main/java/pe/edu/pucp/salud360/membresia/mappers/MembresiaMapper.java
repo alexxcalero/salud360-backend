@@ -2,14 +2,11 @@ package pe.edu.pucp.salud360.membresia.mappers;
 
 import org.mapstruct.Mapper;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
-import pe.edu.pucp.salud360.comunidad.models.Comunidad;
-import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
-import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
-import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
-import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import pe.edu.pucp.salud360.servicio.models.Servicio;
 
 import java.util.List;
 
@@ -17,6 +14,7 @@ import java.util.List;
 public interface MembresiaMapper {
     MembresiaResumenDTO mapToMembresiaDTO(Membresia membresia);
     Membresia mapToModel(MembresiaResumenDTO membresiaDTO);
+    List<MembresiaDTO> mapToDTOList(List<Membresia> membresias);
 
     MembresiaDTO mapToDTO(Membresia membresia);
     Membresia mapToModel(MembresiaDTO membresiaDTO);
