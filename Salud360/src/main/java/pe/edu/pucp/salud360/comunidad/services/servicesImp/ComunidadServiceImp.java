@@ -10,6 +10,13 @@ import pe.edu.pucp.salud360.comunidad.models.Foro;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.comunidad.repositories.ForoRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
+import pe.edu.pucp.salud360.membresia.models.Membresia;
+import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
+import pe.edu.pucp.salud360.servicio.models.Servicio;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +34,15 @@ public class ComunidadServiceImp implements ComunidadService {
 
     @Autowired
     private ForoRepository foroRepository;
+
+    @Autowired//listarxservicio
+    private ServicioMapper servicioMapper;
+
+    @Autowired//listarxmembre
+    private MembresiaRepository membresiaRepository;
+
+    @Autowired
+    private MembresiaMapper membresiaMapper;
 
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
@@ -94,6 +110,18 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setFechaDesactivacion(null);
         comunidadRepository.save(comunidad);
         return true;
+    }
+
+    @Override
+    public List<ServicioDTO> listarServiciosPorComunidad(Integer idComunidad) {
+        List<Servicio> servicios = comunidadRepository.findServiciosByComunidadId(idComunidad);
+        return servicioMapper.mapToDTOList(servicios);
+    }
+
+    @Override
+    public List<MembresiaDTO> listarMembresiasPorComunidad(Integer idComunidad) {
+        List<Membresia> membresias = membresiaRepository.findByComunidadId(idComunidad);
+        return membresiaMapper.mapToDTOList(membresias); // asegúrate de tener este método
     }
 }
 

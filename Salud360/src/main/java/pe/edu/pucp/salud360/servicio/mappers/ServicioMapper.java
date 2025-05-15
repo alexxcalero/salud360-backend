@@ -14,7 +14,7 @@ public interface ServicioMapper {
     // CRUD: crear / editar
     ServicioDTO mapToDTO(Servicio servicio);
     Servicio mapToModel(ServicioDTO dto);
-
+    List<ServicioDTO> mapToDTOList(List<Servicio> servicios); //listarservicioporcomunidad
     // Vista admin
     ServicioVistaAdminDTO mapToVistaAdminDTO(Servicio servicio);
     Servicio mapToModel(ServicioVistaAdminDTO dto);

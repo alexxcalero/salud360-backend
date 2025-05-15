@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 
 import java.util.List;
 
@@ -62,6 +64,19 @@ public class ComunidadController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comunidad no encontrada");
         }
     }
+
+    @GetMapping("/{id}/servicios")
+    public ResponseEntity<List<ServicioDTO>> listarServiciosPorComunidad(@PathVariable Integer id) {
+        List<ServicioDTO> servicios = comunidadService.listarServiciosPorComunidad(id);
+        return ResponseEntity.ok(servicios);
+    }
+
+    @GetMapping("/{id}/membresias")
+    public ResponseEntity<List<MembresiaDTO>> listarMembresiasPorComunidad(@PathVariable Integer id) {
+        List<MembresiaDTO> lista = comunidadService.listarMembresiasPorComunidad(id);
+        return ResponseEntity.ok(lista);
+    }
+
 
 
 }
