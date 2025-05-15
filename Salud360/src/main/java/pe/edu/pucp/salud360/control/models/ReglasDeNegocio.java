@@ -13,17 +13,17 @@ import lombok.*;
 public class ReglasDeNegocio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer idRegla;
+    private Integer idRegla;
 
     @Column(name = "maxReservas", unique = false, nullable = false, updatable = true)
-    Integer maxReservas;
+    private Integer maxReservas;
 
     @Column(name = "maxCapacidad", unique = false, nullable = false, updatable = true)
-    Integer maxCapacidad;
+    private Integer maxCapacidad;
 
     @Column(name = "maxDiasSuspension", unique = false, nullable = false, updatable = true)
-    Integer maxDiasSuspension;
+    private Integer maxDiasSuspension;
 
     @Column(name = "maxTiempoCancelacion", unique = false, nullable = false, updatable = true)
-    Integer maxTiempoCancelacion;
+    private Integer maxTiempoCancelacion;
 }

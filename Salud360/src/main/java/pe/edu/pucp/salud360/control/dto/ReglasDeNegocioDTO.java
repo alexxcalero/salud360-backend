@@ -8,9 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReglasDeNegocioDTO {
-    Integer idRegla;
-    Integer maxReservas;
-    Integer maxCapacidad;
-    Integer maxDiasSuspension;
-    Integer maxTiempoCancelacion;
+    private Integer idRegla;
+    private Integer maxReservas;
+    private Integer maxCapacidad;
+    private Integer maxDiasSuspension;
+    private Integer maxTiempoCancelacion;
 }

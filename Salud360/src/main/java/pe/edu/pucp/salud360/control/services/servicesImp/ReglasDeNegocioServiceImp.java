@@ -10,7 +10,6 @@ import pe.edu.pucp.salud360.control.services.ReglasDeNegocioService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReglasDeNegocioServiceImp implements ReglasDeNegocioService {
