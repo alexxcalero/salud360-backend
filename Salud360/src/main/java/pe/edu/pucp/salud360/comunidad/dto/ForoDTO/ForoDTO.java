@@ -1,17 +1,17 @@
-package pe.edu.pucp.salud360.comunidad.dto;
+package pe.edu.pucp.salud360.comunidad.dto.ForoDTO;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
+@AllArgsConstructor
 public class ForoDTO {
     private Integer idForo;
     private String titulo;
@@ -20,5 +20,7 @@ public class ForoDTO {
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
-    private Integer idComunidad;
+
+    private ComunidadResumenDTO comunidad; // vínculo hacia la comunidad que lo contiene
 }
+

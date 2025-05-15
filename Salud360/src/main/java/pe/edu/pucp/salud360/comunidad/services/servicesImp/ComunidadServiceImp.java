@@ -1,5 +1,6 @@
 package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
@@ -12,8 +13,8 @@ import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ComunidadServiceImp implements ComunidadService {
@@ -22,73 +23,77 @@ public class ComunidadServiceImp implements ComunidadService {
     private ComunidadRepository comunidadRepository;
 
     @Autowired
+    private ComunidadMapper comunidadMapper;
+
+    @Autowired
     private ForoRepository foroRepository;
 
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
-        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
-        Comunidad comunidad = ComunidadMapper.mapToModel(dto, foro);
+        Foro foro = foroRepository.findById(dto.getIdForo())
+                .orElseThrow(() -> new RuntimeException("Foro no encontrado"));
+
+        Comunidad comunidad = comunidadMapper.mapToModel(dto, foro);
         comunidad.setFechaCreacion(LocalDateTime.now());
-        Comunidad guardada = comunidadRepository.save(comunidad);
-        return ComunidadMapper.mapToDTO(guardada);
+        comunidad.setActivo(true);
+
+        return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
     }
 
     @Override
     public ComunidadDTO actualizarComunidad(Integer id, ComunidadDTO dto) {
-        Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
-        if (comunidad == null) return null;
+        Optional<Comunidad> optional = comunidadRepository.findById(id);
+        if (optional.isEmpty()) return null;
 
+        Comunidad comunidad = optional.get();
         comunidad.setNombre(dto.getNombre());
         comunidad.setDescripcion(dto.getDescripcion());
         comunidad.setProposito(dto.getProposito());
-        comunidad.setImagenes(dto.getImagen());
-        comunidad.setActivo(dto.getActivo());
-        comunidad.setFechaDesactivacion(dto.getFechaDesactivacion());
+        comunidad.setImagenes(dto.getImagenes());
+        comunidad.setCantMiembros(dto.getCantMiembros());
+        comunidad.setCalificacion(dto.getCalificacion());
 
-        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
-        comunidad.setForo(foro);
-
-        Comunidad actualizada = comunidadRepository.save(comunidad);
-        return ComunidadMapper.mapToDTO(actualizada);
+        return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
     }
 
     @Override
     public boolean eliminarComunidad(Integer id) {
-        Optional<Comunidad> comunidadOpt = comunidadRepository.findById(id);
-        if (comunidadOpt.isEmpty()) return false;
+        Optional<Comunidad> optional = comunidadRepository.findById(id);
+        if (optional.isEmpty()) return false;
 
-        Comunidad comunidad = comunidadOpt.get();
+        Comunidad comunidad = optional.get();
         comunidad.setActivo(false);
         comunidad.setFechaDesactivacion(LocalDateTime.now());
-
         comunidadRepository.save(comunidad);
         return true;
     }
 
     @Override
     public ComunidadDTO obtenerComunidadPorId(Integer id) {
-        Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
-        return ComunidadMapper.mapToDTO(comunidad);
+        return comunidadRepository.findById(id)
+                .filter(Comunidad::getActivo)
+                .map(comunidadMapper::mapToDTO)
+                .orElse(null);
     }
 
     @Override
     public List<ComunidadDTO> listarComunidades() {
         return comunidadRepository.findAll().stream()
-                .map(ComunidadMapper::mapToDTO)
+                .filter(Comunidad::getActivo)
+                .map(comunidadMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public boolean restaurarComunidad(Integer id) {
-        Optional<Comunidad> comunidadOpt = comunidadRepository.findById(id);
-        if (comunidadOpt.isPresent()) {
-            Comunidad comunidad = comunidadOpt.get();
-            comunidad.setActivo(true);
-            comunidad.setFechaDesactivacion(null);
-            comunidadRepository.save(comunidad);
-            return true;
-        }
-        return false;
-    }
+        Optional<Comunidad> optional = comunidadRepository.findById(id);
+        if (optional.isEmpty()) return false;
 
+        Comunidad comunidad = optional.get();
+        comunidad.setActivo(true);
+        comunidad.setFechaDesactivacion(null);
+        comunidadRepository.save(comunidad);
+        return true;
+    }
 }
+

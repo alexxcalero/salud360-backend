@@ -19,11 +19,14 @@ public class ComunidadDTO {
     private String nombre;
     private String descripcion;
     private String proposito;
-    private List<String> imagen;
+    private List<String> imagenes;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private Integer idForo;
+    private Integer cantMiembros;
+    private Double calificacion;
+
 
     private List<ServicioDTO> servicios; //agregado
 }

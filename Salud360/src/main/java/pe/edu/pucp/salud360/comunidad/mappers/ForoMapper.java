@@ -1,39 +1,26 @@
 package pe.edu.pucp.salud360.comunidad.mappers;
 
-import pe.edu.pucp.salud360.comunidad.dto.ForoDTO;
-import pe.edu.pucp.salud360.comunidad.models.Comunidad;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import pe.edu.pucp.salud360.comunidad.dto.ForoDTO.ForoDTO;
+import pe.edu.pucp.salud360.comunidad.dto.ForoDTO.ForoResumenDTO;
 import pe.edu.pucp.salud360.comunidad.models.Foro;
+import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 
-public class ForoMapper {
+import java.util.List;
 
-    public static ForoDTO mapToDTO(Foro foro) {
-        if (foro == null) return null;
+@Mapper(componentModel = "spring", uses = {ComunidadMapper.class})
+public interface ForoMapper {
 
-        return new ForoDTO(
-                foro.getIdForo(),
-                foro.getTitulo(),
-                foro.getDescripcion(),
-                foro.getCantPublicaciones(),
-                foro.getActivo(),
-                foro.getFechaCreacion(),
-                foro.getFechaDesactivacion(),
-                foro.getComunidad() != null ? foro.getComunidad().getIdComunidad() : null
-        );
-    }
+    // Vista enriquecida con comunidad (para respuesta)
+    ForoDTO mapToDTO(Foro foro);
+    Foro mapToModel(ForoDTO dto); // ⚠️ este solo funcionará bien si dto.comunidad no es null o si se inyecta por service
 
-    public static Foro mapToModel(ForoDTO dto, Comunidad comunidad) {
-        if (dto == null) return null;
+    ForoResumenDTO mapToResumenDTO(Foro foro);
+    Foro mapToModel(ForoResumenDTO dto);
 
-        Foro foro = new Foro();
-        foro.setIdForo(dto.getIdForo());
-        foro.setTitulo(dto.getTitulo());
-        foro.setDescripcion(dto.getDescripcion());
-        foro.setCantPublicaciones(dto.getCantPublicaciones());
-        foro.setActivo(dto.getActivo());
-        foro.setFechaCreacion(dto.getFechaCreacion());
-        foro.setFechaDesactivacion(dto.getFechaDesactivacion());
-        foro.setComunidad(comunidad);
-        return foro;
-    }
+    List<ForoDTO> mapToDTOList(List<Foro> foros);
+    List<ForoResumenDTO> mapToResumenList(List<Foro> foros);
 }
 

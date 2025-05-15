@@ -33,6 +33,9 @@ public class Publicacion {
     @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
 
+    @Column(name = "cantComentarios")
+    private Integer cantComentarios;
+
     @OneToMany(mappedBy = "publicacion")
     private List<Comentario> comentarios;
 

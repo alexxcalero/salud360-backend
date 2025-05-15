@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.comunidad.dto.ComentarioDTO;
+import pe.edu.pucp.salud360.comunidad.dto.ComentarioDTO.ComentarioDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComentarioService;
 
 import java.util.List;
