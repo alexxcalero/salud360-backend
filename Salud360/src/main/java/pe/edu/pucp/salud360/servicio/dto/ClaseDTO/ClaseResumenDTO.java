@@ -1,6 +1,5 @@
 package pe.edu.pucp.salud360.servicio.dto.ClaseDTO;
 
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

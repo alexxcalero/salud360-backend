@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.experimental.SuperBuilder;
-import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 
 @Getter
 @Setter
@@ -24,8 +22,4 @@ public class ComunidadResumenDTO {
     private List<String> imagenes;
     private Integer cantMiembros;
     private Double calificacion;
-
-
-
-
 }

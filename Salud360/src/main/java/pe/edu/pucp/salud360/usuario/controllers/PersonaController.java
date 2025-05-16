@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.services.PersonaService;
 
 import java.util.List;
@@ -16,16 +17,16 @@ public class PersonaController {
     private PersonaService personaService;
 
     @PostMapping
-    public ResponseEntity<PersonaDTO> crearPersona(@RequestBody PersonaDTO personaDTO) {
-        PersonaDTO personaCreada = personaService.crearPersona(personaDTO);
+    public ResponseEntity<PersonaVistaAdminDTO> crearPersona(@RequestBody PersonaRegistroDTO personaDTO) {
+        PersonaVistaAdminDTO personaCreada = personaService.crearPersona(personaDTO);
         return new ResponseEntity<>(personaCreada, HttpStatus.CREATED);
     }
 
     @PutMapping("{idPersona}")
-    public ResponseEntity<PersonaDTO> actualizarPersona(@PathVariable("idPersona") Integer idPersona, @RequestBody PersonaDTO personaDTO) {
-        PersonaDTO personaBuscada = personaService.buscarPersonaPorId(idPersona);
+    public ResponseEntity<PersonaVistaAdminDTO> actualizarPersona(@PathVariable("idPersona") Integer idPersona, @RequestBody PersonaVistaAdminDTO personaDTO) {
+        PersonaVistaAdminDTO personaBuscada = personaService.buscarPersonaPorId(idPersona);
         if (personaBuscada != null) {
-            PersonaDTO personaActualizada = personaService.actualizarPersona(idPersona, personaDTO);
+            PersonaVistaAdminDTO personaActualizada = personaService.actualizarPersona(idPersona, personaDTO);
             return new ResponseEntity<>(personaActualizada, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -33,7 +34,7 @@ public class PersonaController {
 
     @DeleteMapping("{idPersona}")
     public ResponseEntity<String> eliminarPersona(@PathVariable("idPersona") Integer idPersona) {
-        PersonaDTO personaBuscada = personaService.buscarPersonaPorId(idPersona);
+        PersonaVistaAdminDTO personaBuscada = personaService.buscarPersonaPorId(idPersona);
         if (personaBuscada != null) {
             personaService.eliminarPersona(idPersona);
             return new ResponseEntity<>("Persona eliminada satisfactoriamente", HttpStatus.OK);
@@ -42,14 +43,14 @@ public class PersonaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PersonaDTO>> listarPersonasTodas() {
-        List<PersonaDTO> personas = personaService.listarPersonasTodas();
+    public ResponseEntity<List<PersonaVistaAdminDTO>> listarPersonasTodas() {
+        List<PersonaVistaAdminDTO> personas = personaService.listarPersonasTodas();
         return new ResponseEntity<>(personas, HttpStatus.OK);
     }
 
     @GetMapping("{idPersona}")
-    public ResponseEntity<PersonaDTO> buscarPersonaPorId(@PathVariable("idPersona") Integer idPersona) {
-        PersonaDTO personaBuscada = personaService.buscarPersonaPorId(idPersona);
+    public ResponseEntity<PersonaVistaAdminDTO> buscarPersonaPorId(@PathVariable("idPersona") Integer idPersona) {
+        PersonaVistaAdminDTO personaBuscada = personaService.buscarPersonaPorId(idPersona);
         if (personaBuscada != null)
             return new ResponseEntity<>(personaBuscada, HttpStatus.OK);
         else

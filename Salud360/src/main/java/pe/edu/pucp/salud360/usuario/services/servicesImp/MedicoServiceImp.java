@@ -2,7 +2,8 @@ package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.MedicoMapper;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
@@ -21,17 +22,17 @@ public class MedicoServiceImp implements MedicoService {
     private MedicoMapper medicoMapper;
 
     @Override
-    public MedicoDTO crearMedico(MedicoDTO medicoDTO) {
+    public MedicoVistaAdminDTO crearMedico(MedicoRegistroDTO medicoDTO) {
         Medico medico = medicoMapper.mapToModel(medicoDTO);
         medico.setActivo(true);
         medico.setFechaCreacion(LocalDateTime.now());
         medico.setFechaDesactivacion(null);
         Medico medicoCreado = medicoRepository.save(medico);
-        return medicoMapper.mapToDTO(medicoCreado);
+        return medicoMapper.mapToVistaAdminDTO(medicoCreado);
     }
 
     @Override
-    public MedicoDTO actualizarMedico(Integer idMedico, MedicoDTO medicoDTO) {
+    public MedicoVistaAdminDTO actualizarMedico(Integer idMedico, MedicoVistaAdminDTO medicoDTO) {
         if(medicoRepository.findById(idMedico).isPresent()){
             Medico medico = medicoRepository.findById(idMedico).get();
             medico.setNombres(medicoDTO.getNombres());
@@ -42,7 +43,7 @@ public class MedicoServiceImp implements MedicoService {
             medico.setEspecialidad(medicoDTO.getEspecialidad());
             medico.setDescripcion(medicoDTO.getDescripcion());
             Medico medicoActualizado = medicoRepository.save(medico);
-            return medicoMapper.mapToDTO(medicoActualizado);
+            return medicoMapper.mapToVistaAdminDTO(medicoActualizado);
         } else {
             return null;
         }
@@ -60,20 +61,20 @@ public class MedicoServiceImp implements MedicoService {
     }
 
     @Override
-    public List<MedicoDTO> listarMedicosTodos() {
+    public List<MedicoVistaAdminDTO> listarMedicosTodos() {
         List<Medico> medicos = medicoRepository.findAll();
         return medicos.stream().map(medico -> {
-            MedicoDTO dto = medicoMapper.mapToDTO(medico);
+            MedicoVistaAdminDTO dto = medicoMapper.mapToVistaAdminDTO(medico);
             System.out.println("Especialidad: " + dto.getEspecialidad()); // 👈 revisa en consola
             return dto;
         }).toList();
     }
 
     @Override
-    public MedicoDTO buscarMedicoPorId(Integer idMedico) {
+    public MedicoVistaAdminDTO buscarMedicoPorId(Integer idMedico) {
         if(medicoRepository.findById(idMedico).isPresent()) {
             Medico medicoBuscado = medicoRepository.findById(idMedico).get();
-            return medicoMapper.mapToDTO(medicoBuscado);
+            return medicoMapper.mapToVistaAdminDTO(medicoBuscado);
         } else {
             return null;
         }
