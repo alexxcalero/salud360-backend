@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.awsS3;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -25,6 +26,9 @@ public class S3UrlGenerator {
     @Value("${aws.secret-key}")
     private String secretKey;
 
+    @Value("${aws.session-token}")
+    private String sessionToken;
+
     @Value("${aws.region}")
     private String region;
 
@@ -32,7 +36,7 @@ public class S3UrlGenerator {
     private String bucketName;
 
     public String generarUrl(String nombreArchivo) {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsSessionCredentials credentials = AwsSessionCredentials.create(accessKey, secretKey, sessionToken);
 
         try (S3Presigner presigner = S3Presigner.builder()
                 .region(Region.of(region))
@@ -46,7 +50,7 @@ public class S3UrlGenerator {
                     .build();
 
             PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(10))
+                    .signatureDuration(Duration.ofMinutes(5))
                     .putObjectRequest(objectRequest)
                     .build();
 
@@ -57,7 +61,7 @@ public class S3UrlGenerator {
     }
 
     public String generarUrlLectura(String nombreArchivo) {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsSessionCredentials credentials = AwsSessionCredentials.create(accessKey, secretKey, sessionToken);
 
         try (S3Presigner presigner = S3Presigner.builder()
                 .region(Region.of(region))
