@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.usuario.models.Persona;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -45,6 +47,13 @@ public class Comunidad {
 
     @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
+
+    @Column(name = "cantMiembros", nullable = true)
+    private Integer cantMiembros;
+
+    @Column(name = "calificacion", nullable = true)
+    private Double calificacion;
+
 
     @OneToMany(mappedBy = "comunidad")
     private List<Membresia> membresia;

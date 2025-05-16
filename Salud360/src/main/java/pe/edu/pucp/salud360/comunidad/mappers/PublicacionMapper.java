@@ -1,40 +1,31 @@
 package pe.edu.pucp.salud360.comunidad.mappers;
 
-import pe.edu.pucp.salud360.comunidad.dto.PublicacionDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import pe.edu.pucp.salud360.comunidad.dto.PublicacionDTO.PublicacionDTO;
+import pe.edu.pucp.salud360.comunidad.dto.PublicacionDTO.PublicacionResumenDTO;
 import pe.edu.pucp.salud360.comunidad.models.Publicacion;
-import pe.edu.pucp.salud360.comunidad.models.Foro;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 
-public class PublicacionMapper {
+import java.util.List;
 
-    public static PublicacionDTO mapToDTO(Publicacion p) {
-        if (p == null) return null;
+@Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
+public interface PublicacionMapper {
 
-        return new PublicacionDTO(
-                p.getIdPublicacion(),
-                p.getContenido(),
-                p.getActivo(),
-                p.getFechaCreacion(),
-                p.getFechaDesactivacion(),
-                p.getPersona() != null ? p.getPersona().getIdUsuario() : null,
-                p.getForo()    != null ? p.getForo().getIdForo()           : null
-        );
-    }
+    // Vista completa (admin, detalle)
+    @Mapping(source = "persona", target = "autor")
+    @Mapping(source = "foro.idForo", target = "idForo")
+    PublicacionDTO mapToDTO(Publicacion publicacion);
 
-    public static Publicacion mapToModel(PublicacionDTO dto,
-                                         Persona persona,
-                                         Foro foro) {
-        if (dto == null) return null;
+    @Mapping(target = "persona", source = "autor")
+    @Mapping(target = "foro.idForo", source = "idForo")
+    Publicacion mapToModel(PublicacionDTO dto);
 
-        Publicacion pub = new Publicacion();
-        pub.setIdPublicacion(dto.getIdPublicacion());
-        pub.setContenido(dto.getContenido());
-        pub.setActivo(dto.getActivo());
-        pub.setFechaCreacion(dto.getFechaCreacion());
-        pub.setFechaDesactivacion(dto.getFechaDesactivacion());
-        pub.setPersona(persona);
-        pub.setForo(foro);
-        // comentarios se gestionan aparte
-        return pub;
-    }
+    // Vista resumida (usuario, comunidad)
+    @Mapping(source = "persona", target = "autor")
+    PublicacionResumenDTO mapToResumenDTO(Publicacion publicacion);
+
+    List<PublicacionDTO> mapToDTOList(List<Publicacion> publicaciones);
+    List<PublicacionResumenDTO> mapToResumenList(List<Publicacion> publicaciones);
 }
+

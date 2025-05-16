@@ -1,8 +1,9 @@
 package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.comunidad.dto.PublicacionDTO;
+import pe.edu.pucp.salud360.comunidad.dto.PublicacionDTO.PublicacionDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.PublicacionMapper;
 import pe.edu.pucp.salud360.comunidad.models.Foro;
 import pe.edu.pucp.salud360.comunidad.models.Publicacion;
@@ -24,6 +25,9 @@ public class PublicacionServiceImp implements PublicacionService {
     private PublicacionRepository publicacionRepository;
 
     @Autowired
+    private PublicacionMapper publicacionMapper;
+
+    @Autowired
     private PersonaRepository personaRepository;
 
     @Autowired
@@ -31,28 +35,36 @@ public class PublicacionServiceImp implements PublicacionService {
 
     @Override
     public PublicacionDTO crearPublicacion(PublicacionDTO dto) {
-        Persona persona = personaRepository.findById(dto.getIdUsuario()).orElse(null);
-        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
+        Publicacion publicacion = publicacionMapper.mapToModel(dto);
 
-        Publicacion publicacion = PublicacionMapper.mapToModel(dto, persona, foro);
+        Persona autor = personaRepository.findById(dto.getAutor().getIdUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Foro foro = foroRepository.findById(dto.getIdForo())
+                .orElseThrow(() -> new RuntimeException("Foro no encontrado"));
+
+        publicacion.setPersona(autor);
+        publicacion.setForo(foro);
         publicacion.setFechaCreacion(LocalDateTime.now());
         publicacion.setActivo(true);
 
-        return PublicacionMapper.mapToDTO(publicacionRepository.save(publicacion));
+        return publicacionMapper.mapToDTO(publicacionRepository.save(publicacion));
     }
 
     @Override
     public List<PublicacionDTO> listarPublicaciones() {
-        return publicacionRepository.findAll()
-                .stream()
-                .map(PublicacionMapper::mapToDTO)
+        return publicacionRepository.findAll().stream()
+                .filter(Publicacion::getActivo)
+                .map(publicacionMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public PublicacionDTO obtenerPublicacionPorId(Integer id) {
-        Optional<Publicacion> publicacion = publicacionRepository.findById(id);
-        return publicacion.map(PublicacionMapper::mapToDTO).orElse(null);
+        return publicacionRepository.findById(id)
+                .filter(Publicacion::getActivo)
+                .map(publicacionMapper::mapToDTO)
+                .orElse(null);
     }
 
     @Override
@@ -60,17 +72,10 @@ public class PublicacionServiceImp implements PublicacionService {
         Optional<Publicacion> optional = publicacionRepository.findById(id);
         if (optional.isEmpty()) return null;
 
-        Persona persona = personaRepository.findById(dto.getIdUsuario()).orElse(null);
-        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
-
         Publicacion publicacion = optional.get();
         publicacion.setContenido(dto.getContenido());
-        publicacion.setActivo(dto.getActivo());
-        publicacion.setFechaDesactivacion(dto.getFechaDesactivacion());
-        publicacion.setPersona(persona);
-        publicacion.setForo(foro);
 
-        return PublicacionMapper.mapToDTO(publicacionRepository.save(publicacion));
+        return publicacionMapper.mapToDTO(publicacionRepository.save(publicacion));
     }
 
     @Override
@@ -78,7 +83,10 @@ public class PublicacionServiceImp implements PublicacionService {
         Optional<Publicacion> optional = publicacionRepository.findById(id);
         if (optional.isEmpty()) return false;
 
-        publicacionRepository.deleteById(id);
+        Publicacion publicacion = optional.get();
+        publicacion.setActivo(false);
+        publicacion.setFechaDesactivacion(LocalDateTime.now());
+        publicacionRepository.save(publicacion);
         return true;
     }
 }

@@ -1,36 +1,30 @@
 package pe.edu.pucp.salud360.comunidad.mappers;
 
-import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO;
-import pe.edu.pucp.salud360.comunidad.models.Comunidad;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO.TestimonioDTO;
+import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO.TestimonioResumenDTO;
 import pe.edu.pucp.salud360.comunidad.models.Testimonio;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 
-public class TestimonioMapper {
-    public static TestimonioDTO mapToDTO(Testimonio t) {
-        if (t == null) return null;
-        return new TestimonioDTO(
-                t.getIdTestimonio(),
-                t.getComentario(),
-                t.getCalificacion(),
-                t.getActivo(),
-                t.getFechaCreacion(),
-                t.getFechaDesactivacion(),
-                t.getComunidad() != null ? t.getComunidad().getIdComunidad() : null,
-                t.getPersona() != null ? t.getPersona().getIdUsuario() : null
-        );
-    }
+import java.util.List;
 
-    public static Testimonio mapToModel(TestimonioDTO dto, Comunidad comunidad, Persona persona) {
-        if (dto == null) return null;
-        Testimonio t = new Testimonio();
-        t.setIdTestimonio(dto.getIdTestimonio());
-        t.setComentario(dto.getComentario());
-        t.setCalificacion(dto.getCalificacion());
-        t.setActivo(dto.getActivo());
-        t.setFechaCreacion(dto.getFechaCreacion());
-        t.setFechaDesactivacion(dto.getFechaDesactivacion());
-        t.setComunidad(comunidad);
-        t.setPersona(persona);
-        return t;
-    }
+@Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
+public interface TestimonioMapper {
+
+    @Mapping(source = "persona", target = "autor")
+    @Mapping(source = "comunidad.idComunidad", target = "idComunidad")
+    TestimonioDTO mapToDTO(Testimonio testimonio);
+
+    @Mapping(target = "persona", source = "autor")
+    @Mapping(target = "comunidad.idComunidad", source = "idComunidad")
+    Testimonio mapToModel(TestimonioDTO dto);
+
+    @Mapping(source = "persona", target = "autor")
+    TestimonioResumenDTO mapToResumenDTO(Testimonio testimonio);
+
+    List<TestimonioDTO> mapToDTOList(List<Testimonio> testimonios);
+    List<TestimonioResumenDTO> mapToResumenList(List<Testimonio> testimonios);
 }
+
