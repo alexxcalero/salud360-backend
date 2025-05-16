@@ -25,7 +25,7 @@ public interface ComunidadMapper {
 
     @Mapping(target = "foro", ignore = true) // o usar @Context + @AfterMapping si lo seteas tú
     @Mapping(target = "servicios", ignore = true)
-    @Mapping(target = "membresia", ignore = true)
+    @Mapping(target = "membresias", ignore = true)
     @Mapping(target = "testimonios", ignore = true)
     @Mapping(target = "persona", ignore = true)
     Comunidad mapToModel(ComunidadDTO dto);
