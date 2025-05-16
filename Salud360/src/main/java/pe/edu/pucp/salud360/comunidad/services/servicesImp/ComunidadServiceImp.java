@@ -46,17 +46,25 @@ public class ComunidadServiceImp implements ComunidadService {
     @Autowired
     private MembresiaMapper membresiaMapper;
 
+    @Autowired
+    private S3UrlGenerator s3UrlGenerator;
+
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
-        Foro foro = foroRepository.findById(dto.getIdForo())
-                .orElseThrow(() -> new RuntimeException("Foro no encontrado"));
-
-        Comunidad comunidad = comunidadMapper.mapToModel(dto); // ya no pasas foro
-        comunidad.setForo(foro); // se lo asignas tú
+        List<String> urls = new ArrayList<>();
+        List<String> keys = new ArrayList<>();
+        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
+        Comunidad comunidad = comunidadMapper.mapToModel(dto);
+        for(String imagen : comunidad.getImagenes()) {
+            String url = s3UrlGenerator.generarUrl(imagen); //Genera urls
+            urls.add(url); //Añade las url
+            keys.add(s3UrlGenerator.extraerKeyDeUrl(url)); //Saca la key del archivo
+        }
+        comunidad.setImagenes(keys); //Guarda las keys para la bd
         comunidad.setFechaCreacion(LocalDateTime.now());
-        comunidad.setActivo(true);
-
-        return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
+        Comunidad guardada = comunidadRepository.save(comunidad); //Guarda la comunidad
+        guardada.setImagenes(urls); //Manda las urls por DTO
+        return comunidadMapper.mapToDTO(guardada);
     }
 
 
@@ -88,7 +96,16 @@ public class ComunidadServiceImp implements ComunidadService {
         return true;
     }
 
-
+    @Override
+    public ComunidadDTO obtenerComunidadPorId(Integer id) {
+        Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
+        List<String> urls = new ArrayList<>(), imagenes = comunidad.getImagenes();
+        if(imagenes != null) {
+            for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
+            comunidad.setImagenes(urls);
+        }
+        return comunidadMapper.mapToDTO(comunidad);
+    }
 
     @Override
     public List<ComunidadDTO> listarComunidades() {
