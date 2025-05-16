@@ -56,7 +56,7 @@ public class Comunidad {
 
 
     @OneToMany(mappedBy = "comunidad")
-    private List<Membresia> membresia;
+    private List<Membresia> membresias;
 
     @OneToOne
     @JoinColumn(name = "idForo")
