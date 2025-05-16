@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
@@ -19,6 +20,7 @@ import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,13 +88,7 @@ public class ComunidadServiceImp implements ComunidadService {
         return true;
     }
 
-    @Override
-    public ComunidadDTO obtenerComunidadPorId(Integer id) {
-        return comunidadRepository.findById(id)
-                .filter(Comunidad::getActivo)
-                .map(comunidadMapper::mapToDTO)
-                .orElse(null);
-    }
+
 
     @Override
     public List<ComunidadDTO> listarComunidades() {
