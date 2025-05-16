@@ -2,6 +2,7 @@ package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
@@ -11,6 +12,7 @@ import pe.edu.pucp.salud360.comunidad.repositories.ForoRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -24,12 +26,24 @@ public class ComunidadServiceImp implements ComunidadService {
     @Autowired
     private ForoRepository foroRepository;
 
+    @Autowired
+    private S3UrlGenerator s3UrlGenerator;
+
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
+        List<String> urls = new ArrayList<>();
+        List<String> keys = new ArrayList<>();
         Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
         Comunidad comunidad = ComunidadMapper.mapToModel(dto, foro);
+        for(String imagen : comunidad.getImagenes()) {
+            String url = s3UrlGenerator.generarUrl(imagen); //Genera urls
+            urls.add(url); //Añade las url
+            keys.add(s3UrlGenerator.extraerKeyDeUrl(url)); //Saca la key del archivo
+        }
+        comunidad.setImagenes(keys); //Guarda las keys para la bd
         comunidad.setFechaCreacion(LocalDateTime.now());
-        Comunidad guardada = comunidadRepository.save(comunidad);
+        Comunidad guardada = comunidadRepository.save(comunidad); //Guarda la comunidad
+        guardada.setImagenes(urls); //Manda las urls por DTO
         return ComunidadMapper.mapToDTO(guardada);
     }
 
@@ -68,6 +82,11 @@ public class ComunidadServiceImp implements ComunidadService {
     @Override
     public ComunidadDTO obtenerComunidadPorId(Integer id) {
         Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
+        List<String> urls = new ArrayList<>(), imagenes = comunidad.getImagenes();
+        if(imagenes != null) {
+            for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
+            comunidad.setImagenes(urls);
+        }
         return ComunidadMapper.mapToDTO(comunidad);
     }
 
