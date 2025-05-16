@@ -19,6 +19,7 @@ public class LocalDTO {
     private String nombresContacto;
     private String apellidosContacto;
     private String telefonoContacto;
+    private String descripcion;
     private List<String> imagenes;
     private String tipoServicio;
     private LocalDateTime fechaCreacion;
