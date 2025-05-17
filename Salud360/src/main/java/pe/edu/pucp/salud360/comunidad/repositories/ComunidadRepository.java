@@ -11,7 +11,4 @@ import java.util.List;
 
 @Repository
 public interface ComunidadRepository extends JpaRepository<Comunidad, Integer> {
-    @Query("SELECT c.servicios FROM Comunidad c WHERE c.idComunidad = :idComunidad AND c.activo = true")
-    List<Servicio> findServiciosByComunidadId(@Param("idComunidad") Integer idComunidad);
-
 }

@@ -3,8 +3,10 @@ package pe.edu.pucp.salud360.comunidad.mappers;
 
 import org.mapstruct.*;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.models.Foro;
+import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
@@ -12,28 +14,31 @@ import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = {ServicioMapper.class})
+@Mapper(componentModel = "spring", uses = {
+        ServicioMapper.class,
+        MembresiaMapper.class
+})
 public interface ComunidadMapper {
 
     @Mapping(source = "foro.idForo", target = "idForo")
     ComunidadDTO mapToDTO(Comunidad comunidad);
 
-    @Mapping(target = "foro", source = "foro")
-    @Mapping(target = "servicios", ignore = true) // Si deseas setear manualmente
-    Comunidad mapToModel(ComunidadDTO dto, @Context Foro foro);
+    @Mapping(target = "foro", ignore = true) // o usar @Context + @AfterMapping si lo seteas tú
+    @Mapping(target = "servicios", ignore = true)
+    @Mapping(target = "membresias", ignore = true)
+    @Mapping(target = "testimonios", ignore = true)
+    @Mapping(target = "persona", ignore = true)
+    Comunidad mapToModel(ComunidadDTO dto);
+
+    ComunidadResumenDTO mapToResumenDTO(Comunidad comunidad);
+    List<ComunidadResumenDTO> mapToResumenList(List<Comunidad> comunidades);
 
     List<ComunidadDTO> mapToDTOList(List<Comunidad> comunidades);
 
-    // Método default por si necesitas transformar servicios tú mismo
-    default List<ServicioDTO> mapServicios(List<Servicio> servicios) {
-        if (servicios == null) return null;
-        return servicios.stream().map(s -> new ServicioDTO(
-                s.getIdServicio(),
-                s.getNombre(),
-                s.getDescripcion(),
-                null,
-                null
-        )).collect(Collectors.toList());
+    @AfterMapping
+    default void setForo(@MappingTarget Comunidad comunidad, @Context Foro foro) {
+        comunidad.setForo(foro);
     }
 }
+
 

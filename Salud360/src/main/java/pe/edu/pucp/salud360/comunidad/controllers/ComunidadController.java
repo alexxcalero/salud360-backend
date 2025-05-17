@@ -65,18 +65,6 @@ public class ComunidadController {
         }
     }
 
-    @GetMapping("/{id}/servicios")
-    public ResponseEntity<List<ServicioDTO>> listarServiciosPorComunidad(@PathVariable Integer id) {
-        List<ServicioDTO> servicios = comunidadService.listarServiciosPorComunidad(id);
-        return ResponseEntity.ok(servicios);
-    }
-
-    @GetMapping("/{id}/membresias")
-    public ResponseEntity<List<MembresiaDTO>> listarMembresiasPorComunidad(@PathVariable Integer id) {
-        List<MembresiaDTO> lista = comunidadService.listarMembresiasPorComunidad(id);
-        return ResponseEntity.ok(lista);
-    }
-
 
 
 }

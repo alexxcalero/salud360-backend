@@ -8,8 +8,4 @@ import pe.edu.pucp.salud360.membresia.models.Membresia;
 import java.util.List;
 
 public interface MembresiaRepository extends JpaRepository<Membresia, Integer> {
-    @Query("SELECT m FROM Membresia m WHERE m.comunidad.idComunidad = :idComunidad AND m.activo = true")
-    List<Membresia> findByComunidadId(@Param("idComunidad") Integer idComunidad);
-
-
 }
