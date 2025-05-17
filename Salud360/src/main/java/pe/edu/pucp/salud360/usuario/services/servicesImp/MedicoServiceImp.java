@@ -6,7 +6,11 @@ import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.MedicoMapper;
 import pe.edu.pucp.salud360.usuario.models.Medico;
+import pe.edu.pucp.salud360.usuario.models.Rol;
+import pe.edu.pucp.salud360.usuario.models.TipoDocumento;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
+import pe.edu.pucp.salud360.usuario.repositories.RolRepository;
+import pe.edu.pucp.salud360.usuario.repositories.TipoDocumentoRepository;
 import pe.edu.pucp.salud360.usuario.services.MedicoService;
 
 import java.time.LocalDateTime;
@@ -21,14 +25,34 @@ public class MedicoServiceImp implements MedicoService {
     @Autowired
     private MedicoMapper medicoMapper;
 
+    @Autowired
+    private RolRepository rolRepository;
+
+    @Autowired
+    private TipoDocumentoRepository tipoDocumentoRepository;
+
     @Override
     public MedicoVistaAdminDTO crearMedico(MedicoRegistroDTO medicoDTO) {
         Medico medico = medicoMapper.mapToModel(medicoDTO);
+
+        // Resolver entidades por ID (¡clave!)
+        Rol rol = rolRepository.findById(medicoDTO.getRol().getIdRol())
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+        TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(medicoDTO.getTipoDocumento().getIdTipoDocumento())
+                .orElseThrow(() -> new RuntimeException("Tipo de documento no encontrado"));
+
+        medico.setRol(rol);                      // ✔ objeto persistido
+        medico.setTipoDocumento(tipoDocumento); // ✔ objeto persistido
+
         medico.setActivo(true);
         medico.setFechaCreacion(LocalDateTime.now());
         medico.setFechaDesactivacion(null);
+
         Medico medicoCreado = medicoRepository.save(medico);
-        return medicoMapper.mapToVistaAdminDTO(medicoCreado);
+
+        MedicoVistaAdminDTO dto = medicoMapper.mapToVistaAdminDTO(medicoCreado);
+        dto.setCitasMedicas(null); // Para evitar ciclos
+        return dto;
     }
 
     @Override
