@@ -1,11 +1,19 @@
 package pe.edu.pucp.salud360.usuario.mappers;
 
 import org.mapstruct.Mapper;
-import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoDTO;
+import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CitaMedicaMapper.class})
 public interface MedicoMapper {
-    MedicoDTO mapToDTO(Medico medico);
-    Medico mapToModel(MedicoDTO medicoDTO);
+    MedicoVistaAdminDTO mapToVistaAdminDTO(Medico medico);
+    Medico mapToModel(MedicoVistaAdminDTO medicoDTO);
+
+    MedicoResumenDTO mapToResumenDTO(Medico medico);
+    Medico mapToModel(MedicoResumenDTO medicoDTO);
+
+    Medico mapToModel(MedicoRegistroDTO medicoDTO);
 }

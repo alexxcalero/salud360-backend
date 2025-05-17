@@ -1,13 +1,14 @@
 package pe.edu.pucp.salud360.usuario.services;
 
-import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaVistaAdminDTO;
 
 import java.util.List;
 
 public interface PersonaService {
-    PersonaDTO crearPersona(PersonaDTO personaDTO);
-    PersonaDTO actualizarPersona(Integer idPersona, PersonaDTO personaDTO);
+    PersonaVistaAdminDTO crearPersona(PersonaRegistroDTO personaDTO);
+    PersonaVistaAdminDTO actualizarPersona(Integer idPersona, PersonaVistaAdminDTO personaDTO);
     void eliminarPersona(Integer idPersona);
-    List<PersonaDTO> listarPersonasTodas();
-    PersonaDTO buscarPersonaPorId(Integer idPersona);
+    List<PersonaVistaAdminDTO> listarPersonasTodas();
+    PersonaVistaAdminDTO buscarPersonaPorId(Integer idPersona);
 }

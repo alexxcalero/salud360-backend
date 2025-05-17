@@ -2,6 +2,7 @@ package pe.edu.pucp.salud360.seguridad;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -41,7 +42,8 @@ public class SecurityConfig {
                                 "/api/comunidades/**",
                                 "/api/foros/**",
                                 "/api/publicaciones/**",
-                                "/api/testimonios/**").permitAll()  // Agregar los endpoints a probar, sino dara error
+                                "/api/testimonios/**",
+                                "/api/reglas/**").permitAll()  // Agregar los endpoints a probar, sino dara error
                         .anyRequest().authenticated()
                 )
                 .httpBasic();  // Soporta autenticación básica vía Postman
