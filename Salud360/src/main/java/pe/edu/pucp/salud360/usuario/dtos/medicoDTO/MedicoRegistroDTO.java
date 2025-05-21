@@ -5,18 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import pe.edu.pucp.salud360.servicio.models.CitaMedica;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
-
-import java.util.List;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
 
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MedicoDTO extends UsuarioVistaClienteDTO {
+public class MedicoRegistroDTO extends UsuarioRegistroDTO {
     private String especialidad;
     private String descripcion;
-    private List<CitaMedica> citasMedicas;
 }

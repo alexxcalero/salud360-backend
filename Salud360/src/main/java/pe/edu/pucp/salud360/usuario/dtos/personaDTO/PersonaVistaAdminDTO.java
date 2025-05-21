@@ -11,7 +11,7 @@ import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO.TestimonioDTO;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
-import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
@@ -35,5 +35,5 @@ public class PersonaVistaAdminDTO extends UsuarioVistaAdminDTO {
     private List<TestimonioDTO> testimonios;
     private List<Notificacion> notificaciones;
     private List<ReservaResumenDTO> reservas;
-    private List<CitaMedicaResumenDTO> citasMedicas;
+    private List<CitaMedicaVistaClienteDTO> citasMedicas;
 }

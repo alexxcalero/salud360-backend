@@ -9,7 +9,6 @@ import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 
 import java.time.LocalDateTime;
 
-
 @Getter
 @Setter
 @SuperBuilder

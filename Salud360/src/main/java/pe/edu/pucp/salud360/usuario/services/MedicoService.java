@@ -1,13 +1,14 @@
 package pe.edu.pucp.salud360.usuario.services;
 
-import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 
 import java.util.List;
 
 public interface MedicoService {
-    MedicoDTO crearMedico(MedicoDTO medicoDTO);
-    MedicoDTO actualizarMedico(Integer idMedico, MedicoDTO medicoDTO);
+    MedicoVistaAdminDTO crearMedico(MedicoRegistroDTO medicoDTO);
+    MedicoVistaAdminDTO actualizarMedico(Integer idMedico, MedicoVistaAdminDTO medicoDTO);
     void eliminarMedico(Integer idMedico);
-    List<MedicoDTO> listarMedicosTodos();
-    MedicoDTO buscarMedicoPorId(Integer idMedico);
+    List<MedicoVistaAdminDTO> listarMedicosTodos();
+    MedicoVistaAdminDTO buscarMedicoPorId(Integer idMedico);
 }
