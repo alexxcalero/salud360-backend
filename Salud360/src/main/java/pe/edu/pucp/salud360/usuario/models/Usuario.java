@@ -36,7 +36,7 @@ public class Usuario {
     @Column(name = "correo", unique = true, nullable = false, updatable = true)
     protected String correo;
 
-    @Column(name = "contrasenha", unique = false, nullable = false, updatable = true)
+    @Column(name = "contrasenha", unique = false, nullable = true, updatable = true)
     protected String contrasenha;
 
     @Column(name = "telefono", unique = true, nullable = false, updatable = true)

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
 import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
 
 import java.time.LocalDate;
@@ -30,4 +31,5 @@ public class UsuarioVistaClienteDTO {
     protected Boolean notiWhatsApp;
     protected LocalDateTime fechaCreacion;
     protected TipoDocumentoResumenDTO tipoDocumento;
+    protected RolVistaClienteDTO rol;
 }
