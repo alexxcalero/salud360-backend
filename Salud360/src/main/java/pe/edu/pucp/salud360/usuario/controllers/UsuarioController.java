@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.pucp.salud360.seguridad.JwtService;
+import pe.edu.pucp.salud360.usuario.dtos.LoginRequestDTO;
+import pe.edu.pucp.salud360.usuario.dtos.LoginResponseDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
@@ -22,6 +25,9 @@ public class UsuarioController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping
     public ResponseEntity<UsuarioVistaAdminDTO> crearUsuario(@RequestBody UsuarioRegistroDTO usuarioDTO) {
@@ -101,6 +107,27 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> iniciarSesion(@RequestBody LoginRequestDTO loginRequest) {
+        String correo = loginRequest.getCorreo();
+        String contrasenha = loginRequest.getContrasenha();
+
+        Usuario usuarioBuscado = usuarioService.buscarUsuarioPorCorreoEnLogin(correo);
+        if (usuarioBuscado != null) {
+            String contrasenhaUsuario = usuarioBuscado.getContrasenha();
+            if (passwordEncoder.matches(contrasenha, contrasenhaUsuario)) {
+                String token = jwtService.generateToken(correo); //Generamos el token para persistir la sesión en el front
+                UsuarioVistaClienteDTO usuarioDTO = usuarioService.buscarUsuarioPorCorreoEnCliente(correo);
+                return ResponseEntity.ok(new LoginResponseDTO(token, usuarioDTO));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+
+    /*@PostMapping("/login")
     public ResponseEntity<UsuarioVistaClienteDTO> iniciarSesion(@RequestParam("correo") String correo,
                                                                 @RequestParam("contrasenha") String contrasenha) {
         // Recupero el model tal cual, y no el DTO, esto para obtener la contrasenha
@@ -115,7 +142,7 @@ public class UsuarioController {
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-    }
+    }*/
 
     @GetMapping("/listarUsuariosPorCorreo")
     public ResponseEntity<List<UsuarioVistaAdminDTO>> listarUsuariosTodosPorCorreo(@RequestParam("correo") String correo) {

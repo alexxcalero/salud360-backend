@@ -2,7 +2,8 @@ package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.PersonaMapper;
 import pe.edu.pucp.salud360.usuario.mappers.RolMapper;
 import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
@@ -29,17 +30,17 @@ public class PersonaServiceImp implements PersonaService {
     private RolMapper rolMapper;
 
     @Override
-    public PersonaDTO crearPersona(PersonaDTO personaDTO) {
+    public PersonaVistaAdminDTO crearPersona(PersonaRegistroDTO personaDTO) {
         Persona persona = personaMapper.mapToModel(personaDTO);
         persona.setActivo(true);
         persona.setFechaCreacion(LocalDateTime.now());
         persona.setFechaDesactivacion(null);
         Persona personaCreada = personaRepository.save(persona);
-        return personaMapper.mapToDTO(personaCreada);
+        return personaMapper.mapToVistaAdminDTO(personaCreada);
     }
 
     @Override
-    public PersonaDTO actualizarPersona(Integer idPersona, PersonaDTO personaDTO) {
+    public PersonaVistaAdminDTO actualizarPersona(Integer idPersona, PersonaVistaAdminDTO personaDTO) {
         if(personaRepository.findById(idPersona).isPresent()){
             Persona persona = personaRepository.findById(idPersona).get();
             persona.setNombres(personaDTO.getNombres());
@@ -50,7 +51,7 @@ public class PersonaServiceImp implements PersonaService {
             persona.setTipoDocumento(tipoDocumentoMapper.mapToModel(personaDTO.getTipoDocumento()));
             persona.setFotoPerfil(personaDTO.getFotoPerfil());
             Persona personaModificada = personaRepository.save(persona);
-            return personaMapper.mapToDTO(personaModificada);
+            return personaMapper.mapToVistaAdminDTO(personaModificada);
         } else {
             return null;
         }
@@ -68,20 +69,20 @@ public class PersonaServiceImp implements PersonaService {
     }
 
     @Override
-    public List<PersonaDTO> listarPersonasTodas() {
+    public List<PersonaVistaAdminDTO> listarPersonasTodas() {
         List<Persona> personas = personaRepository.findAll();
         if(personas.isEmpty()) {
             return null;
         } else {
-            return personas.stream().map(personaMapper::mapToDTO).toList();
+            return personas.stream().map(personaMapper::mapToVistaAdminDTO).toList();
         }
     }
 
     @Override
-    public PersonaDTO buscarPersonaPorId(Integer idPersona) {
+    public PersonaVistaAdminDTO buscarPersonaPorId(Integer idPersona) {
         if(personaRepository.findById(idPersona).isPresent()) {
             Persona personaBuscada = personaRepository.findById(idPersona).get();
-            return personaMapper.mapToDTO(personaBuscada);
+            return personaMapper.mapToVistaAdminDTO(personaBuscada);
         } else {
             return null;
         }
