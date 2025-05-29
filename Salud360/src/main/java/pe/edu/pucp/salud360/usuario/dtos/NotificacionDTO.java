@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +18,6 @@ public class NotificacionDTO {
     private String mensaje;
     private LocalDateTime fecha;
     private String tipo;
-    private Persona usuario;
+    private Cliente cliente;
     private Reserva reserva;
 }

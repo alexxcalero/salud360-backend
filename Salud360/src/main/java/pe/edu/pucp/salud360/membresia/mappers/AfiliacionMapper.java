@@ -4,8 +4,6 @@ import org.mapstruct.Mapper;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
-import pe.edu.pucp.salud360.control.models.Reporte;
-import pe.edu.pucp.salud360.usuario.mappers.PermisoMapper;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 
 import java.util.List;

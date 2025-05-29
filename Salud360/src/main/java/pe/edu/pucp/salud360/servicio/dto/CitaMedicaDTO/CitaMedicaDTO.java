@@ -1,16 +1,16 @@
 package pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoResumenDTO;
-import pe.edu.pucp.salud360.usuario.dtos.personaDTO.PersonaResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CitaMedicaDTO {
@@ -24,6 +24,6 @@ public class CitaMedicaDTO {
     private LocalDate fechaDesactivacion;
     private Integer idServicio;
 
-    private PersonaResumenDTO paciente;
+    private ClienteResumenDTO paciente;
     private MedicoResumenDTO medico;
 }

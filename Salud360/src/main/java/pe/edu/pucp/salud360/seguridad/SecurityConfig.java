@@ -1,24 +1,41 @@
 package pe.edu.pucp.salud360.seguridad;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pe.edu.pucp.salud360.autenticacion.services.UsuarioDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UsuarioDetailsService usuarioDetailsService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf().disable()
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider())
+                .build();
+
+        /*
         http
-                //.cors()  // Esto activa el CORS configurado en WebConfig
                 .csrf().disable()  // Solo para pruebas; idealmente manejar token CSRF luego
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/usuarios/**",
@@ -48,6 +65,7 @@ public class SecurityConfig {
                 )
                 .httpBasic();  // Soporta autenticación básica vía Postman
         return http.build();
+        */
     }
 
     // Para poder hashear las contrasenhas de usuario antes de guardarlas en la BD
@@ -56,15 +74,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Esto es para poder hashear las contrasenhas de los usuarios, y a su vez poder autenticar las peticiones de Postman
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(
-                User.withUsername("admin")
-                        .password(passwordEncoder.encode("admin123"))
-                        .build()
-        );
-        return manager;
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(usuarioDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

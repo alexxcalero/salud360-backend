@@ -13,15 +13,15 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
 public interface TestimonioMapper {
 
-    @Mapping(source = "persona", target = "autor")
+    @Mapping(source = "cliente", target = "autor")
     @Mapping(source = "comunidad.idComunidad", target = "idComunidad")
     TestimonioDTO mapToDTO(Testimonio testimonio);
 
-    @Mapping(target = "persona", source = "autor")
+    @Mapping(target = "cliente", source = "autor")
     @Mapping(target = "comunidad.idComunidad", source = "idComunidad")
     Testimonio mapToModel(TestimonioDTO dto);
 
-    @Mapping(source = "persona", target = "autor")
+    @Mapping(source = "cliente", target = "autor")
     TestimonioResumenDTO mapToResumenDTO(Testimonio testimonio);
 
     List<TestimonioDTO> mapToDTOList(List<Testimonio> testimonios);

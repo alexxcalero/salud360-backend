@@ -9,10 +9,10 @@ import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.models.Medico;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
-import pe.edu.pucp.salud360.usuario.repositories.PersonaRepository;
 import pe.edu.pucp.salud360.servicio.services.CitaMedicaService;
 
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
     private ServicioRepository servicioRepository;
 
     @Autowired
-    private PersonaRepository personaRepository;
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private MedicoRepository medicoRepository;
@@ -44,10 +44,10 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
         Servicio servicio = servicioRepository.findById(dto.getIdServicio())
                 .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
 
-        Persona paciente = personaRepository.findById(dto.getPaciente().getIdUsuario())
+        Cliente cliente = clienteRepository.findById(dto.getPaciente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
-        Medico medico = medicoRepository.findById(dto.getMedico().getIdUsuario())
+        Medico medico = medicoRepository.findById(dto.getMedico().getIdMedico())
                 .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
 
         // Mapear el DTO a entidad
@@ -55,7 +55,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
 
         // Asignar relaciones no incluidas directamente en el mapeo
         cita.setServicio(servicio);
-        cita.setPaciente(paciente); // O cita.setUsuario(paciente), si así se llama el campo
+        cita.setCliente(cliente); // O cita.setUsuario(paciente), si así se llama el campo
         cita.setMedico(medico);
 
         // Campos adicionales
@@ -78,7 +78,6 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
         cita.setFecha(dto.getFecha());
         cita.setHora(dto.getHora()); // asumimos que cambió de `horaInicio` a `hora` en el DTO
         cita.setEstado(dto.getEstado());
-        cita.setMotivo(dto.getMotivo());
 
         return citaMedicaMapper.mapToDTO(citaMedicaRepository.save(cita));
     }

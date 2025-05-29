@@ -1,17 +1,15 @@
 package pe.edu.pucp.salud360.comunidad.dto.comunidad;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
-import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ComunidadResumenDTO {
@@ -22,4 +20,6 @@ public class ComunidadResumenDTO {
     private List<String> imagenes;
     private Integer cantMiembros;
     private Double calificacion;
+    private List<ServicioResumenDTO> servicios; //agregado
+    private List<MembresiaResumenDTO> membresias;
 }

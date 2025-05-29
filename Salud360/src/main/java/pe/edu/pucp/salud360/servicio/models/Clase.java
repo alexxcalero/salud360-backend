@@ -1,22 +1,17 @@
 package pe.edu.pucp.salud360.servicio.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import lombok.*;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -24,6 +19,7 @@ import java.util.List;
 public class Clase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idClase", unique = true, nullable = false, updatable = false)
     private Integer idClase;
 
     @Column(name = "nombre", nullable = false)
@@ -61,11 +57,11 @@ public class Clase {
 
     @ManyToMany
     @JoinTable(
-            name = "clase_persona",
+            name = "clase_cliente",
             joinColumns = @JoinColumn(name = "idClase"),
-            inverseJoinColumns = @JoinColumn(name = "idUsuario")
+            inverseJoinColumns = @JoinColumn(name = "idCliente")
     )
-    private List<Persona> personas;
+    private List<Cliente> clientes;
 
     @OneToMany(mappedBy = "clase")
     private List<Reserva> reservas;

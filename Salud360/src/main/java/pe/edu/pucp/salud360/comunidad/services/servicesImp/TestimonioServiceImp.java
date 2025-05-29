@@ -9,8 +9,8 @@ import pe.edu.pucp.salud360.comunidad.models.Testimonio;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.comunidad.repositories.TestimonioRepository;
 import pe.edu.pucp.salud360.comunidad.services.TestimonioService;
-import pe.edu.pucp.salud360.usuario.models.Persona;
-import pe.edu.pucp.salud360.usuario.repositories.PersonaRepository;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
+import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +27,7 @@ public class TestimonioServiceImp implements TestimonioService {
     private TestimonioMapper testimonioMapper;
 
     @Autowired
-    private PersonaRepository personaRepository;
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private ComunidadRepository comunidadRepository;
@@ -36,13 +36,13 @@ public class TestimonioServiceImp implements TestimonioService {
     public TestimonioDTO crearTestimonio(TestimonioDTO dto) {
         Testimonio testimonio = testimonioMapper.mapToModel(dto);
 
-        Persona autor = personaRepository.findById(dto.getAutor().getIdUsuario())
+        Cliente autor = clienteRepository.findById(dto.getAutor().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Comunidad comunidad = comunidadRepository.findById(dto.getIdComunidad())
                 .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
 
-        testimonio.setPersona(autor);
+        testimonio.setCliente(autor);
         testimonio.setComunidad(comunidad);
         testimonio.setFechaCreacion(LocalDateTime.now());
         testimonio.setActivo(true);

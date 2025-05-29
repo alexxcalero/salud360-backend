@@ -24,6 +24,5 @@ public class ClaseDTO {
     private Integer cantAsistentes;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
-
 }
 

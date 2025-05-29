@@ -1,34 +1,54 @@
 package pe.edu.pucp.salud360.usuario.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.seguridad.JwtService;
-import pe.edu.pucp.salud360.usuario.dtos.LoginRequestDTO;
-import pe.edu.pucp.salud360.usuario.dtos.LoginResponseDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
-import pe.edu.pucp.salud360.usuario.models.Usuario;
+import pe.edu.pucp.salud360.autenticacion.models.ActualizarContrasenhaRequest;
+import pe.edu.pucp.salud360.autenticacion.models.ActualizarCorreoRequest;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.services.UsuarioService;
-
-import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:5173") // PARA QUE SE CONECTE CON EL FRONT
 @RestController
 @RequestMapping("/api/usuarios")
+@RequiredArgsConstructor
 public class UsuarioController {
-    @Autowired
-    private UsuarioService usuarioService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UsuarioService usuarioService;
 
-    @Autowired
-    private JwtService jwtService;
+    @PutMapping("{idUsuario}/cambiarContrasenha")
+    public ResponseEntity<String> cambiarContrasenha(@PathVariable("idUsuario") Integer idUsuario,
+                                                     @RequestBody ActualizarContrasenhaRequest actualizarContrasenhaRequest) {
+        UsuarioResumenDTO usuarioBuscado = usuarioService.buscarUsuarioPorId(idUsuario);
+        if(usuarioBuscado != null) {
+            if(usuarioService.cambiarContrasenha(idUsuario, actualizarContrasenhaRequest))
+                return new ResponseEntity<>("Se actualizó la contraseña correctamente", HttpStatus.OK);
+            else {
+                return new ResponseEntity<>("No se pudo actualizar la contraseña", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("No se encontró al usuario", HttpStatus.NOT_FOUND);
+        }
+    }
 
+    @PutMapping("{idUsuario}/cambiarCorreo")
+    public ResponseEntity<String> cambiarCorreo(@PathVariable("idUsuario") Integer idUsuario,
+                                                @RequestBody ActualizarCorreoRequest actualizarCorreoRequest) {
+        UsuarioResumenDTO usuarioBuscado = usuarioService.buscarUsuarioPorId(idUsuario);
+        if (usuarioBuscado != null) {
+            if (usuarioService.cambiarCorreo(idUsuario, actualizarCorreoRequest))
+                return new ResponseEntity<>("Se actualizó el correo correctamente", HttpStatus.OK);
+            else {
+                return new ResponseEntity<>("No se pudo actualizar el correo", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("No se encontró al usuario", HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    /*
     @PostMapping
     public ResponseEntity<UsuarioVistaAdminDTO> crearUsuario(@RequestBody UsuarioRegistroDTO usuarioDTO) {
         UsuarioVistaAdminDTO usuarioCreado = usuarioService.crearUsuario(usuarioDTO);
@@ -93,41 +113,7 @@ public class UsuarioController {
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("{idUsuario}/cambiarContrasenha")
-    public ResponseEntity<String> actualizarContrasenha(@PathVariable("idUsuario") Integer idUsuario,
-                                                        @RequestParam("contrasenha") String contrasenha) {
-        UsuarioVistaClienteDTO usuarioBuscado = usuarioService.buscarUsuarioPorIdEnCliente(idUsuario);
-        if(usuarioBuscado != null) {
-            if(usuarioService.actualizarContrasenha(idUsuario, contrasenha))
-                return new ResponseEntity<>("Se actualizó la contraseña correctamente", HttpStatus.OK);
-            else
-                return new ResponseEntity<>("No se pudo actualizar la contraseña", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
-    }
-
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> iniciarSesion(@RequestBody LoginRequestDTO loginRequest) {
-        String correo = loginRequest.getCorreo();
-        String contrasenha = loginRequest.getContrasenha();
-
-        Usuario usuarioBuscado = usuarioService.buscarUsuarioPorCorreoEnLogin(correo);
-        if (usuarioBuscado != null) {
-            String contrasenhaUsuario = usuarioBuscado.getContrasenha();
-            if (passwordEncoder.matches(contrasenha, contrasenhaUsuario)) {
-                String token = jwtService.generateToken(correo); //Generamos el token para persistir la sesión en el front
-                UsuarioVistaClienteDTO usuarioDTO = usuarioService.buscarUsuarioPorCorreoEnCliente(correo);
-                return ResponseEntity.ok(new LoginResponseDTO(token, usuarioDTO));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-    }
-
-
-    /*@PostMapping("/login")
     public ResponseEntity<UsuarioVistaClienteDTO> iniciarSesion(@RequestParam("correo") String correo,
                                                                 @RequestParam("contrasenha") String contrasenha) {
         // Recupero el model tal cual, y no el DTO, esto para obtener la contrasenha
@@ -142,7 +128,7 @@ public class UsuarioController {
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-    }*/
+    }
 
     @GetMapping("/listarUsuariosPorCorreo")
     public ResponseEntity<List<UsuarioVistaAdminDTO>> listarUsuariosTodosPorCorreo(@RequestParam("correo") String correo) {
@@ -155,4 +141,5 @@ public class UsuarioController {
         List<UsuarioVistaAdminDTO> usuarios = usuarioService.listarUsuariosTodosPorNombre(nombre);
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
     }
+    */
 }

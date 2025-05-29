@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,7 +49,7 @@ public class MedioDePago {
     private List<Pago> pagos;
 
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
-    private Persona persona;
+    @JoinColumn(name = "idCliente")
+    private Cliente cliente;
 
 }

@@ -1,79 +1,81 @@
 package pe.edu.pucp.salud360.usuario.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "usuario")
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idUsuario", unique = true, nullable = false, updatable = false)
-    protected Integer idUsuario;
-
-    @Column(name = "nombres", unique = false, nullable = false, updatable = true)
-    protected String nombres;
-
-    @Column(name = "apellidos", unique = false, nullable = false, updatable = true)
-    protected String apellidos;
-
-    @Column(name = "numeroDocumento", unique = true, nullable = false, updatable = true)
-    protected String numeroDocumento;
+    private Integer idUsuario;
 
     @Column(name = "correo", unique = true, nullable = false, updatable = true)
-    protected String correo;
+    private String correo;
 
-    @Column(name = "contrasenha", unique = false, nullable = true, updatable = true)
-    protected String contrasenha;
-
-    @Column(name = "telefono", unique = true, nullable = false, updatable = true)
-    protected String telefono;
-
-    @Column(name = "sexo", unique = false, nullable = false, updatable = true)
-    protected String sexo;
-
-    @Column(name = "fechaNacimiento", unique = false, nullable = false, updatable = true)
-    protected LocalDate fechaNacimiento;
-
-    @Column(name = "fotoPerfil", unique = false, nullable = true, updatable = true)
-    protected String fotoPerfil;
-
-    @Column(name = "notiCorreo", unique = false, nullable = false, updatable = true)
-    protected Boolean notiCorreo;
-
-    @Column(name = "notiSMS", unique = false, nullable = false, updatable = true)
-    protected Boolean notiSMS;
-
-    @Column(name = "notiWhatsApp", unique = false, nullable = false, updatable = true)
-    protected Boolean notiWhatsApp;
+    @Column(name = "contrasenha", unique = false, nullable = false, updatable = true)
+    private String contrasenha;
 
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
-    protected Boolean activo;
+    private Boolean activo;
 
-    @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = false)
-    protected LocalDateTime fechaCreacion;
+    @OneToOne(mappedBy = "usuario")
+    private Cliente cliente;
 
-    @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
-    protected LocalDateTime fechaDesactivacion;
-
-    @ManyToOne
-    @JoinColumn(name = "idTipoDocumento", unique = false, nullable = false, updatable = true)
-    protected TipoDocumento tipoDocumento;
+    @OneToOne(mappedBy = "usuario")
+    private Administrador administrador;
 
     @ManyToOne
     @JoinColumn(name = "idRol", unique = false, nullable = false, updatable = true)
-    protected Rol rol;
+    private Rol rol;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(rol.getNombre()));
+    }
+
+    @Override
+    public String getUsername() {
+        return correo;
+    }
+
+    @Override
+    public String getPassword() {
+        return contrasenha;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+        //return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+        //return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+        //return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return activo;
+    }
 }
