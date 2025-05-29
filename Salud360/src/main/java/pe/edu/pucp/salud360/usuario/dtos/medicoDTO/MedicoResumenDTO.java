@@ -1,18 +1,17 @@
 package pe.edu.pucp.salud360.usuario.dtos.medicoDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
+import lombok.*;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MedicoResumenDTO extends UsuarioResumenDTO {
+public class MedicoResumenDTO {
+    private Integer idMedico;
+    private String nombres;
+    private String apellidos;
     private String especialidad;
     private String descripcion;
+    private String fotoPerfil;
 }

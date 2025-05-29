@@ -1,15 +1,13 @@
 package pe.edu.pucp.salud360.servicio.dto;
 
-
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class DocumentoMedicoDTO {

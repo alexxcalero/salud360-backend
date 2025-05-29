@@ -1,11 +1,7 @@
 package pe.edu.pucp.salud360.servicio.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 
 import java.time.LocalDateTime;
@@ -13,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -21,6 +17,7 @@ import java.util.List;
 public class Servicio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idServicio", unique = true, nullable = false, updatable = false)
     private Integer idServicio;
 
     @Column(name = "nombre", unique = false, nullable = false, updatable = true)

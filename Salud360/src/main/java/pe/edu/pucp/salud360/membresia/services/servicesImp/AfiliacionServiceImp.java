@@ -8,7 +8,7 @@ import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
-import pe.edu.pucp.salud360.usuario.repositories.PersonaRepository;
+import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
     private AfiliacionRepository afiliacionRepository;
 
     @Autowired
-    private PersonaRepository personaRepository;
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private MedioDePagoRepository medioDePagoRepository;
@@ -37,7 +37,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
 
-        afiliacion.setPersona(personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
+        afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
@@ -76,7 +76,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
-        afiliacion.setPersona(personaRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
+        afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));

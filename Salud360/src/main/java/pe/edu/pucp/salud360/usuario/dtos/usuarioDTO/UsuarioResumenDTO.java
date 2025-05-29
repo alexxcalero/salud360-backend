@@ -1,20 +1,15 @@
 package pe.edu.pucp.salud360.usuario.dtos.usuarioDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
+import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsuarioResumenDTO {
-    Integer idUsuario;
-    String nombres;
-    String apellidos;
-    String numeroDocumento;
-    String correo;
+    private Integer idUsuario;
+    private String correo;
+    private RolVistaClienteDTO rol;
 }

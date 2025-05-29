@@ -8,6 +8,7 @@ public interface TipoDocumentoService {
     TipoDocumentoVistaAdminDTO crearTipoDocumento(TipoDocumentoVistaAdminDTO tipoDocumentoDTO);
     TipoDocumentoVistaAdminDTO actualizarTipoDocumento(Integer idTipoDocumento, TipoDocumentoVistaAdminDTO tipoDocumentoDTO);
     void eliminarTipoDocumento(Integer idTipoDocumento);
-    List<TipoDocumentoVistaAdminDTO> listarTiposDocumentosTodos();
+    void reactivarTipoDocumento(Integer idTipoDocumento);
+    List<TipoDocumentoVistaAdminDTO> listarTiposDocumentos(String nombre);
     TipoDocumentoVistaAdminDTO buscarTipoDocumentoPorId(Integer idTipoDocumento);
 }

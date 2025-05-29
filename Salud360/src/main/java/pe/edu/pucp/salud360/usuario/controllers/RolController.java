@@ -1,20 +1,20 @@
 package pe.edu.pucp.salud360.usuario.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.pucp.salud360.usuario.dtos.permisoDTO.PermisoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.services.RolService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/api/admin/roles")
+@RequiredArgsConstructor
 public class RolController {
-    @Autowired
-    private RolService rolService;
+
+    private final RolService rolService;
 
     @PostMapping
     public ResponseEntity<RolVistaAdminDTO> crearRol(@RequestBody RolVistaAdminDTO rolDTO) {
@@ -43,9 +43,19 @@ public class RolController {
         return new ResponseEntity<>("Rol no encontrado", HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("{idRol}/reactivar")
+    public ResponseEntity<String> reactivarRol(@PathVariable("idRol") Integer idRol) {
+        RolVistaAdminDTO rolBuscado = rolService.buscarRolPorId(idRol);
+        if(rolBuscado != null) {
+            rolService.reactivarRol(idRol);
+            return new ResponseEntity<>("Rol reactivado satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Rol no encontrado", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping
-    public ResponseEntity<List<RolVistaAdminDTO>> listarRolesTodos() {
-        List<RolVistaAdminDTO> roles = rolService.listarRolesTodos();
+    public ResponseEntity<List<RolVistaAdminDTO>> listarRolesTodos(@RequestParam(required = false) String nombre) {
+        List<RolVistaAdminDTO> roles = rolService.listarRoles(nombre);
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 
@@ -58,6 +68,7 @@ public class RolController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
+    /*
     @PutMapping("{idRol}/editarPermisos")
     public ResponseEntity<RolVistaAdminDTO> editarPermisos(@PathVariable("idRol") Integer idRol,
                                                            @RequestBody List<PermisoResumenDTO> permisos) {
@@ -68,4 +79,5 @@ public class RolController {
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
+    */
 }

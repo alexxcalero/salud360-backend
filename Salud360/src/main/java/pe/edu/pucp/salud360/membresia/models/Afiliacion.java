@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pe.edu.pucp.salud360.control.models.Reporte;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,6 +57,6 @@ public class Afiliacion {
     private List<Periodo> periodo;
 
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
-    private Persona persona;
+    @JoinColumn(name = "idCliente")
+    private Cliente cliente;
 }

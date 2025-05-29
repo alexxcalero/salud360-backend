@@ -7,17 +7,11 @@ import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
-import pe.edu.pucp.salud360.comunidad.models.Foro;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
-import pe.edu.pucp.salud360.comunidad.repositories.ForoRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
-import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
-import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
-import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
-import pe.edu.pucp.salud360.servicio.models.Servicio;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,9 +27,6 @@ public class ComunidadServiceImp implements ComunidadService {
 
     @Autowired
     private ComunidadMapper comunidadMapper;
-
-    @Autowired
-    private ForoRepository foroRepository;
 
     @Autowired//listarxservicio
     private ServicioMapper servicioMapper;
@@ -53,13 +44,15 @@ public class ComunidadServiceImp implements ComunidadService {
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
         List<String> urls = new ArrayList<>();
         List<String> keys = new ArrayList<>();
-        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
         Comunidad comunidad = comunidadMapper.mapToModel(dto);
+        /*
         for(String imagen : comunidad.getImagenes()) {
             String url = s3UrlGenerator.generarUrl(imagen); //Genera urls
             urls.add(url); //Añade las url
             keys.add(s3UrlGenerator.extraerKeyDeUrl(url)); //Saca la key del archivo
         }
+
+         */
         comunidad.setImagenes(keys); //Guarda las keys para la bd
         comunidad.setFechaCreacion(LocalDateTime.now());
         Comunidad guardada = comunidadRepository.save(comunidad); //Guarda la comunidad
@@ -100,10 +93,13 @@ public class ComunidadServiceImp implements ComunidadService {
     public ComunidadDTO obtenerComunidadPorId(Integer id) {
         Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
         List<String> urls = new ArrayList<>(), imagenes = comunidad.getImagenes();
+        /*
         if(imagenes != null) {
             for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
             comunidad.setImagenes(urls);
         }
+
+         */
         return comunidadMapper.mapToDTO(comunidad);
     }
 

@@ -1,7 +1,9 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import pe.edu.pucp.salud360.usuario.dtos.NotificacionDTO;
 import pe.edu.pucp.salud360.usuario.mappers.NotificacionMapper;
 import pe.edu.pucp.salud360.usuario.models.Notificacion;
@@ -11,15 +13,17 @@ import pe.edu.pucp.salud360.usuario.services.NotificacionService;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class NotificacionServiceImp implements NotificacionService {
-    @Autowired
-    private NotificacionRepository notificacionRepository;
+
+    private final NotificacionRepository notificacionRepository;
+    private final NotificacionMapper notificacionMapper;
 
     @Override
     public NotificacionDTO crearNotificacion(NotificacionDTO notificacionDTO) {
-        Notificacion notificacion = NotificacionMapper.mapToModel(notificacionDTO);
+        Notificacion notificacion = notificacionMapper.mapToModel(notificacionDTO);
         Notificacion notificacionCreada = notificacionRepository.save(notificacion);
-        return NotificacionMapper.mapToDTO(notificacionCreada);
+        return notificacionMapper.mapToDTO(notificacionCreada);
     }
 
     @Override
@@ -27,10 +31,8 @@ public class NotificacionServiceImp implements NotificacionService {
         if(notificacionRepository.findById(idNotificacion).isPresent()){
             Notificacion notificacion = notificacionRepository.findById(idNotificacion).get();
             notificacion.setMensaje(notificacionDTO.getMensaje());
-            notificacion.setFecha(notificacionDTO.getFecha());
-            notificacion.setTipo(notificacionDTO.getTipo());
             Notificacion notificacionActualizada = notificacionRepository.save(notificacion);
-            return NotificacionMapper.mapToDTO(notificacionActualizada);
+            return notificacionMapper.mapToDTO(notificacionActualizada);
         } else {
             return null;
         }
@@ -49,7 +51,7 @@ public class NotificacionServiceImp implements NotificacionService {
         if(notificaciones.isEmpty()) {
             return null;
         } else {
-            return notificaciones.stream().map(NotificacionMapper::mapToDTO).toList();
+            return notificaciones.stream().map(notificacionMapper::mapToDTO).toList();
         }
     }
 
@@ -57,7 +59,7 @@ public class NotificacionServiceImp implements NotificacionService {
     public NotificacionDTO buscarNotificacionPorId(Integer idNotificacion) {
         if(notificacionRepository.findById(idNotificacion).isPresent()) {
             Notificacion notificacion = notificacionRepository.findById(idNotificacion).get();
-            return NotificacionMapper.mapToDTO(notificacion);
+            return notificacionMapper.mapToDTO(notificacion);
         } else {
             return null;
         }

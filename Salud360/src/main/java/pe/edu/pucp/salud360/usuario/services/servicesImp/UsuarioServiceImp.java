@@ -1,25 +1,90 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioRegistroDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaAdminDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioVistaClienteDTO;
-import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
+import pe.edu.pucp.salud360.autenticacion.models.ActualizarContrasenhaRequest;
+import pe.edu.pucp.salud360.autenticacion.models.ActualizarCorreoRequest;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
-import pe.edu.pucp.salud360.usuario.models.Rol;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 import pe.edu.pucp.salud360.usuario.services.UsuarioService;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioServiceImp implements UsuarioService {
+
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public UsuarioResumenDTO buscarUsuarioPorCorreo(String correo) {
+        Optional<Usuario> usuarioBuscado = usuarioRepository.findByCorreo(correo);
+        if (usuarioBuscado.isPresent()) {
+            Usuario usuario = usuarioBuscado.get();
+            return usuarioMapper.mapToResumenDTO(usuario);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public UsuarioResumenDTO buscarUsuarioPorId(Integer idUsuario) {
+        Optional<Usuario> usuarioBuscado = usuarioRepository.findById(idUsuario);
+        if (usuarioBuscado.isPresent()) {
+            Usuario usuario = usuarioBuscado.get();
+            return usuarioMapper.mapToResumenDTO(usuario);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Boolean cambiarContrasenha(Integer idUsuario, ActualizarContrasenhaRequest request) {
+        Optional<Usuario> usuarioBuscado = usuarioRepository.findById(idUsuario);
+        if(usuarioBuscado.isPresent()) {
+            Usuario usuario = usuarioBuscado.get();
+
+            if(!passwordEncoder.matches(request.getContrasenhaActual(), usuario.getContrasenha())) {
+                throw new IllegalArgumentException("La contraseña actual no coincide");
+            }
+
+            String contrasenhaEncriptada = passwordEncoder.encode(request.getContrasenhaNueva());
+
+            usuario.setContrasenha(contrasenhaEncriptada);
+            usuarioRepository.save(usuario);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Boolean cambiarCorreo(Integer idUsuario, ActualizarCorreoRequest request) {
+        Optional<Usuario> usuarioBuscado = usuarioRepository.findById(idUsuario);
+        if(usuarioBuscado.isPresent()) {
+            Usuario usuario = usuarioBuscado.get();
+
+            if(usuarioRepository.existsByCorreo(request.getCorreoNuevo())) {
+                throw new IllegalArgumentException("El correo ya está en uso.");
+            }
+
+            usuario.setCorreo(request.getCorreoNuevo());
+            usuarioRepository.save(usuario);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -189,4 +254,5 @@ public class UsuarioServiceImp implements UsuarioService {
             return new ArrayList<>();
         }
     }
+    */
 }

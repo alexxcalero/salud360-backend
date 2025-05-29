@@ -3,9 +3,8 @@ package pe.edu.pucp.salud360.servicio.models;
 import jakarta.persistence.*;
 import lombok.*;
 
-import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.models.Medico;
-import pe.edu.pucp.salud360.usuario.models.Persona;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -22,6 +21,7 @@ import java.util.List;
 public class CitaMedica {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idCitaMedica", unique = true, nullable = false, updatable = false)
     private Integer idCitaMedica;
 
     @Column(name = "fecha", unique = false, nullable = false, updatable = true)
@@ -42,9 +42,6 @@ public class CitaMedica {
     @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
 
-    @Column(name = "motivo", nullable = true, updatable = true)
-    private String motivo;
-
     @ManyToOne
     @JoinColumn(name = "idServicio")
     private Servicio servicio;
@@ -56,8 +53,8 @@ public class CitaMedica {
     private List<Reserva> reservas;
 
     @ManyToOne
-    @JoinColumn(name = "idPaciente")
-    private Persona paciente;
+    @JoinColumn(name = "idCliente")
+    private Cliente cliente;
 
     @ManyToOne
     @JoinColumn(name = "idMedico")

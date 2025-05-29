@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "rol")
 public class Rol {
     @Id
-    @GeneratedValue(strategy     = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idRol", unique = true, nullable = false, updatable = false)
     private Integer idRol;
 
@@ -37,6 +37,7 @@ public class Rol {
     @OneToMany(mappedBy = "rol")
     private List<Usuario> usuarios;
 
+    /*
     @ManyToMany
     @JoinTable(
             name = "rol_permiso",
@@ -44,4 +45,5 @@ public class Rol {
             inverseJoinColumns = @JoinColumn(name = "idPermiso")
     )
     private List<Permiso> permisos;
+     */
 }

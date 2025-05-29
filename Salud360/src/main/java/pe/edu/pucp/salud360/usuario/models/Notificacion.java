@@ -21,18 +21,15 @@ public class Notificacion {
     @Column(name = "idNotificacion", unique = true, nullable = false, updatable = false)
     private Integer idNotificacion;
 
-    @Column(name = "mensaje", unique = false, nullable = false, updatable = true)
+    @Column(name = "mensaje", unique = false, nullable = false, updatable = false)
     private String mensaje;
 
-    @Column(name = "fecha", unique = false, nullable = false, updatable = true)
-    private LocalDateTime fecha;
-
-    @Column(name = "tipo", unique = false, nullable = false, updatable = true)
-    private String tipo;
+    @Column(name = "fechaEnvio", unique = false, nullable = false, updatable = false)
+    private LocalDateTime fechaEnvio;
 
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
-    private Persona usuario;
+    @JoinColumn(name = "idCliente")
+    private Cliente cliente;
 
     @ManyToOne
     @JoinColumn(name = "idReserva")
