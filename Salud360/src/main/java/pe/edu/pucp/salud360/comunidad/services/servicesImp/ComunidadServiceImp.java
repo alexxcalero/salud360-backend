@@ -109,10 +109,12 @@ public class ComunidadServiceImp implements ComunidadService {
 
     @Override
     public List<ComunidadDTO> listarComunidades() {
-        return comunidadRepository.findAll().stream()
-                .filter(Comunidad::getActivo)
-                .map(comunidadMapper::mapToDTO)
-                .collect(Collectors.toList());
+        List<Comunidad> comunidades = comunidadRepository.findAll();
+        if(!(comunidades.isEmpty())) {
+            return comunidades.stream().map(comunidadMapper::mapToDTO).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
