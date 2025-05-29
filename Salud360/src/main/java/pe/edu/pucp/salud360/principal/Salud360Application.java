@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(scanBasePackages = "pe.edu.pucp.salud360")
 @EntityScan(basePackages = "pe.edu.pucp.salud360")  // Escanea TODAS las entidades en subpaquetes
 @EnableJpaRepositories(basePackages = "pe.edu.pucp.salud360")  // Escanea TODOS los repositorios
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy//Para los logs
 
 public class Salud360Application {
 	public static void main(String[] args) {

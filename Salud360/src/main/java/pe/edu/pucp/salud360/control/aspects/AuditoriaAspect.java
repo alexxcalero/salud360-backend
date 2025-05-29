@@ -1,7 +1,5 @@
 package pe.edu.pucp.salud360.control.aspects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,50 +16,50 @@ public class AuditoriaAspect {
     @Autowired
     private AuditoriaRepository auditoriaRepository;
 
-    private final ObjectMapper objectMapper;
-
-    public AuditoriaAspect() {
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-    }
-
-    @AfterReturning(
-            pointcut = "execution(* pe.edu.pucp.salud360.servicio.services.servicesImp.LocalServiceImp.crearLocal(..))",
-            returning = "resultado")
+    @AfterReturning(pointcut = "execution(* pe.edu.pucp.salud360..*.crear*(..))", returning = "resultado")
     public void auditarCreacion(JoinPoint joinPoint, Object resultado) {
-        System.out.println("✅ Aspect CREAR interceptado para Local");
-        guardarAuditoria("CREAR", "Local", resultado);
+        guardarAuditoria("CREAR", joinPoint, resultado);
     }
 
-    @AfterReturning(
-            pointcut = "execution(* pe.edu.pucp.salud360.servicio.services.servicesImp.LocalServiceImp.actualizarLocal(..))",
-            returning = "resultado")
+    @AfterReturning(pointcut = "execution(* pe.edu.pucp.salud360..*.actualizar*(..))", returning = "resultado")
     public void auditarActualizacion(JoinPoint joinPoint, Object resultado) {
-        guardarAuditoria("ACTUALIZAR", "Local", resultado);
+        guardarAuditoria("ACTUALIZAR", joinPoint, resultado);
     }
 
-    @Before(
-            value = "execution(* pe.edu.pucp.salud360.servicio.services.servicesImp.LocalServiceImp.eliminarLocal(..)) && args(id)")
-    public void auditarEliminacion(JoinPoint joinPoint, Integer id) {
-        guardarAuditoria("ELIMINAR", "Local", "ID=" + id);
+    @Before(value = "execution(* pe.edu.pucp.salud360..*.eliminar*(..)) && args(id)")
+    public void auditarEliminacion(JoinPoint joinPoint, Object id) {
+        guardarAuditoria("ELIMINAR", joinPoint, "ID=" + id);
     }
 
-    private void guardarAuditoria(String operacion, String tabla, Object datos) {
+    private void guardarAuditoria(String operacion, JoinPoint joinPoint, Object datos) {
         try {
-            System.out.println("🟢 Entrando a auditoría: " + operacion);
+            String clase = joinPoint.getTarget().getClass().getSimpleName().replace("ServiceImp", "");
+            String descripcion = generarDescripcion(datos);
+
             Auditoria auditoria = new Auditoria();
-            auditoria.setNombreTabla(tabla);
+            auditoria.setNombreTabla(clase);
             auditoria.setOperacion(operacion);
             auditoria.setFechaModificacion(LocalDateTime.now());
-            auditoria.setIdUsuarioModificador(1); // TODO: obtener de seguridad si la tienes
-            auditoria.setDescripcion(objectMapper.writeValueAsString(datos));
+            auditoria.setIdUsuarioModificador(1); // Simulado. Puedes conectarlo a Spring Security.
+            auditoria.setDescripcion(operacion + " - " + descripcion);
 
             auditoriaRepository.save(auditoria);
+            System.out.println("✅ Auditoría generada: " + auditoria.getDescripcion());
         } catch (Exception e) {
-            System.err.println("Error al guardar auditoría: " + e.getMessage());
+            System.err.println("❌ Error en auditoría: " + e.getMessage());
         }
     }
 
-
+    private String generarDescripcion(Object datos) {
+        if (datos == null) return "Datos nulos";
+        try {
+            var idField = datos.getClass().getDeclaredField("id" + datos.getClass().getSimpleName().replace("DTO", ""));
+            idField.setAccessible(true);
+            Object idValue = idField.get(datos);
+            return "Clase: " + datos.getClass().getSimpleName() + ", ID: " + idValue;
+        } catch (Exception e) {
+            return "Clase: " + datos.getClass().getSimpleName();
+        }
+    }
 }
 
