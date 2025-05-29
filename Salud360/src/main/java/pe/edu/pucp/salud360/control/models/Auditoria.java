@@ -30,4 +30,7 @@ public class Auditoria {
 
     @Column(name = "descripcion", unique = false, nullable = false, updatable = false)
     private String descripcion;
+
+    @Column(name = "operacion", nullable = false, updatable = false)
+    private String operacion;
 }
