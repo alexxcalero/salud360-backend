@@ -1,12 +1,10 @@
 package pe.edu.pucp.salud360.membresia.mappers;
 
-
 import org.mapstruct.Mapper;
 import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoDTO;
 import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
 import pe.edu.pucp.salud360.membresia.models.MedioDePago;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
-import pe.edu.pucp.salud360.usuario.models.Persona;
 
 import java.util.List;
 

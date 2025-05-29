@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.usuario.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +12,11 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:5173") //PARA QUE SE CONECTE CON EL FRONT
 @RestController
-@RequestMapping("/api/medicos")
+@RequestMapping("/api/admin/medicos")
+@RequiredArgsConstructor
 public class MedicoController {
-    @Autowired
-    private MedicoService medicoService;
+
+    private final MedicoService medicoService;
 
     @PostMapping
     public ResponseEntity<MedicoVistaAdminDTO> crearMedico(@RequestBody MedicoRegistroDTO medicoDTO) {
@@ -43,9 +44,19 @@ public class MedicoController {
         return new ResponseEntity<>("Médico no encontrado", HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("{idMedico}/reactivar")
+    public ResponseEntity<String> reactivarMedico(@PathVariable("idMedico") Integer idMedico) {
+        MedicoVistaAdminDTO medicoBuscado = medicoService.buscarMedicoPorId(idMedico);
+        if (medicoBuscado != null) {
+            medicoService.reactivarMedico(idMedico);
+            return new ResponseEntity<>("Médico reactivado satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Médico no encontrado", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping
-    public ResponseEntity<List<MedicoVistaAdminDTO>> listarMedicosTodos() {
-        List<MedicoVistaAdminDTO> medicos = medicoService.listarMedicosTodos();
+    public ResponseEntity<List<MedicoVistaAdminDTO>> listarMedicosTodos(@RequestParam(required = false) String nombreCompleto, @RequestParam(required = false) String especialidad) {
+        List<MedicoVistaAdminDTO> medicos = medicoService.listarMedicos(nombreCompleto, especialidad);
         return new ResponseEntity<>(medicos, HttpStatus.OK);
     }
 

@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,6 @@ public class TestimonioDTO {
     private LocalDateTime fechaDesactivacion;
 
     private Integer idComunidad;
-    private UsuarioResumenDTO autor;
+    private ClienteResumenDTO autor;
 }
 

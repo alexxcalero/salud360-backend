@@ -1,18 +1,14 @@
 package pe.edu.pucp.salud360.servicio.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -20,6 +16,7 @@ import java.time.LocalDateTime;
 public class DocumentoMedico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idDocumentoMedico", unique = true, nullable = false, updatable = false)
     private Integer idDocumentoMedico;
 
     @Column(name = "documento", unique = false, nullable = false, updatable = true)

@@ -1,13 +1,9 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import pe.edu.pucp.salud360.usuario.dtos.permisoDTO.PermisoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaAdminDTO;
-import pe.edu.pucp.salud360.usuario.mappers.PermisoMapper;
 import pe.edu.pucp.salud360.usuario.mappers.RolMapper;
-import pe.edu.pucp.salud360.usuario.models.Permiso;
 import pe.edu.pucp.salud360.usuario.models.Rol;
 import pe.edu.pucp.salud360.usuario.repositories.RolRepository;
 import pe.edu.pucp.salud360.usuario.services.RolService;
@@ -15,32 +11,30 @@ import pe.edu.pucp.salud360.usuario.services.RolService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class RolServiceImp implements RolService {
-    @Autowired
-    private RolRepository rolRepository;
 
-    @Autowired
-    private RolMapper rolMapper;
-
-    @Autowired
-    private PermisoMapper permisoMapper;
+    private final RolRepository rolRepository;
+    private final RolMapper rolMapper;
 
     @Override
     public RolVistaAdminDTO crearRol(RolVistaAdminDTO rolDTO) {
         Rol rol = rolMapper.mapToModel(rolDTO);
         rol.setActivo(true);
         rol.setFechaCreacion(LocalDateTime.now());
-        rol.setFechaDesactivacion(null);
+        rol.setUsuarios(new ArrayList<>());
         Rol rolCreado = rolRepository.save(rol);
         return rolMapper.mapToVistaAdminDTO(rolCreado);
     }
 
     @Override
     public RolVistaAdminDTO actualizarRol(Integer idRol, RolVistaAdminDTO rolDTO) {
-        if(rolRepository.findById(idRol).isPresent()) {
-            Rol rol = rolRepository.findById(idRol).get();
+        Optional<Rol> rolSeleccionado = rolRepository.findById(idRol);
+        if(rolSeleccionado.isPresent()) {
+            Rol rol = rolSeleccionado.get();
             rol.setNombre(rolDTO.getNombre());
             rol.setDescripcion(rolDTO.getDescripcion());
             Rol rolActualizado = rolRepository.save(rol);
@@ -51,11 +45,12 @@ public class RolServiceImp implements RolService {
     }
 
     @Override
-    @Transactional
     public void eliminarRol(Integer idRol) {
-        if(rolRepository.findById(idRol).isPresent()) {
-            Rol rolEliminar = rolRepository.findById(idRol).get();
+        Optional<Rol> rolSeleccionado = rolRepository.findById(idRol);
+        if(rolSeleccionado.isPresent()) {
+            Rol rolEliminar = rolSeleccionado.get();
 
+            /*
             for(Permiso permiso : rolEliminar.getPermisos()) {
                 permiso.getRoles().remove(rolEliminar);  // Elimino al rol de la lista del permiso
             }
@@ -63,6 +58,7 @@ public class RolServiceImp implements RolService {
             // Desasocio los permisos de un rol que se va a eliminar
             // de esta manera se eliminan los registros de la tabla intermedia
             rolEliminar.getPermisos().clear();
+            */
 
             rolEliminar.setActivo(false);
             rolEliminar.setFechaDesactivacion(LocalDateTime.now());
@@ -71,8 +67,26 @@ public class RolServiceImp implements RolService {
     }
 
     @Override
-    public List<RolVistaAdminDTO> listarRolesTodos() {
-        List<Rol> roles = rolRepository.findAll();
+    public void reactivarRol(Integer idRol) {
+        Optional<Rol> rolSeleccionado = rolRepository.findById(idRol);
+        if(rolSeleccionado.isPresent()) {
+            Rol rolReactivar = rolSeleccionado.get();
+            rolReactivar.setActivo(true);
+            rolReactivar.setFechaDesactivacion(null);
+            rolRepository.save(rolReactivar);
+        }
+    }
+
+    @Override
+    public List<RolVistaAdminDTO> listarRoles(String nombre) {
+        List<Rol> roles;
+
+        if(nombre == null || nombre.isBlank()) {
+            roles = rolRepository.findAllByOrderByIdRolAsc();
+        } else {
+            roles = rolRepository.findAllByNombreContainingIgnoreCaseOrderByIdRolAsc(nombre);
+        }
+
         if(!(roles.isEmpty())) {
             return roles.stream().map(rolMapper::mapToVistaAdminDTO).toList();
         } else {
@@ -82,16 +96,17 @@ public class RolServiceImp implements RolService {
 
     @Override
     public RolVistaAdminDTO buscarRolPorId(Integer idRol) {
-        if(rolRepository.findById(idRol).isPresent()) {
-            Rol rolBuscado = rolRepository.findById(idRol).get();
-            return rolMapper.mapToVistaAdminDTO(rolBuscado);
+        Optional<Rol> rolBuscado = rolRepository.findById(idRol);
+        if(rolBuscado.isPresent()) {
+            Rol rol = rolBuscado.get();
+            return rolMapper.mapToVistaAdminDTO(rol);
         } else {
             return null;
         }
     }
 
+    /*
     @Override
-    @Transactional
     public RolVistaAdminDTO editarPermisos(Integer idRol, List<PermisoResumenDTO> permisos) {
         if(rolRepository.findById(idRol).isPresent()) {
             Rol rol = rolRepository.findById(idRol).get();
@@ -116,4 +131,5 @@ public class RolServiceImp implements RolService {
             return null;
         }
     }
+    */
 }

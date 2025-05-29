@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
-import pe.edu.pucp.salud360.usuario.models.Persona;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +23,8 @@ import java.util.List;
 public class Comunidad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idComunidad;
+    @Column(name = "idComunidad", unique = true, nullable = false, updatable = false)
+    private Integer idComunidad;
 
     @Column(name = "nombre", unique = false, nullable = false, updatable = true)
     private String nombre;
@@ -54,20 +55,25 @@ public class Comunidad {
     @Column(name = "calificacion", nullable = true)
     private Double calificacion;
 
-
     @OneToMany(mappedBy = "comunidad")
     private List<Membresia> membresias;
-
-    @OneToOne
-    @JoinColumn(name = "idForo")
-    private Foro foro;
 
     @OneToMany(mappedBy = "comunidad")
     private List<Testimonio> testimonios;
 
-    @ManyToMany(mappedBy = "comunidad")
+    @ManyToMany
+    @JoinTable(
+            name = "comunidad_servicio",
+            joinColumns = @JoinColumn(name = "idComunidad"),
+            inverseJoinColumns = @JoinColumn(name = "idServicio")
+    )
     private List<Servicio> servicios;
 
     @ManyToMany
-    private List<Persona> persona;
+    @JoinTable(
+            name = "comunidad_cliente",
+            joinColumns = @JoinColumn(name = "idComunidad"),
+            inverseJoinColumns = @JoinColumn(name = "idCliente")
+    )
+    private List<Cliente> clientes;
 }

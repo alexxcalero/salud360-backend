@@ -8,8 +8,8 @@ import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
 import pe.edu.pucp.salud360.servicio.repositories.ReservaRepository;
 import pe.edu.pucp.salud360.servicio.services.ReservaService;
-import pe.edu.pucp.salud360.usuario.models.Persona;
-import pe.edu.pucp.salud360.usuario.repositories.PersonaRepository;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
+import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.servicio.models.Clase;
 import pe.edu.pucp.salud360.servicio.repositories.ClaseRepository;
 import pe.edu.pucp.salud360.servicio.models.CitaMedica;
@@ -29,7 +29,7 @@ public class ReservaServiceImp implements ReservaService {
     private ReservaMapper reservaMapper;
 
     @Autowired
-    private PersonaRepository personaRepository;
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private ClaseRepository claseRepository;
@@ -42,9 +42,9 @@ public class ReservaServiceImp implements ReservaService {
         Reserva reserva = reservaMapper.mapToModel(dto);
 
         // Asignar relaciones
-        Persona usuario = personaRepository.findById(dto.getIdUsuario())
+        Cliente cliente = clienteRepository.findById(dto.getIdUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        reserva.setPersona(usuario);
+        reserva.setCliente(cliente);
 
         if (dto.getIdClase() != null) {
             Clase clase = claseRepository.findById(dto.getIdClase())
@@ -58,7 +58,6 @@ public class ReservaServiceImp implements ReservaService {
             reserva.setCitaMedica(cita);
         }
 
-        reserva.setActivo(true);
         return reservaMapper.mapToDTO(reservaRepository.save(reserva));
     }
 
@@ -70,11 +69,7 @@ public class ReservaServiceImp implements ReservaService {
         Reserva reserva = optional.get();
 
         reserva.setFechaReserva(dto.getFechaReserva());
-        reserva.setHoraInicio(dto.getHoraInicio());
-        reserva.setHoraFin(dto.getHoraFin());
-        reserva.setHoraNotificacion(dto.getHoraNotificacion());
         reserva.setEstado(dto.getEstado());
-        reserva.setFechaReprogramacion(dto.getFechaReprogramacion());
 
         return reservaMapper.mapToDTO(reservaRepository.save(reserva));
     }
@@ -84,7 +79,6 @@ public class ReservaServiceImp implements ReservaService {
         Optional<Reserva> optional = reservaRepository.findById(id);
         if (optional.isPresent()) {
             Reserva reserva = optional.get();
-            reserva.setActivo(false);
             reserva.setFechaCancelacion(reserva.getFechaCancelacion() != null
                     ? reserva.getFechaCancelacion()
                     : java.time.LocalDateTime.now());
@@ -95,7 +89,6 @@ public class ReservaServiceImp implements ReservaService {
     @Override
     public List<ReservaDTO> listarReservasTodas() {
         return reservaRepository.findAll().stream()
-                .filter(Reserva::getActivo)
                 .map(reservaMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -103,7 +96,6 @@ public class ReservaServiceImp implements ReservaService {
     @Override
     public ReservaDTO buscarReservaPorId(Integer id) {
         return reservaRepository.findById(id)
-                .filter(Reserva::getActivo)
                 .map(reservaMapper::mapToDTO)
                 .orElse(null);
     }

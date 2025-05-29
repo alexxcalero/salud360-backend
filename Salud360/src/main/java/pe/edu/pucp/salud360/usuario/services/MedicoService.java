@@ -9,6 +9,7 @@ public interface MedicoService {
     MedicoVistaAdminDTO crearMedico(MedicoRegistroDTO medicoDTO);
     MedicoVistaAdminDTO actualizarMedico(Integer idMedico, MedicoVistaAdminDTO medicoDTO);
     void eliminarMedico(Integer idMedico);
-    List<MedicoVistaAdminDTO> listarMedicosTodos();
+    void reactivarMedico(Integer idMedico);
+    List<MedicoVistaAdminDTO> listarMedicos(String nombreCompleto, String especialidad);
     MedicoVistaAdminDTO buscarMedicoPorId(Integer idMedico);
 }

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO.TestimonioDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
@@ -29,12 +30,12 @@ public class ComunidadDTO {
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
-    private Integer idForo;
     private Integer cantMiembros;
     private Double calificacion;
 
 
     private List<ServicioResumenDTO> servicios; //agregado
     private List<MembresiaResumenDTO> membresias;
+    private List<TestimonioDTO> testimonios;
 }
 

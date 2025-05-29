@@ -7,7 +7,7 @@ import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 
-@Mapper(componentModel = "spring", uses = {CitaMedicaMapper.class})
+@Mapper(componentModel = "spring", uses = {TipoDocumentoMapper.class, CitaMedicaMapper.class})
 public interface MedicoMapper {
     MedicoVistaAdminDTO mapToVistaAdminDTO(Medico medico);
     Medico mapToModel(MedicoVistaAdminDTO medicoDTO);

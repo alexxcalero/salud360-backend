@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pe.edu.pucp.salud360.usuario.models.Persona;
 
 import java.time.LocalDate;
 
