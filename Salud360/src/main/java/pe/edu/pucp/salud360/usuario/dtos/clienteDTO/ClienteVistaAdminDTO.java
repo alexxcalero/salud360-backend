@@ -9,6 +9,7 @@ import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.usuario.dtos.NotificacionDTO;
+import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
 import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
@@ -24,7 +25,7 @@ import java.util.List;
 public class ClienteVistaAdminDTO {
     private Integer idCliente;
     private String correo;
-    private String rol;
+    //private String rol;
     private String nombres;
     private String apellidos;
     private String numeroDocumento;
@@ -40,6 +41,7 @@ public class ClienteVistaAdminDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private TipoDocumentoResumenDTO tipoDocumento;
+    private RolVistaClienteDTO rol;
     //private UsuarioResumenDTO usuario;
     private List<ComunidadDTO> comunidades;
     private List<AfiliacionDTO> afiliaciones;

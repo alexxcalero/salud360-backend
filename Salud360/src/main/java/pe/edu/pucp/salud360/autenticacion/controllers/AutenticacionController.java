@@ -87,7 +87,7 @@ public class AutenticacionController {
 
             response.addCookie(cookie);
 
-            return ResponseEntity.ok(new LoginResponse(token, usuarioDTO));
+            return ResponseEntity.ok(new LoginResponse(null, usuarioDTO));
         } catch(BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }

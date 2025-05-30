@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 public class LocalResumenDTO {
     private Integer idLocal;
     private String nombre;
+    private String descripcion;
     private String direccion;
     private String tipoServicio;
     private Boolean activo;
