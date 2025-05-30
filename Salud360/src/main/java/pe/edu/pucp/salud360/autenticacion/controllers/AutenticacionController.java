@@ -1,5 +1,7 @@
 package pe.edu.pucp.salud360.autenticacion.controllers;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,6 @@ import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoD
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioLogueadoDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.mappers.AdministradorMapper;
 import pe.edu.pucp.salud360.usuario.mappers.ClienteMapper;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
@@ -52,7 +53,7 @@ public class AutenticacionController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> iniciarSesion(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> iniciarSesion(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -77,6 +78,14 @@ public class AutenticacionController {
                 AdministradorLogueadoDTO adminDTO = administradorMapper.mapToLogueadoDTO(admin);
                 usuarioDTO.setAdministrador(adminDTO);
             }
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false); // Asegúrate de usar HTTPS en producción
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24); // 1 día
+
+            response.addCookie(cookie);
 
             return ResponseEntity.ok(new LoginResponse(token, usuarioDTO));
         } catch(BadCredentialsException e) {

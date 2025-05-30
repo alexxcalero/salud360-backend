@@ -13,6 +13,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ClienteResumenDTO {
     private Integer idCliente;
+    private String correo;
+    private String rol;
     private String nombres;
     private String apellidos;
     private String numeroDocumento;
@@ -25,5 +27,5 @@ public class ClienteResumenDTO {
     private Boolean notificacionPorSMS;
     private Boolean notificacionPorWhatsApp;
     private TipoDocumentoResumenDTO tipoDocumento;
-    private UsuarioResumenDTO usuario;
+    //private UsuarioResumenDTO usuario;
 }

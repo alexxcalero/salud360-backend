@@ -23,6 +23,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ClienteVistaAdminDTO {
     private Integer idCliente;
+    private String correo;
+    private String rol;
     private String nombres;
     private String apellidos;
     private String numeroDocumento;
@@ -38,7 +40,7 @@ public class ClienteVistaAdminDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private TipoDocumentoResumenDTO tipoDocumento;
-    private UsuarioResumenDTO usuario;
+    //private UsuarioResumenDTO usuario;
     private List<ComunidadDTO> comunidades;
     private List<AfiliacionDTO> afiliaciones;
     private List<ReservaDTO> reservas;
