@@ -14,15 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.edu.pucp.salud360.autenticacion.models.LoginRequest;
 import pe.edu.pucp.salud360.autenticacion.models.LoginResponse;
 import pe.edu.pucp.salud360.seguridad.JwtService;
+import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
+import pe.edu.pucp.salud360.usuario.mappers.AdministradorMapper;
+import pe.edu.pucp.salud360.usuario.mappers.ClienteMapper;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
+import pe.edu.pucp.salud360.usuario.models.Administrador;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
+import pe.edu.pucp.salud360.usuario.repositories.AdministradorRepository;
+import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 import pe.edu.pucp.salud360.usuario.services.ClienteService;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/autenticacion")
@@ -34,8 +40,12 @@ public class AutenticacionController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final ClienteService clienteService;
+    private final ClienteRepository clienteRepository;
+    private final ClienteMapper clienteMapper;
+    private final AdministradorMapper administradorMapper;
+    private final AdministradorRepository administradorRepository;
 
-    @PostMapping("/registro")
+    @PostMapping("/signup")
     public ResponseEntity<ClienteLogueadoDTO> crearClientePorRegistro(@RequestBody ClienteRegistroDTO clienteDTO) {
         ClienteLogueadoDTO clienteCreado = clienteService.crearClientePorRegistro(clienteDTO);
         return new ResponseEntity<>(clienteCreado, HttpStatus.CREATED);
@@ -54,7 +64,19 @@ public class AutenticacionController {
             Usuario usuario = (Usuario) auth.getPrincipal();
             String token = jwtService.generateToken(usuario);
 
-            UsuarioResumenDTO usuarioDTO = usuarioMapper.mapToResumenDTO(usuario);
+            UsuarioLogueadoDTO usuarioDTO = usuarioMapper.mapToLogueadoDTO(usuario);
+
+            if(usuario.getCliente() != null) {
+                Cliente cliente = clienteRepository.findByUsuario(usuario)
+                        .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                ClienteLogueadoDTO clienteDTO = clienteMapper.mapToLogueadoDTO(cliente);
+                usuarioDTO.setCliente(clienteDTO);
+            } else if (usuario.getAdministrador() != null) {
+                Administrador admin = administradorRepository.findByUsuario(usuario)
+                        .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+                AdministradorLogueadoDTO adminDTO = administradorMapper.mapToLogueadoDTO(admin);
+                usuarioDTO.setAdministrador(adminDTO);
+            }
 
             return ResponseEntity.ok(new LoginResponse(token, usuarioDTO));
         } catch(BadCredentialsException e) {
