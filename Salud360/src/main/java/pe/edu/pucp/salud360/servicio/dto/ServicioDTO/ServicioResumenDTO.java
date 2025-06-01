@@ -16,6 +16,7 @@ public class ServicioResumenDTO {
     private String nombre;
     private String descripcion;
     private String tipo;
+    private String descripcion;
     private Boolean activo;
     private List<String> imagenes;
     private List<LocalResumenDTO> locales;
