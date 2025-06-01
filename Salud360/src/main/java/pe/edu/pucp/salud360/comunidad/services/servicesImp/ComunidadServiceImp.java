@@ -50,6 +50,10 @@ public class ComunidadServiceImp implements ComunidadService {
         List<String> urls = new ArrayList<>();
         List<String> keys = new ArrayList<>();
         Comunidad comunidad = comunidadMapper.mapToModel(dto);
+        for(String imagen : comunidad.getImagenes()) {
+            String url = s3UrlGenerator.generarUrl(imagen); //Genera urls
+            urls.add(url); //Añade las url
+            keys.add(s3UrlGenerator.extraerKeyDeUrl(url)); //Saca la key del archivo
 
         // Procesar imágenes
         if (comunidad.getImagenes() != null) {
@@ -120,7 +124,6 @@ public class ComunidadServiceImp implements ComunidadService {
     public ComunidadDTO obtenerComunidadPorId(Integer id) {
         Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
         List<String> urls = new ArrayList<>(), imagenes = comunidad.getImagenes();
-        /*Comentar*/
         if(imagenes != null) {
             for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
             comunidad.setImagenes(urls);
@@ -149,6 +152,5 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidadRepository.save(comunidad);
         return true;
     }
-
 }
 

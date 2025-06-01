@@ -1,11 +1,16 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
+import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
+import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.MedicoMapper;
 import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
+import pe.edu.pucp.salud360.usuario.models.Administrador;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
 import pe.edu.pucp.salud360.usuario.services.MedicoService;
@@ -22,6 +27,8 @@ public class MedicoServiceImp implements MedicoService {
     private final MedicoRepository medicoRepository;
     private final MedicoMapper medicoMapper;
     private final TipoDocumentoMapper tipoDocumentoMapper;
+    @Autowired
+    private S3UrlGenerator s3UrlGenerator;
 
     @Override
     public MedicoVistaAdminDTO crearMedico(MedicoRegistroDTO medicoDTO) {
@@ -104,7 +111,25 @@ public class MedicoServiceImp implements MedicoService {
         Optional<Medico> medicoBuscado = medicoRepository.findById(idMedico);
         if(medicoBuscado.isPresent()) {
             Medico medico = medicoBuscado.get();
+            String url = s3UrlGenerator.generarUrlLectura(medico.getFotoPerfil());
+            medico.setFotoPerfil(url);
             return medicoMapper.mapToVistaAdminDTO(medico);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public MedicoResumenDTO cambiarFotoPerfil(Integer idMedico, String file){
+        Optional<Medico> medicoBuscado = medicoRepository.findById(idMedico);
+        if (medicoBuscado.isPresent()) {
+            Medico medico = medicoBuscado.get();
+            String url = s3UrlGenerator.generarUrl(file); //Genera urls
+            String key = s3UrlGenerator.extraerKeyDeUrl(url); //Saca la key del archivo
+            medico.setFotoPerfil(key);
+            Medico medicoActualizado = medicoRepository.save(medico);
+            medicoActualizado.setFotoPerfil(url);
+            return medicoMapper.mapToResumenDTO(medicoActualizado);
         } else {
             return null;
         }

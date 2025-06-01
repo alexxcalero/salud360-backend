@@ -1,11 +1,13 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.pucp.salud360.autenticacion.models.ActualizarContrasenhaRequest;
 import pe.edu.pucp.salud360.autenticacion.models.ActualizarCorreoRequest;
+import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
