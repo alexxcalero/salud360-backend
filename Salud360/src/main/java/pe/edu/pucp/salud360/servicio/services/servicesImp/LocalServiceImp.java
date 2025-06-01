@@ -82,7 +82,6 @@ public class LocalServiceImp implements LocalService {
     @Override
     public List<LocalVistaAdminDTO> listarLocalesTodos() {
         return localRepository.findAll().stream()
-                .filter(Local::getActivo)
                 .map(localMapper::mapToVistaAdminDTO)
                 .collect(Collectors.toList());
     }

@@ -61,7 +61,6 @@ public class ServicioServiceImp implements ServicioService {
     @Override
     public List<ServicioVistaAdminDTO> listarServiciosTodos() {
         return servicioRepository.findAll().stream()
-                .filter(Servicio::getActivo)
                 .map(servicioMapper::mapToVistaAdminDTO)
                 .collect(Collectors.toList());
     }
