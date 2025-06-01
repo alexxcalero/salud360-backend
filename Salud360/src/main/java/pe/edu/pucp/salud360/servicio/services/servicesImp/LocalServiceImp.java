@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
 import pe.edu.pucp.salud360.servicio.models.Local;

@@ -7,11 +7,10 @@ import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
-import pe.edu.pucp.salud360.comunidad.models.Foro;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
-import pe.edu.pucp.salud360.comunidad.repositories.ForoRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
@@ -66,7 +65,7 @@ public class ComunidadServiceImp implements ComunidadService {
 
         // Guardar membresías asociadas
         if (dto.getMembresias() != null && !dto.getMembresias().isEmpty()) {
-            for (MembresiaDTO m : dto.getMembresias()) {
+            for (MembresiaResumenDTO m : dto.getMembresias()) {
                 Membresia membresia = Membresia.builder()
                     .nombre(m.getNombre())
                     .tipo(m.getTipo())
