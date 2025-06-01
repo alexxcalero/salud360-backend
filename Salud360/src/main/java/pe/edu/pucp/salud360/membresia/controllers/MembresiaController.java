@@ -23,7 +23,7 @@ public class MembresiaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MembresiaResumenDTO>> listar() {
+    public ResponseEntity<List<MembresiaDTO>> listar() {
         return new ResponseEntity<>(membresiaService.listarMembresias(), HttpStatus.OK);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.services.LocalService;
+import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
 
 import java.util.List;
 
@@ -48,9 +49,15 @@ public class LocalController {
         return new ResponseEntity<>("Local no encontrado", HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     public ResponseEntity<List<LocalVistaAdminDTO>> listarLocales() {
         List<LocalVistaAdminDTO> lista = localService.listarLocalesTodos();
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<LocalDTO>> listarLocalesResumen() {
+        List<LocalDTO> lista = localService.listarLocalesResumen();
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 

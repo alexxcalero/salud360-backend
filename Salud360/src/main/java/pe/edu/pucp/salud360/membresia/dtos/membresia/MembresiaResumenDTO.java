@@ -18,9 +18,13 @@ public class MembresiaResumenDTO {
     private Integer idMembresia;
     private String nombre;
     private String descripcion;
+    private String tipo;
     private Boolean conTope;
     private Double precio;
     private Integer cantUsuarios;
     private Integer maxReservas;
     private String icono;
+    private Boolean activo;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaDesactivacion;
 }

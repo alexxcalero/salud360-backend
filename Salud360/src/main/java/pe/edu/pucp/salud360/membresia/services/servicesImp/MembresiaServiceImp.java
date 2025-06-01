@@ -34,8 +34,8 @@ public class MembresiaServiceImp implements MembresiaService {
     }
 
     @Override
-    public List<MembresiaResumenDTO> listarMembresias() {
-        return membresiaRepository.findAll().stream().map(membresiaMapper::mapToMembresiaDTO).collect(Collectors.toList());
+    public List<MembresiaDTO> listarMembresias() {
+        return membresiaRepository.findAll().stream().map(membresiaMapper::mapToDTO).collect(Collectors.toList());
     }
 
     @Override
