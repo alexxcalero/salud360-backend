@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
 import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
@@ -33,10 +34,13 @@ public class LocalServiceImp implements LocalService {
     public LocalVistaAdminDTO crearLocal(LocalVistaAdminDTO dto) {
         Local local = localMapper.mapToModel(dto);
 
-        // Extraer el id del servicio desde el DTO anidado
-        Integer idServicio = dto.getServicio().getIdServicio();
+        // ✅ Extraer y validar el id del servicio
+        Integer idServicio = Optional.ofNullable(dto.getServicio())
+                .map(ServicioResumenDTO::getIdServicio)
+                .orElseThrow(() -> new RuntimeException("El ID del servicio es requerido"));
+
         Servicio servicio = servicioRepository.findById(idServicio)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado con ID: " + idServicio));
 
         local.setServicio(servicio);
         local.setFechaCreacion(LocalDateTime.now());

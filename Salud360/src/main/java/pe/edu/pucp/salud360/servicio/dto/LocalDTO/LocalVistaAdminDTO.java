@@ -18,9 +18,6 @@ public class LocalVistaAdminDTO {
     private String descripcion;
     private String direccion;
     private String telefono;
-    private String nombresContacto;
-    private String apellidosContacto;
-    private String telefonoContacto;
     private List<String> imagenes;          // Lista de URLs
     private String tipoServicio;
     private Boolean activo;

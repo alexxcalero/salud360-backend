@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.usuario.dtos.medicoDTO;
 
 import lombok.*;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaVistaMedicoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
 
@@ -25,5 +26,6 @@ public class MedicoVistaAdminDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private TipoDocumentoResumenDTO tipoDocumento;
-    private List<CitaMedicaVistaMedicoDTO> citasMedicas;
+    //Fabián: private List<CitaMedicaVistaMedicoDTO> citasMedicas;
+    private List<CitaMedicaResumenDTO> citasMedicas;
 }

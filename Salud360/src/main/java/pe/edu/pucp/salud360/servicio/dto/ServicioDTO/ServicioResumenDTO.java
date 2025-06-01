@@ -19,5 +19,5 @@ public class ServicioResumenDTO {
     private Boolean activo;
     private List<String> imagenes;
     private List<LocalResumenDTO> locales;
-    private List<CitaMedicaResumenDTO> citas;
+    private List<CitaMedicaResumenDTO> citasMedicas;
 }
