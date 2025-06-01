@@ -15,5 +15,6 @@ public class LocalResumenDTO {
     private String direccion;
     private String tipoServicio;
     private Boolean activo;
+
 }
 

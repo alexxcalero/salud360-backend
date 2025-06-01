@@ -33,8 +33,8 @@ public class ComunidadDTO {
     private Integer cantMiembros;
     private Double calificacion;
 
-
+    
     private List<ServicioResumenDTO> servicios; //agregado
-    private List<MembresiaResumenDTO> membresias;
+    private List<MembresiaDTO> membresias;
 }
 

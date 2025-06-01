@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
+import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
 import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
@@ -86,6 +87,14 @@ public class LocalServiceImp implements LocalService {
         return localRepository.findAll().stream()
                 .filter(Local::getActivo)
                 .map(localMapper::mapToVistaAdminDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LocalDTO> listarLocalesResumen() {
+        return localRepository.findAll().stream()
+                .filter(Local::getActivo)
+                .map(localMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
 

@@ -12,12 +12,15 @@ import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.comunidad.repositories.ForoRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
+import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,17 +56,43 @@ public class ComunidadServiceImp implements ComunidadService {
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
         List<String> urls = new ArrayList<>();
         List<String> keys = new ArrayList<>();
-        Foro foro = foroRepository.findById(dto.getIdForo()).orElse(null);
+
         Comunidad comunidad = comunidadMapper.mapToModel(dto);
-        for(String imagen : comunidad.getImagenes()) {
-            String url = s3UrlGenerator.generarUrl(imagen); //Genera urls
-            urls.add(url); //Añade las url
-            keys.add(s3UrlGenerator.extraerKeyDeUrl(url)); //Saca la key del archivo
+
+        // Procesar imágenes
+        if (comunidad.getImagenes() != null) {
+            for (String imagen : comunidad.getImagenes()) {
+                String url = s3UrlGenerator.generarUrl(imagen);
+                urls.add(url);
+                keys.add(s3UrlGenerator.extraerKeyDeUrl(url));
+            }
         }
-        comunidad.setImagenes(keys); //Guarda las keys para la bd
+
+        comunidad.setImagenes(keys);
         comunidad.setFechaCreacion(LocalDateTime.now());
-        Comunidad guardada = comunidadRepository.save(comunidad); //Guarda la comunidad
-        guardada.setImagenes(urls); //Manda las urls por DTO
+        Comunidad guardada = comunidadRepository.save(comunidad);
+
+        // Guardar membresías asociadas
+        if (dto.getMembresias() != null && !dto.getMembresias().isEmpty()) {
+            for (MembresiaDTO m : dto.getMembresias()) {
+                Membresia membresia = Membresia.builder()
+                    .nombre(m.getNombre())
+                    .tipo(m.getTipo())
+                    .cantUsuarios(m.getCantUsuarios())
+                    .maxReservas(m.getMaxReservas())
+                    .precio(m.getPrecio())
+                    .descripcion(m.getDescripcion())
+                    .icono(m.getIcono())
+                    .comunidad(guardada)
+                    .activo(true)
+                    .fechaCreacion(LocalDateTime.now())
+                    .build();
+
+                membresiaRepository.save(membresia);
+            }
+        }
+
+        guardada.setImagenes(urls);
         return comunidadMapper.mapToDTO(guardada);
     }
 
