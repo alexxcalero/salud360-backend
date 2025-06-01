@@ -46,6 +46,16 @@ public class ServicioController {
         return new ResponseEntity<>("Servicio no encontrado", HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("/{id}/reactivar")
+    public ResponseEntity<String> reactivarServicio(@PathVariable("id") Integer idServicio) {
+        ServicioVistaAdminDTO servicioBuscado = servicioService.buscarServicioPorId(idServicio);
+        if (servicioBuscado != null) {
+            servicioService.reactivarServicio(idServicio);
+            return new ResponseEntity<>("Servicio reactivado satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Servicio no encontrado", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping
     public ResponseEntity<List<ServicioVistaAdminDTO>> listarServicios() {
         List<ServicioVistaAdminDTO> lista = servicioService.listarServiciosTodos();

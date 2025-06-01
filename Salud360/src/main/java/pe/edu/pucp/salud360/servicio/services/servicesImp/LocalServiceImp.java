@@ -58,6 +58,7 @@ public class LocalServiceImp implements LocalService {
         local.setTelefono(dto.getTelefono());
         local.setImagenes(dto.getImagenes());
         local.setTipoServicio(dto.getTipoServicio());
+        local.setDescripcion(dto.getDescripcion());
 
         // Actualizar servicio si viene incluido
         Integer idServicio = dto.getServicio().getIdServicio();
@@ -80,6 +81,16 @@ public class LocalServiceImp implements LocalService {
     }
 
     @Override
+    public void reactivarLocal(Integer idLocal) {
+        Local local = localRepository.findById(idLocal).orElse(null);
+        if (local != null) {
+            local.setActivo(true);
+            local.setFechaDesactivacion(null);
+            localRepository.save(local);
+        }
+    }
+
+    @Override
     public List<LocalVistaAdminDTO> listarLocalesTodos() {
         return localRepository.findAll().stream()
                 .map(localMapper::mapToVistaAdminDTO)
@@ -97,7 +108,6 @@ public class LocalServiceImp implements LocalService {
     @Override
     public LocalVistaAdminDTO buscarLocalPorId(Integer id) {
         return localRepository.findById(id)
-                .filter(Local::getActivo)
                 .map(localMapper::mapToVistaAdminDTO)
                 .orElse(null);
     }

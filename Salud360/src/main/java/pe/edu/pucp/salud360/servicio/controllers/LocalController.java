@@ -49,6 +49,16 @@ public class LocalController {
         return new ResponseEntity<>("Local no encontrado", HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("/{id}/reactivar")
+    public ResponseEntity<String> reactivarLocal(@PathVariable("id") Integer idLocal) {
+        LocalVistaAdminDTO localBuscado = localService.buscarLocalPorId(idLocal);
+        if (localBuscado != null) {
+            localService.reactivarLocal(idLocal);
+            return new ResponseEntity<>("Local reactivado satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Local no encontrado", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping("/admin")
     public ResponseEntity<List<LocalVistaAdminDTO>> listarLocales() {
         List<LocalVistaAdminDTO> lista = localService.listarLocalesTodos();

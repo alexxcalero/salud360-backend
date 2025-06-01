@@ -11,6 +11,7 @@ public interface LocalService {
     LocalVistaAdminDTO crearLocal(LocalVistaAdminDTO localVistaAdminDTO);
     LocalVistaAdminDTO actualizarLocal(Integer idLocal, LocalVistaAdminDTO localVistaAdminDTO);
     void eliminarLocal(Integer idLocal);
+    void reactivarLocal(Integer idLocal);
     List<LocalVistaAdminDTO> listarLocalesTodos();
     List<LocalDTO> listarLocalesResumen();
     Page<LocalVistaAdminDTO> listarLocalesPaginado(Pageable pageable);

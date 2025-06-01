@@ -59,6 +59,16 @@ public class ServicioServiceImp implements ServicioService {
     }
 
     @Override
+    public void reactivarServicio(Integer idServicio) {
+        Servicio servicio = servicioRepository.findById(idServicio).orElse(null);
+        if (servicio != null) {
+            servicio.setActivo(true);
+            servicio.setFechaDesactivacion(null);
+            servicioRepository.save(servicio);
+        }
+    }
+
+    @Override
     public List<ServicioVistaAdminDTO> listarServiciosTodos() {
         return servicioRepository.findAll().stream()
                 .map(servicioMapper::mapToVistaAdminDTO)
@@ -68,7 +78,6 @@ public class ServicioServiceImp implements ServicioService {
     @Override
     public ServicioVistaAdminDTO buscarServicioPorId(Integer id) {
         return servicioRepository.findById(id)
-                .filter(Servicio::getActivo)
                 .map(servicioMapper::mapToVistaAdminDTO)
                 .orElse(null);
     }

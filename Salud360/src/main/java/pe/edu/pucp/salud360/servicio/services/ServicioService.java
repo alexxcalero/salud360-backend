@@ -9,6 +9,7 @@ public interface ServicioService {
     ServicioDTO crearServicio(ServicioDTO servicioDTO);
     ServicioDTO actualizarServicio(Integer idServicio, ServicioDTO servicioDTO);
     void eliminarServicio(Integer idServicio);
+    void reactivarServicio(Integer idServicio);
     List<ServicioVistaAdminDTO> listarServiciosTodos();
     ServicioVistaAdminDTO buscarServicioPorId(Integer idServicio);
 }
