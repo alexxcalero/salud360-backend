@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
     @Query("SELECT c FROM Cliente c WHERE CONCAT(LOWER(c.nombres), ' ', LOWER(c.apellidos)) LIKE LOWER(CONCAT('%', :cadena, '%'))")
     List<Cliente> buscarPorNombreCompleto(@Param("cadena") String cadena);
+    Optional<Cliente> findByUsuario(Usuario usuario);
 }

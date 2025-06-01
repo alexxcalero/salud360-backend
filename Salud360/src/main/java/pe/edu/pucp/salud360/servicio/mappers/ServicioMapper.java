@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.servicio.mappers;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.models.Servicio;

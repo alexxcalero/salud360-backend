@@ -20,7 +20,7 @@ public class CitaMedicaResumenDTO {
     private LocalDate fecha;
     private String estado;
 
-    private ClienteResumenDTO paciente;
+    //private ClienteResumenDTO cliente;
     private MedicoResumenDTO medico;
 }
 

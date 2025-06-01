@@ -14,9 +14,10 @@ import java.util.List;
 public class ServicioResumenDTO {
     private Integer idServicio;
     private String nombre;
+    private String descripcion;
     private String tipo;
     private Boolean activo;
     private List<String> imagenes;
     private List<LocalResumenDTO> locales;
-    private List<CitaMedicaResumenDTO> citas;
+    private List<CitaMedicaResumenDTO> citasMedicas;
 }

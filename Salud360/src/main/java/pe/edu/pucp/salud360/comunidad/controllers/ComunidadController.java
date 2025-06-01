@@ -8,6 +8,7 @@ import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -18,8 +19,8 @@ public class ComunidadController {
     @Autowired
     private ComunidadService comunidadService;
 
-    @PostMapping
-    public ResponseEntity<ComunidadDTO> crear(@RequestBody ComunidadDTO dto) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ComunidadDTO> crear(@ModelAttribute ComunidadDTO dto) {
         ComunidadDTO creada = comunidadService.crearComunidad(dto);
         return new ResponseEntity<>(creada, HttpStatus.CREATED);
     }

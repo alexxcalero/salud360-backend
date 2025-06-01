@@ -27,4 +27,7 @@ public interface CitaMedicaMapper {
 
     List<CitaMedicaDTO> mapToDTOList(List<CitaMedica> citas);
     List<CitaMedica> mapToModelList(List<CitaMedicaDTO> citasDTO);
+
+    List<CitaMedicaResumenDTO> mapToResumenDTOList(List<CitaMedica> citas);
+
 }

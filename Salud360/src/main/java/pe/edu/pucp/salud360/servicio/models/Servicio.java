@@ -46,7 +46,7 @@ public class Servicio {
     @ManyToMany
     private List<Comunidad> comunidad;
 
-    @OneToMany(mappedBy = "servicio")
+    @OneToMany(mappedBy = "servicio", fetch = FetchType.EAGER)
     private List<CitaMedica> citasMedicas;
 
     @OneToMany(mappedBy = "servicio")

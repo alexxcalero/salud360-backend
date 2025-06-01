@@ -48,6 +48,7 @@ public class Local {
     @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
 
+
     @ManyToOne
     @JoinColumn(name = "idServicio")
     private Servicio servicio;

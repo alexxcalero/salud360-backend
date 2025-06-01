@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
 import pe.edu.pucp.salud360.servicio.models.Local;
@@ -57,6 +58,7 @@ public class LocalServiceImp implements LocalService {
         local.setTelefono(dto.getTelefono());
         local.setImagenes(dto.getImagenes());
         local.setTipoServicio(dto.getTipoServicio());
+        local.setDescripcion(dto.getDescripcion());
 
         // Actualizar servicio si viene incluido
         Integer idServicio = dto.getServicio().getIdServicio();
@@ -79,17 +81,33 @@ public class LocalServiceImp implements LocalService {
     }
 
     @Override
+    public void reactivarLocal(Integer idLocal) {
+        Local local = localRepository.findById(idLocal).orElse(null);
+        if (local != null) {
+            local.setActivo(true);
+            local.setFechaDesactivacion(null);
+            localRepository.save(local);
+        }
+    }
+
+    @Override
     public List<LocalVistaAdminDTO> listarLocalesTodos() {
         return localRepository.findAll().stream()
-                .filter(Local::getActivo)
                 .map(localMapper::mapToVistaAdminDTO)
+                .collect(Collectors.toList());
+    }
+    /*Comentar*/
+    @Override
+    public List<LocalDTO> listarLocalesResumen() {
+        return localRepository.findAll().stream()
+                .filter(Local::getActivo)
+                .map(localMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public LocalVistaAdminDTO buscarLocalPorId(Integer id) {
         return localRepository.findById(id)
-                .filter(Local::getActivo)
                 .map(localMapper::mapToVistaAdminDTO)
                 .orElse(null);
     }

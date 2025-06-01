@@ -14,11 +14,9 @@ import java.util.List;
 public class LocalDTO {
     private Integer idLocal;
     private String nombre;
+    private String descripcion;
     private String direccion;
     private String telefono;
-    private String nombresContacto;
-    private String apellidosContacto;
-    private String telefonoContacto;
     private List<String> imagenes;
     private String tipoServicio;
     private LocalDateTime fechaCreacion;
