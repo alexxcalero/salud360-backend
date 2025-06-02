@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.seguridad;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, jakarta.servlet.ServletException {
 
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
+        final String jwt = getTokenFromCookies(request);
         final String correo;
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if(jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
         correo = jwtService.extractUsername(jwt);  // correo
 
         if(correo != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -51,5 +50,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String getTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

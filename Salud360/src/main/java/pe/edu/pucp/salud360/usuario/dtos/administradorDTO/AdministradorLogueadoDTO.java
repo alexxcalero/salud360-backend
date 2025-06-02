@@ -1,8 +1,8 @@
 package pe.edu.pucp.salud360.usuario.dtos.administradorDTO;
 
 import lombok.*;
+import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
 import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 @Getter
 @Setter
@@ -11,6 +11,8 @@ import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 @NoArgsConstructor
 public class AdministradorLogueadoDTO {
     private Integer idAdministrador;
+    private String correo;
+    //private String rol;
     private String nombres;
     private String apellidos;
     private String numeroDocumento;
@@ -21,5 +23,6 @@ public class AdministradorLogueadoDTO {
     private Boolean notificacionPorSMS;
     private Boolean notificacionPorWhatsApp;
     private TipoDocumentoResumenDTO tipoDocumento;
-    private UsuarioResumenDTO usuario;
+    private RolVistaClienteDTO rol;
+    //private UsuarioResumenDTO usuario;
 }

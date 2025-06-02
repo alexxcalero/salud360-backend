@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaResumenDTO;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
+import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 
 import java.time.LocalDateTime;
@@ -13,11 +15,11 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificacionDTO {
+public class    NotificacionDTO {
     private Integer idNotificacion;
     private String mensaje;
-    private LocalDateTime fecha;
+    private LocalDateTime fechaEnvio;
     private String tipo;
-    private Cliente cliente;
-    private Reserva reserva;
+    private ClienteResumenDTO cliente;
+    private ReservaResumenDTO reserva;
 }

@@ -1,7 +1,7 @@
 package pe.edu.pucp.salud360.autenticacion.models;
 
 import lombok.*;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioLogueadoDTO;
 
 @Getter
 @Setter
@@ -10,5 +10,5 @@ import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 @NoArgsConstructor
 public class LoginResponse {
     private String token;
-    private UsuarioResumenDTO usuario;
+    private UsuarioLogueadoDTO usuario;
 }

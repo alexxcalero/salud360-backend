@@ -6,10 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
-
+import lombok.Builder; // <-- IMPORTANTE
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder // <-- agrega esta línea
 @Getter
 @Setter
 @AllArgsConstructor

@@ -1,8 +1,8 @@
 package pe.edu.pucp.salud360.usuario.dtos.administradorDTO;
 
 import lombok.*;
+import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
 import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AdministradorResumenDTO {
     private Integer idAdministrador;
+    private String correo;
+    //private String rol;
     private String nombres;
     private String apellidos;
     private String numeroDocumento;
@@ -26,5 +28,6 @@ public class AdministradorResumenDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private TipoDocumentoResumenDTO tipoDocumento;
-    private UsuarioResumenDTO usuario;
+    private RolVistaClienteDTO rol;
+    //private UsuarioResumenDTO usuario;
 }

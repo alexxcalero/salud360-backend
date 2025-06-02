@@ -15,14 +15,11 @@ import java.util.List;
 public class LocalVistaAdminDTO {
     private Integer idLocal;
     private String nombre;
+    private String descripcion;
     private String direccion;
     private String telefono;
-    private String nombresContacto;
-    private String apellidosContacto;
-    private String telefonoContacto;
     private List<String> imagenes;          // Lista de URLs
     private String tipoServicio;
-    private String descripcion;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;

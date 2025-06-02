@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Component
 public class S3UrlGenerator {
-    /*
+
     @Value("${aws.access-key}")
     private String accessKey;
 
@@ -114,5 +114,5 @@ public class S3UrlGenerator {
         return UUID.randomUUID().toString() + extension;
     }
 
-     */
+
 }

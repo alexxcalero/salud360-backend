@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.services.ServicioService;
 
 import java.util.List;
@@ -26,7 +28,7 @@ public class ServicioController {
     @PutMapping("/{id}")
     public ResponseEntity<ServicioDTO> actualizarServicio(@PathVariable("id") Integer id,
                                                           @RequestBody ServicioDTO dto) {
-        ServicioDTO existente = servicioService.buscarServicioPorId(id);
+        ServicioVistaAdminDTO existente = servicioService.buscarServicioPorId(id);
         if (existente != null) {
             ServicioDTO actualizado = servicioService.actualizarServicio(id, dto);
             return new ResponseEntity<>(actualizado, HttpStatus.OK);
@@ -36,7 +38,7 @@ public class ServicioController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarServicio(@PathVariable("id") Integer id) {
-        ServicioDTO existente = servicioService.buscarServicioPorId(id);
+        ServicioVistaAdminDTO existente = servicioService.buscarServicioPorId(id);
         if (existente != null) {
             servicioService.eliminarServicio(id);
             return new ResponseEntity<>("Servicio eliminado correctamente", HttpStatus.OK);
@@ -44,15 +46,25 @@ public class ServicioController {
         return new ResponseEntity<>("Servicio no encontrado", HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("/{id}/reactivar")
+    public ResponseEntity<String> reactivarServicio(@PathVariable("id") Integer idServicio) {
+        ServicioVistaAdminDTO servicioBuscado = servicioService.buscarServicioPorId(idServicio);
+        if (servicioBuscado != null) {
+            servicioService.reactivarServicio(idServicio);
+            return new ResponseEntity<>("Servicio reactivado satisfactoriamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Servicio no encontrado", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping
-    public ResponseEntity<List<ServicioDTO>> listarServicios() {
-        List<ServicioDTO> lista = servicioService.listarServiciosTodos();
+    public ResponseEntity<List<ServicioVistaAdminDTO>> listarServicios() {
+        List<ServicioVistaAdminDTO> lista = servicioService.listarServiciosTodos();
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ServicioDTO> buscarServicioPorId(@PathVariable("id") Integer id) {
-        ServicioDTO servicio = servicioService.buscarServicioPorId(id);
+    public ResponseEntity<ServicioVistaAdminDTO> buscarServicioPorId(@PathVariable("id") Integer id) {
+        ServicioVistaAdminDTO servicio = servicioService.buscarServicioPorId(id);
         if (servicio != null)
             return new ResponseEntity<>(servicio, HttpStatus.OK);
         else
