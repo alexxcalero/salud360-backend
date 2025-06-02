@@ -150,5 +150,11 @@ public class ComunidadServiceImp implements ComunidadService {
         return true;
     }
 
+    @Override
+    public ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente) {
+        Comunidad entidad = comunidadRepository.findComunidadAleatoriaExcluyendoCliente(idCliente);
+        return entidad != null ? comunidadMapper.mapToDTO(entidad) : null;
+    }
+
 }
 

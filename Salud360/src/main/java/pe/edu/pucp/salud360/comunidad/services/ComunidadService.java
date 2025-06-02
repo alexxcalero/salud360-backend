@@ -13,6 +13,6 @@ public interface ComunidadService {
     ComunidadDTO obtenerComunidadPorId(Integer id);
     List<ComunidadDTO> listarComunidades();
     boolean restaurarComunidad(Integer id);
-
+    ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente);
 
 }

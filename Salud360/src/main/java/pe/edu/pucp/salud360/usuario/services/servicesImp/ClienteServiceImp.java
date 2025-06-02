@@ -1,9 +1,14 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
+import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
+import pe.edu.pucp.salud360.comunidad.models.Comunidad;
+import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
@@ -32,6 +37,8 @@ public class ClienteServiceImp implements ClienteService {
     private final TipoDocumentoMapper tipoDocumentoMapper;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+
+
 
     @Override
     @Transactional
@@ -205,4 +212,7 @@ public class ClienteServiceImp implements ClienteService {
             return null;
         }
     }
+
+
+
 }
