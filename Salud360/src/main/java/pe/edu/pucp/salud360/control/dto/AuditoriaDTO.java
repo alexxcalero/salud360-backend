@@ -15,7 +15,7 @@ public class AuditoriaDTO {
     private Integer idAuditoria;
     private String nombreTabla;
     private LocalDateTime fechaModificacion;
-    private Integer idUsuarioModificador;
+    private String nombreUsuarioModificador;
     private String descripcion;
     private String operacion;
 }
