@@ -74,6 +74,7 @@ public class ComunidadServiceImp implements ComunidadService {
                     .precio(m.getPrecio())
                     .descripcion(m.getDescripcion())
                     .icono(m.getIcono())
+                    .conTope(m.getConTope())
                     .comunidad(guardada)
                     .activo(true)
                     .fechaCreacion(LocalDateTime.now())
