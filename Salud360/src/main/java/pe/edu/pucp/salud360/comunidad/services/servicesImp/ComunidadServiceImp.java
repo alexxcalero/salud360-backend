@@ -104,7 +104,69 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setCantMiembros(dto.getCantMiembros());
         comunidad.setCalificacion(dto.getCalificacion());
 
+        // 1. Actualizar membresías (elimina previas no incluidas si es reemplazo total)
+        if (dto.getMembresias() != null) {
+            List<Membresia> membresiasActualizadas = new ArrayList<>();
+            List<Integer> idsDesdeFrontend = new ArrayList<>();
+
+            for (MembresiaResumenDTO m : dto.getMembresias()) {
+                Membresia membresia;
+
+                if (m.getIdMembresia() != null) {
+                    // Ya existe, buscar
+                    membresia = membresiaRepository.findById(m.getIdMembresia()).orElse(null);
+                    if (membresia == null) continue; // puede lanzar error si prefieres
+
+                    idsDesdeFrontend.add(m.getIdMembresia());
+                } else {
+                    // Nueva membresía
+                    membresia = new Membresia();
+                    membresia.setFechaCreacion(LocalDateTime.now());
+                    membresia.setComunidad(comunidad);
+                    membresia.setActivo(true);
+                }
+
+                membresia.setNombre(m.getNombre());
+                membresia.setTipo(m.getTipo());
+                membresia.setConTope(m.getConTope());
+                membresia.setCantUsuarios(m.getCantUsuarios());
+                membresia.setMaxReservas(m.getMaxReservas());
+                membresia.setPrecio(m.getPrecio());
+                membresia.setDescripcion(m.getDescripcion());
+                membresia.setIcono(m.getIcono());
+
+                membresiasActualizadas.add(membresia);
+            }
+
+            // Buscar las actuales en BD asociadas a esta comunidad
+            List<Membresia> existentes = membresiaRepository.findByComunidad(comunidad);
+
+            // Filtrar las que ya no están en el frontend
+            for (Membresia existente : existentes) {
+                if (existente.getIdMembresia() != null && !idsDesdeFrontend.contains(existente.getIdMembresia())) {
+                    membresiaRepository.delete(existente);
+                }
+            }
+
+            membresiaRepository.saveAll(membresiasActualizadas);
+            comunidad.setMembresias(membresiasActualizadas); // opcional: si usas lazy, puede omitirse
+        }
+
+
+        // 2. Actualizar servicios
+        if (dto.getServicios() != null) {
+            List<Servicio> nuevosServicios = dto.getServicios().stream().map(s ->
+                    Servicio.builder()
+                            .idServicio(s.getIdServicio())
+                            .build()
+            ).toList();
+
+            comunidad.getServicios().clear();
+            comunidad.getServicios().addAll(nuevosServicios);
+        }
+
         return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
+
     }
 
     @Override
