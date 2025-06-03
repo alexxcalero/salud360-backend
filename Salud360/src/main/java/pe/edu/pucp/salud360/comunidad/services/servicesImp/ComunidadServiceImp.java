@@ -139,6 +139,16 @@ public class ComunidadServiceImp implements ComunidadService {
     }
 
     @Override
+    public List<ComunidadDTO> listarComunidadesActivas() {
+        List<Comunidad> comunidades = comunidadRepository.findAll();
+        return comunidades.stream()
+                .filter(Comunidad::getActivo)
+                .map(comunidadMapper::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public boolean restaurarComunidad(Integer id) {
         Optional<Comunidad> optional = comunidadRepository.findById(id);
         if (optional.isEmpty()) return false;
