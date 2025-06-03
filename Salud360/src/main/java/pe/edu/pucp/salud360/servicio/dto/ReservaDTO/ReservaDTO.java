@@ -1,30 +1,23 @@
 package pe.edu.pucp.salud360.servicio.dto.ReservaDTO;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
+import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservaDTO {
     private Integer idReserva;
-    private LocalDateTime fechaReserva;
-    private LocalTime horaInicio;
-    private LocalTime horaFin;
-    private LocalDateTime horaNotificacion;
     private String estado;
-
+    private LocalDateTime fechaReserva;
     private LocalDateTime fechaCancelacion;
-    private LocalDateTime fechaReprogramacion;
-    private Boolean activo;
-
-    private Integer idClase;         // Relación simplificada
-    private Integer idCitaMedica;    // Relación simplificada
-    private Integer idUsuario;       // Persona que reserva
+    private ClienteResumenDTO cliente;
+    private ClaseResumenDTO clase;
+    private CitaMedicaResumenDTO citaMedica;
 }
-

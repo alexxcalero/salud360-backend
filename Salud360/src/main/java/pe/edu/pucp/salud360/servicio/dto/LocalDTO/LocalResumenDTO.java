@@ -1,12 +1,10 @@
 package pe.edu.pucp.salud360.servicio.dto.LocalDTO;
 
-
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class LocalResumenDTO {
@@ -16,6 +14,4 @@ public class LocalResumenDTO {
     private String direccion;
     private String tipoServicio;
     private Boolean activo;
-
 }
-
