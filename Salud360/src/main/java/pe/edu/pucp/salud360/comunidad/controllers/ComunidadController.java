@@ -19,8 +19,8 @@ public class ComunidadController {
     @Autowired
     private ComunidadService comunidadService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ComunidadDTO> crear(@ModelAttribute ComunidadDTO dto) {
+    @PostMapping
+    public ResponseEntity<ComunidadDTO> crear(@RequestBody ComunidadDTO dto) {
         ComunidadDTO creada = comunidadService.crearComunidad(dto);
         return new ResponseEntity<>(creada, HttpStatus.CREATED);
     }
