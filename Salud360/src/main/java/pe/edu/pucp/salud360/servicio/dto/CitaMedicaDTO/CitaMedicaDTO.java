@@ -18,7 +18,8 @@ import java.time.LocalTime;
 public class CitaMedicaDTO {
     private Integer idCitaMedica;
     private LocalDate fecha;
-    private LocalTime hora;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
     private String estado;
     private Boolean activo;
     private LocalDateTime fechaCreacion;

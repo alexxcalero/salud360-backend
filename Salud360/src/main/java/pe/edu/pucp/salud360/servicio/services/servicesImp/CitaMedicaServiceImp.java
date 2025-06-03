@@ -49,6 +49,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
         CitaMedica cita = citaMedicaMapper.mapToModel(dto);
 
         // Asignar relaciones no incluidas directamente en el mapeo
+        cita.setEstado("Disponible");
         cita.setActivo(true);
         cita.setFechaCreacion(LocalDateTime.now());
         cita.setServicio(servicio);
@@ -67,7 +68,8 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
 
         // Solo se actualizan los campos editables (activo no se toca)
         cita.setFecha(dto.getFecha());
-        cita.setHora(dto.getHora()); // asumimos que cambió de `horaInicio` a `hora` en el DTO
+        cita.setHoraInicio(dto.getHoraInicio()); // asumimos que cambió de `horaInicio` a `hora` en el DTO
+        cita.setHoraFin(dto.getHoraFin());
         cita.setEstado(dto.getEstado());
 
         return citaMedicaMapper.mapToDTO(citaMedicaRepository.save(cita));

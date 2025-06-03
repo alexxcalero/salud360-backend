@@ -1,5 +1,6 @@
 package pe.edu.pucp.salud360.usuario.services;
 
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
@@ -20,4 +21,6 @@ public interface ClienteService {
     List<ClienteVistaAdminDTO> listarClientes();
     ClienteVistaAdminDTO buscarClientePorId(Integer idCliente);
     ClienteLogueadoDTO buscarClienteLogueadoPorId(Integer idCliente);
+
+    List<ReservaDTO> listarReservasPorCliente(Integer idCliente);
 }

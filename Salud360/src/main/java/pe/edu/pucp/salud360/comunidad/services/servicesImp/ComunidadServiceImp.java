@@ -1,7 +1,6 @@
 package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
@@ -9,14 +8,14 @@ import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
-import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
-import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
-import pe.edu.pucp.salud360.servicio.models.Servicio;
+import pe.edu.pucp.salud360.servicio.models.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,25 +24,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ComunidadServiceImp implements ComunidadService {
 
-    @Autowired
-    private ComunidadRepository comunidadRepository;
-
-    @Autowired
-    private ComunidadMapper comunidadMapper;
-
-    @Autowired//listarxservicio
-    private ServicioMapper servicioMapper;
-
-    @Autowired//listarxmembre
-    private MembresiaRepository membresiaRepository;
-
-    @Autowired
-    private MembresiaMapper membresiaMapper;
-
-    @Autowired
-    private S3UrlGenerator s3UrlGenerator;
+    private final ComunidadRepository comunidadRepository;
+    private final ComunidadMapper comunidadMapper;
+    private final ServicioMapper servicioMapper;
+    private final MembresiaRepository membresiaRepository;
+    private final MembresiaMapper membresiaMapper;
+    private final S3UrlGenerator s3UrlGenerator;
+    private final ReservaMapper reservaMapper;
 
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
@@ -150,5 +140,30 @@ public class ComunidadServiceImp implements ComunidadService {
         return true;
     }
 
-}
+    @Override
+    public List<ReservaDTO> listarReservasPorComunidad(Integer idComunidad) {
+        Comunidad comunidad = comunidadRepository.findById(idComunidad)
+                .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
 
+        List<Reserva> reservas = new ArrayList<>();
+
+        for(Servicio servicio : comunidad.getServicios()) {
+
+            // Reservas por clases de locales
+            for(Local local : servicio.getLocales()) {
+                for(Clase clase : local.getClases()) {
+                    reservas.addAll(clase.getReservas());
+                }
+            }
+
+            // Reservas por citas médicas del servicio directamente
+            for(CitaMedica cita : servicio.getCitasMedicas()) {
+                reservas.addAll(cita.getReservas());
+            }
+        }
+
+        return reservas.stream()
+                .map(reservaMapper::mapToDTO)
+                .toList();
+    }
+}
