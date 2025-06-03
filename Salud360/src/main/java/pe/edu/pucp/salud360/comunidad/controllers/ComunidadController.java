@@ -56,6 +56,11 @@ public class ComunidadController {
         return new ResponseEntity<>(comunidadService.listarComunidades(), HttpStatus.OK);
     }
 
+    @GetMapping("/activas")
+    public ResponseEntity<List<ComunidadDTO>> listarSoloActivas() {
+        return new ResponseEntity<>(comunidadService.listarComunidadesActivas(), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}/restaurar")
     public ResponseEntity<String> restaurarComunidad(@PathVariable Integer id) {
         boolean restaurado = comunidadService.restaurarComunidad(id);
