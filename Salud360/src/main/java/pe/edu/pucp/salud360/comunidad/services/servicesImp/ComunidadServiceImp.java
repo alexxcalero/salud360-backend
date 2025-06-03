@@ -61,6 +61,7 @@ public class ComunidadServiceImp implements ComunidadService {
         }
         comunidad.setImagenes(keys); //Guarda las keys para la bd
         comunidad.setFechaCreacion(LocalDateTime.now());
+        comunidad.setActivo(true);
         Comunidad guardada = comunidadRepository.save(comunidad);
 
         // Guardar membresías asociadas
@@ -78,7 +79,6 @@ public class ComunidadServiceImp implements ComunidadService {
                     .activo(true)
                     .fechaCreacion(LocalDateTime.now())
                     .build();
-
                 membresiaRepository.save(membresia);
             }
         }

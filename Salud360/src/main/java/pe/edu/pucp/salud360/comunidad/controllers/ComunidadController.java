@@ -20,7 +20,7 @@ public class ComunidadController {
     private ComunidadService comunidadService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ComunidadDTO> crear(@ModelAttribute ComunidadDTO dto) {
+    public ResponseEntity<ComunidadDTO> crear(@RequestBody ComunidadDTO dto) {
         ComunidadDTO creada = comunidadService.crearComunidad(dto);
         return new ResponseEntity<>(creada, HttpStatus.CREATED);
     }
