@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.servicio.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/clases")
+@RequiredArgsConstructor
 public class ClaseController {
 
-    @Autowired
-    private ClaseService claseService;
+    private final ClaseService claseService;
 
     @PostMapping
     public ResponseEntity<ClaseDTO> crearClase(@RequestBody ClaseDTO claseDTO) {
@@ -44,6 +44,16 @@ public class ClaseController {
         return new ResponseEntity<>("Clase no encontrada", HttpStatus.NOT_FOUND);
     }
 
+    @PostMapping("/{id}/reactivar")
+    public ResponseEntity<String> reactivarClase(@PathVariable("id") Integer id) {
+        ClaseDTO existente = claseService.buscarClasePorId(id);
+        if (existente != null) {
+            claseService.reactivarClase(id);
+            return new ResponseEntity<>("Clase reactivada correctamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Clase no encontrada", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping
     public ResponseEntity<List<ClaseDTO>> listarClases() {
         List<ClaseDTO> lista = claseService.listarClasesTodas();
@@ -59,4 +69,3 @@ public class ClaseController {
             return ResponseEntity.notFound().build();
     }
 }
-

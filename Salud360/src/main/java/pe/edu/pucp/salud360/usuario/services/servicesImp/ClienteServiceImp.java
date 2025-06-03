@@ -5,9 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.pucp.salud360.comunidad.models.Comunidad;
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
+import pe.edu.pucp.salud360.servicio.models.Reserva;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
-import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
@@ -37,6 +40,7 @@ public class ClienteServiceImp implements ClienteService {
     private final TipoDocumentoMapper tipoDocumentoMapper;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReservaMapper reservaMapper;
 
 
 
@@ -212,7 +216,16 @@ public class ClienteServiceImp implements ClienteService {
             return null;
         }
     }
+  
+    @Override
+    public List<ReservaDTO> listarReservasPorCliente(Integer idCliente) {
+        Cliente cliente = clienteRepository.findById(idCliente)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrada"));
 
+        List<Reserva> reservas = cliente.getReservas();
 
-
+        return reservas.stream()
+                .map(reservaMapper::mapToDTO)
+                .toList();
+    }
 }

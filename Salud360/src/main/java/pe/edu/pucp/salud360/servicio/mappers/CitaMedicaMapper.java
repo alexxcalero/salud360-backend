@@ -11,7 +11,7 @@ import pe.edu.pucp.salud360.usuario.mappers.ClienteMapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {MedicoMapper.class, ClienteMapper.class})
+@Mapper(componentModel = "spring", uses = {ServicioMapper.class, MedicoMapper.class, ClienteMapper.class, DocumentoMedicoMapper.class})
 public interface CitaMedicaMapper {
     CitaMedicaDTO mapToDTO(CitaMedica citaMedica);
     CitaMedica mapToModel(CitaMedicaDTO dto);
@@ -29,5 +29,4 @@ public interface CitaMedicaMapper {
     List<CitaMedica> mapToModelList(List<CitaMedicaDTO> citasDTO);
 
     List<CitaMedicaResumenDTO> mapToResumenDTOList(List<CitaMedica> citas);
-
 }
