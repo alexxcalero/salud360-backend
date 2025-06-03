@@ -16,6 +16,7 @@ import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.*;
+import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class ComunidadServiceImp implements ComunidadService {
     private final MembresiaMapper membresiaMapper;
     private final S3UrlGenerator s3UrlGenerator;
     private final ReservaMapper reservaMapper;
+    private final ServicioRepository servicioRepository;
 
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
@@ -53,6 +55,15 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setFechaCreacion(LocalDateTime.now());
         comunidad.setActivo(true);
         Comunidad guardada = comunidadRepository.save(comunidad);
+
+        if (dto.getServicios() != null && !dto.getServicios().isEmpty()) {
+            List<Servicio> servicios = dto.getServicios().stream()
+                .map(s -> servicioRepository.findById(s.getIdServicio())
+                    .orElseThrow(() -> new RuntimeException("Servicio no encontrado con id: " + s.getIdServicio())))
+                .collect(Collectors.toList());
+
+            guardada.setServicios(servicios);
+        }
 
         // Guardar membresías asociadas
         if (dto.getMembresias() != null && !dto.getMembresias().isEmpty()) {
@@ -74,6 +85,7 @@ public class ComunidadServiceImp implements ComunidadService {
             }
         }
 
+        guardada = comunidadRepository.save(guardada);
         guardada.setImagenes(urls);
         return comunidadMapper.mapToDTO(guardada);
     }
