@@ -18,7 +18,7 @@ public class ComunidadController {
 
     private final ComunidadService comunidadService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping()
     public ResponseEntity<ComunidadDTO> crear(@RequestBody ComunidadDTO dto) {
         ComunidadDTO creada = comunidadService.crearComunidad(dto);
         return new ResponseEntity<>(creada, HttpStatus.CREATED);
@@ -53,6 +53,11 @@ public class ComunidadController {
     @GetMapping
     public ResponseEntity<List<ComunidadDTO>> listar() {
         return new ResponseEntity<>(comunidadService.listarComunidades(), HttpStatus.OK);
+    }
+  
+    @GetMapping("/activas")
+    public ResponseEntity<List<ComunidadDTO>> listarSoloActivas() {
+        return new ResponseEntity<>(comunidadService.listarComunidadesActivas(), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/restaurar")

@@ -65,6 +65,7 @@ public class ComunidadServiceImp implements ComunidadService {
                     .precio(m.getPrecio())
                     .descripcion(m.getDescripcion())
                     .icono(m.getIcono())
+                    .conTope(m.getConTope())
                     .comunidad(guardada)
                     .activo(true)
                     .fechaCreacion(LocalDateTime.now())
@@ -129,6 +130,16 @@ public class ComunidadServiceImp implements ComunidadService {
     }
 
     @Override
+    public List<ComunidadDTO> listarComunidadesActivas() {
+        List<Comunidad> comunidades = comunidadRepository.findAll();
+        return comunidades.stream()
+                .filter(Comunidad::getActivo)
+                .map(comunidadMapper::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public boolean restaurarComunidad(Integer id) {
         Optional<Comunidad> optional = comunidadRepository.findById(id);
         if (optional.isEmpty()) return false;
@@ -138,6 +149,12 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setFechaDesactivacion(null);
         comunidadRepository.save(comunidad);
         return true;
+    }
+  
+    @Override
+    public ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente) {
+        Comunidad entidad = comunidadRepository.findComunidadAleatoriaExcluyendoCliente(idCliente);
+        return entidad != null ? comunidadMapper.mapToDTO(entidad) : null;
     }
 
     @Override

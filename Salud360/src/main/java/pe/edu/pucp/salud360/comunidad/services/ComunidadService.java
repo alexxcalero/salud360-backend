@@ -11,6 +11,8 @@ public interface ComunidadService {
     boolean eliminarComunidad(Integer id);
     ComunidadDTO obtenerComunidadPorId(Integer id);
     List<ComunidadDTO> listarComunidades();
+    List<ComunidadDTO> listarComunidadesActivas();
     boolean restaurarComunidad(Integer id);
     List<ReservaDTO> listarReservasPorComunidad(Integer idComunidad);
+    ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente);
 }

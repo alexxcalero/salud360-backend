@@ -30,6 +30,7 @@ public class MembresiaServiceImp implements MembresiaService {
     public MembresiaDTO crearMembresia(MembresiaDTO dto) {
         Comunidad comunidad = comunidadRepository.findById(dto.getComunidad().getIdComunidad()).orElse(null);
         Membresia m = membresiaMapper.mapToModel(dto);
+        m.setComunidad(comunidad);
         return membresiaMapper.mapToDTO(membresiaRepository.save(m));
     }
 

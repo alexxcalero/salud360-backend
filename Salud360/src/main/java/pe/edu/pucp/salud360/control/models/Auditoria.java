@@ -25,8 +25,8 @@ public class Auditoria {
     @Column(name = "fechaModificacion", unique = false, nullable = false, updatable = false)
     private LocalDateTime fechaModificacion;
 
-    @Column(name = "idUsuarioModificador", unique = false, nullable = false, updatable = false)
-    private Integer idUsuarioModificador;
+    @Column(name = "nombreUsuarioModificador", unique = false, nullable = false, updatable = false)
+    private String nombreUsuarioModificador;
 
     @Column(name = "descripcion", unique = false, nullable = false, updatable = false)
     private String descripcion;

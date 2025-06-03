@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pe.edu.pucp.salud360.control.models.Auditoria;
 import pe.edu.pucp.salud360.control.repositories.AuditoriaRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 
 import java.time.LocalDateTime;
 
@@ -40,7 +42,9 @@ public class AuditoriaAspect {
             auditoria.setNombreTabla(clase);
             auditoria.setOperacion(operacion);
             auditoria.setFechaModificacion(LocalDateTime.now());
-            auditoria.setIdUsuarioModificador(1); // Simulado. Puedes conectarlo a Spring Security.
+
+            auditoria.setNombreUsuarioModificador(obtenerNombreUsuarioActual());
+            // Simulado. Puedes conectarlo a Spring Security.
             auditoria.setDescripcion(operacion + " - " + descripcion);
 
             auditoriaRepository.save(auditoria);
@@ -49,6 +53,18 @@ public class AuditoriaAspect {
             System.err.println("❌ Error en auditoría: " + e.getMessage());
         }
     }
+
+    private String obtenerNombreUsuarioActual() {
+        try {
+            return org.springframework.security.core.context.SecurityContextHolder
+                    .getContext()
+                    .getAuthentication()
+                    .getName();
+        } catch (Exception e) {
+            return "anónimo";
+        }
+    }
+
 
     private String generarDescripcion(Object datos) {
         if (datos == null) return "Datos nulos";

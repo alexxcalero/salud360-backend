@@ -112,9 +112,4 @@ public class LocalServiceImp implements LocalService {
                 .orElse(null);
     }
 
-    @Override
-    public Page<LocalVistaAdminDTO> listarLocalesPaginado(Pageable pageable) {
-        return localRepository.findByActivoTrue(pageable)
-                .map(localMapper::mapToVistaAdminDTO);
-    }
 }

@@ -32,7 +32,7 @@ public class ReporteAspect {
             auditoria.setNombreTabla("Reporte");
             auditoria.setOperacion(operacion);
             auditoria.setFechaModificacion(LocalDateTime.now());
-            auditoria.setIdUsuarioModificador(1); // TODO: conectar con Spring Security más adelante
+            auditoria.setNombreUsuarioModificador(null); // TODO: conectar con Spring Security más adelante
             auditoria.setDescripcion("Método: " + metodo + " - " + descripcion);
 
             auditoriaRepository.save(auditoria);
