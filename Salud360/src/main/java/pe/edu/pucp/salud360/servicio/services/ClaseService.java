@@ -8,6 +8,7 @@ public interface ClaseService {
     ClaseDTO crearClase(ClaseDTO claseDTO);
     ClaseDTO actualizarClase(Integer idClase, ClaseDTO claseDTO);
     void eliminarClase(Integer idClase);
+    void reactivarClase(Integer idClase);
     List<ClaseDTO> listarClasesTodas();
     ClaseDTO buscarClasePorId(Integer idClase);
 }

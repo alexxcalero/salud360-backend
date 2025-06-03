@@ -4,10 +4,11 @@ import org.mapstruct.Mapper;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.models.Clase;
+import pe.edu.pucp.salud360.usuario.mappers.ClienteMapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ClienteMapper.class, ReservaMapper.class})
 public interface ClaseMapper {
 
     // Mapear entre entidad completa y DTO completo

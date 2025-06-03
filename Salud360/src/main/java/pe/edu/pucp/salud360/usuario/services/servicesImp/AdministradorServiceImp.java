@@ -83,6 +83,8 @@ public class AdministradorServiceImp implements AdministradorService {
             administrador.setNotificacionPorWhatsApp(administradorDTO.getNotificacionPorWhatsApp());
             administrador.setTipoDocumento(tipoDocumentoMapper.mapToModel(administradorDTO.getTipoDocumento()));
 
+            administrador.getUsuario().setCorreo(administradorDTO.getCorreo());
+
             Administrador administradorActualizado = administradorRepository.save(administrador);
             return administradorMapper.mapToLogueadoDTO(administradorActualizado);
         } else {

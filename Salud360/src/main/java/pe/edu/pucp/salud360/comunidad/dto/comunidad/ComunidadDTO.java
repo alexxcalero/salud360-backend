@@ -10,10 +10,7 @@ import java.util.List;
 
 import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO.TestimonioDTO;
-import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
-import pe.edu.pucp.salud360.membresia.models.Membresia;
-import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 
 @Getter

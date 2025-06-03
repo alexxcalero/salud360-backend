@@ -1,6 +1,6 @@
 package pe.edu.pucp.salud360.servicio.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/citas-medicas")
+@RequiredArgsConstructor
 public class CitaMedicaController {
 
-    @Autowired
-    private CitaMedicaService citaMedicaService;
+    private final CitaMedicaService citaMedicaService;
 
     @PostMapping
     public ResponseEntity<CitaMedicaDTO> crearCita(@RequestBody CitaMedicaDTO citaDTO) {
@@ -44,6 +44,16 @@ public class CitaMedicaController {
         return new ResponseEntity<>("Cita no encontrada", HttpStatus.NOT_FOUND);
     }
 
+    @PostMapping("/{id}/reactivar")
+    public ResponseEntity<String> reactivarCita(@PathVariable("id") Integer id) {
+        CitaMedicaDTO existente = citaMedicaService.buscarCitaMedicaPorId(id);
+        if (existente != null) {
+            citaMedicaService.reactivarCitaMedica(id);
+            return new ResponseEntity<>("Cita reactivada correctamente", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Cita no encontrada", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping
     public ResponseEntity<List<CitaMedicaDTO>> listarCitas() {
         List<CitaMedicaDTO> lista = citaMedicaService.listarCitasMedicasTodas();
@@ -59,4 +69,3 @@ public class CitaMedicaController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 }
-

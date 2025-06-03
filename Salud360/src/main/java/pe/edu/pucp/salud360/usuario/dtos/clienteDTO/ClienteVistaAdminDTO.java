@@ -11,7 +11,6 @@ import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.usuario.dtos.NotificacionDTO;
 import pe.edu.pucp.salud360.usuario.dtos.rolDTO.RolVistaClienteDTO;
 import pe.edu.pucp.salud360.usuario.dtos.tipoDocumentoDTO.TipoDocumentoResumenDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

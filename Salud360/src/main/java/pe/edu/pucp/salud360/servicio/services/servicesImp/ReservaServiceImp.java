@@ -1,7 +1,6 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
@@ -15,48 +14,46 @@ import pe.edu.pucp.salud360.servicio.repositories.ClaseRepository;
 import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReservaServiceImp implements ReservaService {
 
-    @Autowired
-    private ReservaRepository reservaRepository;
-
-    @Autowired
-    private ReservaMapper reservaMapper;
-
-    @Autowired
-    private ClienteRepository clienteRepository;
-
-    @Autowired
-    private ClaseRepository claseRepository;
-
-    @Autowired
-    private CitaMedicaRepository citaMedicaRepository;
+    private final ReservaRepository reservaRepository;
+    private final ReservaMapper reservaMapper;
+    private final ClienteRepository clienteRepository;
+    private final ClaseRepository claseRepository;
+    private final CitaMedicaRepository citaMedicaRepository;
 
     @Override
     public ReservaDTO crearReserva(ReservaDTO dto) {
         Reserva reserva = reservaMapper.mapToModel(dto);
 
         // Asignar relaciones
-        Cliente cliente = clienteRepository.findById(dto.getIdUsuario())
+        Cliente cliente = clienteRepository.findById(dto.getCliente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         reserva.setCliente(cliente);
 
-        if (dto.getIdClase() != null) {
-            Clase clase = claseRepository.findById(dto.getIdClase())
+        if (dto.getClase() != null) {
+            Clase clase = claseRepository.findById(dto.getClase().getIdClase())
                     .orElseThrow(() -> new RuntimeException("Clase no encontrada"));
             reserva.setClase(clase);
         }
 
-        if (dto.getIdCitaMedica() != null) {
-            CitaMedica cita = citaMedicaRepository.findById(dto.getIdCitaMedica())
+        if (dto.getCitaMedica() != null) {
+            CitaMedica cita = citaMedicaRepository.findById(dto.getCitaMedica().getIdCitaMedica())
                     .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
+            if(cita.getEstado().equals("Reservada")) {
+                throw new IllegalStateException("La cita médica ya ha sido reservada.");
+            }
             reserva.setCitaMedica(cita);
         }
+
+        reserva.setFechaReserva(LocalDateTime.now());
 
         return reservaMapper.mapToDTO(reservaRepository.save(reserva));
     }
@@ -100,4 +97,3 @@ public class ReservaServiceImp implements ReservaService {
                 .orElse(null);
     }
 }
-

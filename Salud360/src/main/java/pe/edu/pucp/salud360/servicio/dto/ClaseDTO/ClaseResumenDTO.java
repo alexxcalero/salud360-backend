@@ -19,4 +19,3 @@ public class ClaseResumenDTO {
     private LocalDate fecha;
     private Integer capacidad;
 }
-

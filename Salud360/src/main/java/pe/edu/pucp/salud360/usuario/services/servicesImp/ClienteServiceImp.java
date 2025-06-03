@@ -155,6 +155,9 @@ public class ClienteServiceImp implements ClienteService {
             cliente.setNotificacionPorWhatsApp(clienteDTO.getNotificacionPorWhatsApp());
             cliente.setTipoDocumento(tipoDocumentoMapper.mapToModel(clienteDTO.getTipoDocumento()));
 
+            cliente.getUsuario().setCorreo(clienteDTO.getCorreo());
+
+
             Cliente clienteActualizado = clienteRepository.save(cliente);
             return clienteMapper.mapToVistaAdminDTO(clienteActualizado);
         } else {

@@ -1,12 +1,8 @@
 package pe.edu.pucp.salud360.servicio.dto.ServicioDTO;
 
-
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
-import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalResumenDTO;
 
@@ -15,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServicioVistaAdminDTO {

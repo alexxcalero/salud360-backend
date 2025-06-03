@@ -1,7 +1,6 @@
 package pe.edu.pucp.salud360.servicio.dto.ServicioDTO;
 
 import lombok.*;
-import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalResumenDTO;
 

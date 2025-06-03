@@ -1,6 +1,5 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
@@ -9,7 +8,6 @@ import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
-import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.models.Medico;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
@@ -41,11 +39,8 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
     @Override
     public CitaMedicaDTO crearCitaMedica(CitaMedicaDTO dto) {
         // Buscar las entidades necesarias
-        Servicio servicio = servicioRepository.findById(dto.getIdServicio())
+        Servicio servicio = servicioRepository.findById(dto.getServicio().getIdServicio())
                 .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
-
-        Cliente cliente = clienteRepository.findById(dto.getPaciente().getIdCliente())
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
         Medico medico = medicoRepository.findById(dto.getMedico().getIdMedico())
                 .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
@@ -54,18 +49,14 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
         CitaMedica cita = citaMedicaMapper.mapToModel(dto);
 
         // Asignar relaciones no incluidas directamente en el mapeo
-        cita.setServicio(servicio);
-        cita.setCliente(cliente); // O cita.setUsuario(paciente), si así se llama el campo
-        cita.setMedico(medico);
-
-        // Campos adicionales
-        cita.setFechaCreacion(LocalDateTime.now());
         cita.setActivo(true);
+        cita.setFechaCreacion(LocalDateTime.now());
+        cita.setServicio(servicio);
+        cita.setMedico(medico);
 
         // Guardar y devolver DTO
         return citaMedicaMapper.mapToDTO(citaMedicaRepository.save(cita));
     }
-
 
     @Override
     public CitaMedicaDTO actualizarCitaMedica(Integer id, CitaMedicaDTO dto) {
@@ -89,16 +80,25 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
         if (optional.isPresent()) {
             CitaMedica cita = optional.get();
             cita.setActivo(false);
-            cita.setFechaDesactivacion(LocalDateTime.now()); // o LocalDateTime.now() si usas datetime
+            cita.setFechaDesactivacion(LocalDateTime.now());
             citaMedicaRepository.save(cita);
         }
     }
 
+    @Override
+    public void reactivarCitaMedica(Integer id) {
+        Optional<CitaMedica> optional = citaMedicaRepository.findById(id);
+        if (optional.isPresent()) {
+            CitaMedica cita = optional.get();
+            cita.setActivo(true);
+            cita.setFechaDesactivacion(null);
+            citaMedicaRepository.save(cita);
+        }
+    }
 
     @Override
     public List<CitaMedicaDTO> listarCitasMedicasTodas() {
         return citaMedicaRepository.findAll().stream()
-                .filter(CitaMedica::getActivo)
                 .map(citaMedicaMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -107,10 +107,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
     @Override
     public CitaMedicaDTO buscarCitaMedicaPorId(Integer id) {
         return citaMedicaRepository.findById(id)
-                .filter(CitaMedica::getActivo) // opcional, si quieres ignorar inactivos
                 .map(citaMedicaMapper::mapToDTO)
                 .orElse(null);
     }
-
 }
-
