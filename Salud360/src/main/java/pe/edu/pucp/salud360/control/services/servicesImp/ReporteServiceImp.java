@@ -103,6 +103,7 @@ public class ReporteServiceImp implements ReporteService {
                     break;
                 }
             }
+            if(filtro.getIdLocal() == null) esLocal = true;
             if(servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
                     servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && esLocal) {
                 htmlBuilder.append("<tr>");
@@ -136,8 +137,10 @@ public class ReporteServiceImp implements ReporteService {
         htmlBuilder.append("<tr><th>IDLocal</th><th>Nombre</th><th>Servicios</th></tr>");
         for (Local local : locales) {
             Servicio servicio = local.getServicio();
+            boolean filtros = Objects.equals(filtro.getIdServicio(), servicio.getIdServicio());
+            if(filtro.getIdServicio() == null) filtros = true;
             if(servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
-                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && Objects.equals(filtro.getIdServicio(), servicio.getIdServicio())) {
+                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && filtros) {
                 htmlBuilder.append("<tr>");
                 htmlBuilder.append("<td>").append(local.getIdLocal()).append("</td>");
                 htmlBuilder.append("<td>").append(local.getNombre()).append("</td>");
@@ -156,5 +159,3 @@ public class ReporteServiceImp implements ReporteService {
         return reporte;
     }
 }
-
-
