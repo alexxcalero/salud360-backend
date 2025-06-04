@@ -10,7 +10,6 @@ import java.time.LocalDate;
 public class ReporteUsuarioRequestDTO {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private String correo; // correo del usuario
     private Integer idServicio;
     private Integer idLocal;
 }

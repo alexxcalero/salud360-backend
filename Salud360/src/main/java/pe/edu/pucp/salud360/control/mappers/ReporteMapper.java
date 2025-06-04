@@ -37,4 +37,3 @@ public class ReporteMapper {
         return reporte;
     }
 }
-
