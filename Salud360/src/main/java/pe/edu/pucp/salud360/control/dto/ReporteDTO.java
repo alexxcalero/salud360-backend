@@ -17,5 +17,6 @@ public class ReporteDTO {
     private LocalDateTime fechaCreacion;
     private List<Integer> idAfiliaciones;
     private List<Integer> idPagos;
+    private byte[] pdf;
 }
 
