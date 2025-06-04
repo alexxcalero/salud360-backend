@@ -18,7 +18,8 @@ import java.util.List;
 public class CitaMedicaVistaClienteDTO {
     private Integer idCitaMedica;
     private LocalDate fecha;
-    private LocalTime hora;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
     private String estado;
     private ServicioResumenDTO servicio;
     private List<DocumentoMedicoDTO> documentosMedicos;

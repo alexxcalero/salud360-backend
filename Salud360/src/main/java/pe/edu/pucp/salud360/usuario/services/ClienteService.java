@@ -1,10 +1,10 @@
 package pe.edu.pucp.salud360.usuario.services;
 
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteVistaAdminDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.util.List;
 
@@ -21,5 +21,6 @@ public interface ClienteService {
     List<ClienteVistaAdminDTO> listarClientes();
     ClienteVistaAdminDTO buscarClientePorId(Integer idCliente);
     ClienteLogueadoDTO buscarClienteLogueadoPorId(Integer idCliente);
-    ClienteResumenDTO cambiarFotoPerfil(Integer idUsuario, String file);
+
+    List<ReservaDTO> listarReservasPorCliente(Integer idCliente);
 }

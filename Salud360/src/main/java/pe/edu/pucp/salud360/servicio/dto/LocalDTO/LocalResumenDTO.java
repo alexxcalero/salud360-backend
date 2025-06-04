@@ -2,6 +2,8 @@ package pe.edu.pucp.salud360.servicio.dto.LocalDTO;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -13,5 +15,6 @@ public class LocalResumenDTO {
     private String descripcion;
     private String direccion;
     private String tipoServicio;
+    private List<String> imagenes;
     private Boolean activo;
 }

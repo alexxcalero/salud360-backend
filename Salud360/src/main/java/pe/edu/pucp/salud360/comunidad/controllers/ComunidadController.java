@@ -1,25 +1,24 @@
 package pe.edu.pucp.salud360.comunidad.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
-import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaDTO;
-import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import org.springframework.http.MediaType;
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/comunidades")
+@RequiredArgsConstructor
 public class ComunidadController {
 
-    @Autowired
-    private ComunidadService comunidadService;
+    private final ComunidadService comunidadService;
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<ComunidadDTO> crear(@RequestBody ComunidadDTO dto) {
         ComunidadDTO creada = comunidadService.crearComunidad(dto);
         return new ResponseEntity<>(creada, HttpStatus.CREATED);
@@ -55,8 +54,13 @@ public class ComunidadController {
     public ResponseEntity<List<ComunidadDTO>> listar() {
         return new ResponseEntity<>(comunidadService.listarComunidades(), HttpStatus.OK);
     }
+  
+    @GetMapping("/activas")
+    public ResponseEntity<List<ComunidadDTO>> listarSoloActivas() {
+        return new ResponseEntity<>(comunidadService.listarComunidadesActivas(), HttpStatus.OK);
+    }
 
-    @PutMapping("/{id}/restaurar")
+    @PostMapping("/{id}/restaurar")
     public ResponseEntity<String> restaurarComunidad(@PathVariable Integer id) {
         boolean restaurado = comunidadService.restaurarComunidad(id);
         if (restaurado) {
@@ -66,6 +70,9 @@ public class ComunidadController {
         }
     }
 
-
-
+    @GetMapping("/{idComunidad}/reservas")
+    public ResponseEntity<List<ReservaDTO>> listarReservasPorComunidad(@PathVariable("idComunidad") Integer idComunidad) {
+        List<ReservaDTO> lista = comunidadService.listarReservasPorComunidad(idComunidad);
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
 }

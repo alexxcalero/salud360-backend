@@ -10,7 +10,6 @@ public interface UsuarioService {
     Boolean cambiarContrasenha(Integer idUsuario, ActualizarContrasenhaRequest request);
     Boolean cambiarCorreo(Integer idUsuario, ActualizarCorreoRequest request);
 
-
     /*
     UsuarioVistaAdminDTO crearUsuario(UsuarioRegistroDTO usuarioDTO);
     UsuarioVistaClienteDTO actualizarUsuario(Integer idUsuario, UsuarioVistaClienteDTO usuarioDTO);

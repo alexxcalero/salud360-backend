@@ -13,7 +13,8 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class CitaMedicaResumenDTO {
     private Integer idCitaMedica;
-    private LocalTime hora;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
     private LocalDate fecha;
     private String estado;
 

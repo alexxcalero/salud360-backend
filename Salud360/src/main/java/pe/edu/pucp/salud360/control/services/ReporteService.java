@@ -1,13 +1,13 @@
 package pe.edu.pucp.salud360.control.services;
 
-import pe.edu.pucp.salud360.control.dto.*;
+
+import pe.edu.pucp.salud360.control.dto.ReporteDTO;
+
+import java.util.List;
 
 public interface ReporteService {
-
-    ReporteDTO generarReporteUsuarios(ReporteUsuarioRequestDTO filtro);
-
-    ReporteDTO generarReporteServicios(ReporteServicioRequestDTO filtro);
-
-    ReporteDTO generarReporteLocales(ReporteLocalRequestDTO filtro);
+    List<ReporteDTO> listarReportes();
+    ReporteDTO crearReporte(ReporteDTO reporteDTO);
+    ReporteDTO obtenerReportePorId(Integer id);
+    boolean eliminarReporte(Integer id);
 }
-

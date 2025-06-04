@@ -5,10 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
-import pe.edu.pucp.salud360.mutex.MutexRegistro;
+import pe.edu.pucp.salud360.comunidad.models.Comunidad;
+import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
+import pe.edu.pucp.salud360.servicio.models.Reserva;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
+import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
+import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
-import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
@@ -36,8 +40,9 @@ public class ClienteServiceImp implements ClienteService {
     private final TipoDocumentoMapper tipoDocumentoMapper;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
-    @Autowired
-    private S3UrlGenerator s3UrlGenerator;
+    private final ReservaMapper reservaMapper;
+
+
 
     @Override
     @Transactional
@@ -63,15 +68,11 @@ public class ClienteServiceImp implements ClienteService {
         cliente.setMediosDePago(new ArrayList<>());
         cliente.setTestimonios(new ArrayList<>());
 
-
         usuario.setCliente(cliente);
         cliente.setUsuario(usuario);
 
-        Cliente clienteCreado;
-        synchronized (MutexRegistro.LOCK) { //Mutex para guardar ambos ids y que se compartan
-            Usuario usuarioCreado = usuarioRepository.save(usuario);
-            clienteCreado = clienteRepository.save(cliente);
-        }
+        Usuario usuarioCreado = usuarioRepository.save(usuario);
+        Cliente clienteCreado = clienteRepository.save(cliente);
 
         return clienteMapper.mapToLogueadoDTO(clienteCreado);
     }
@@ -103,11 +104,8 @@ public class ClienteServiceImp implements ClienteService {
         usuario.setCliente(cliente);
         cliente.setUsuario(usuario);
 
-        Cliente clienteCreado;
-        synchronized (MutexRegistro.LOCK) { //Mutex para guardar ambos ids y que se compartan
-            Usuario usuarioCreado = usuarioRepository.save(usuario);
-            clienteCreado = clienteRepository.save(cliente);
-        }
+        Usuario usuarioCreado = usuarioRepository.save(usuario);
+        Cliente clienteCreado = clienteRepository.save(cliente);
 
         return clienteMapper.mapToVistaAdminDTO(clienteCreado);
     }
@@ -202,8 +200,6 @@ public class ClienteServiceImp implements ClienteService {
         Optional<Cliente> clienteBuscado = clienteRepository.findById(idCliente);
         if(clienteBuscado.isPresent()) {
             Cliente cliente = clienteBuscado.get();
-            String url = s3UrlGenerator.generarUrlLectura(cliente.getFotoPerfil());
-            cliente.setFotoPerfil(url);
             return clienteMapper.mapToVistaAdminDTO(cliente);
         } else {
             return null;
@@ -215,27 +211,21 @@ public class ClienteServiceImp implements ClienteService {
         Optional<Cliente> clienteBuscado = clienteRepository.findById(idCliente);
         if(clienteBuscado.isPresent()) {
             Cliente cliente = clienteBuscado.get();
-            String url = s3UrlGenerator.generarUrlLectura(cliente.getFotoPerfil());
-            cliente.setFotoPerfil(url);
             return clienteMapper.mapToLogueadoDTO(cliente);
         } else {
             return null;
         }
     }
-
+  
     @Override
-    public ClienteResumenDTO cambiarFotoPerfil(Integer idCliente, String file){
-        Optional<Cliente> clienteBuscado = clienteRepository.findById(idCliente);
-        if (clienteBuscado.isPresent()) {
-            Cliente usuario = clienteBuscado.get();
-            String url = s3UrlGenerator.generarUrl(file); //Genera urls
-            String key = s3UrlGenerator.extraerKeyDeUrl(url); //Saca la key del archivo
-            usuario.setFotoPerfil(key);
-            Cliente clienteActualizado = clienteRepository.save(usuario);
-            clienteActualizado.setFotoPerfil(url);
-            return clienteMapper.mapToResumenDTO(clienteActualizado);
-        } else {
-            return null;
-        }
+    public List<ReservaDTO> listarReservasPorCliente(Integer idCliente) {
+        Cliente cliente = clienteRepository.findById(idCliente)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrada"));
+
+        List<Reserva> reservas = cliente.getReservas();
+
+        return reservas.stream()
+                .map(reservaMapper::mapToDTO)
+                .toList();
     }
 }

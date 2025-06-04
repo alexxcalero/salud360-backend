@@ -14,5 +14,4 @@ public interface AdministradorService {
     List<AdministradorResumenDTO> listarAdministradores();
     AdministradorResumenDTO buscarAdministradorPorId(Integer idAdministrador);
     AdministradorLogueadoDTO buscarAdminPorId(Integer idAdministrador);
-    AdministradorResumenDTO cambiarFotoPerfil(Integer idAdmin, String file);
 }

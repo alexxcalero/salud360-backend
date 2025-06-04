@@ -1,20 +1,15 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
-import pe.edu.pucp.salud360.mutex.MutexRegistro;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorResumenDTO;
-import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.mappers.AdministradorMapper;
 import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
 import pe.edu.pucp.salud360.usuario.models.Administrador;
-import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
 import pe.edu.pucp.salud360.usuario.repositories.AdministradorRepository;
 import pe.edu.pucp.salud360.usuario.repositories.RolRepository;
@@ -36,8 +31,6 @@ public class AdministradorServiceImp implements AdministradorService {
     private final TipoDocumentoMapper tipoDocumentoMapper;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
-    @Autowired
-    private S3UrlGenerator s3UrlGenerator;
 
     @Override
     @Transactional
@@ -58,11 +51,8 @@ public class AdministradorServiceImp implements AdministradorService {
         usuario.setAdministrador(administrador);
         administrador.setUsuario(usuario);
 
-        Administrador administradorCreado;
-        synchronized (MutexRegistro.LOCK) {
-            Usuario usuarioCreado = usuarioRepository.save(usuario);
-            administradorCreado = administradorRepository.save(administrador);
-        }
+        Usuario usuarioCreado = usuarioRepository.save(usuario);
+        Administrador administradorCreado = administradorRepository.save(administrador);
 
         return administradorMapper.mapToResumenDTO(administradorCreado);
     }
@@ -141,22 +131,6 @@ public class AdministradorServiceImp implements AdministradorService {
         if(administradorBuscado.isPresent()) {
             Administrador administrador = administradorBuscado.get();
             return administradorMapper.mapToLogueadoDTO(administrador);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public AdministradorResumenDTO cambiarFotoPerfil(Integer idAdmin, String file){
-        Optional<Administrador> adminBuscado = administradorRepository.findById(idAdmin);
-        if (adminBuscado.isPresent()) {
-            Administrador usuario = adminBuscado.get();
-            String url = s3UrlGenerator.generarUrl(file); //Genera urls
-            String key = s3UrlGenerator.extraerKeyDeUrl(url); //Saca la key del archivo
-            usuario.setFotoPerfil(key);
-            Administrador adminActualizado = administradorRepository.save(usuario);
-            adminActualizado.setFotoPerfil(url);
-            return administradorMapper.mapToResumenDTO(adminActualizado);
         } else {
             return null;
         }

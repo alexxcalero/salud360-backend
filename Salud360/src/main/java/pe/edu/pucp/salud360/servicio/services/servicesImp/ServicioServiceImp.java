@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
@@ -74,6 +75,15 @@ public class ServicioServiceImp implements ServicioService {
                 .map(servicioMapper::mapToVistaAdminDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<ServicioVistaClienteDTO> listarServiciosClientes() {
+        return servicioRepository.findAll().stream()
+                .filter(servicio -> Boolean.TRUE.equals(servicio.getActivo()))
+                .map(servicioMapper::mapToVistaClienteDTO)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public ServicioVistaAdminDTO buscarServicioPorId(Integer id) {

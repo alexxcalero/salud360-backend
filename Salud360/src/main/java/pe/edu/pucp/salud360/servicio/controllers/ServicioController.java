@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.services.ServicioService;
 
 import java.util.List;
@@ -59,6 +60,12 @@ public class ServicioController {
     @GetMapping
     public ResponseEntity<List<ServicioVistaAdminDTO>> listarServicios() {
         List<ServicioVistaAdminDTO> lista = servicioService.listarServiciosTodos();
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    @GetMapping("/activos")
+    public ResponseEntity<List<ServicioVistaClienteDTO>> listarServiciosClientes() {
+        List<ServicioVistaClienteDTO> lista = servicioService.listarServiciosClientes();
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 

@@ -11,7 +11,7 @@ public class AuditoriaMapper {
                 a.getIdAuditoria(),
                 a.getNombreTabla(),
                 a.getFechaModificacion(),
-                a.getIdUsuarioModificador(),
+                a.getNombreUsuarioModificador(),
                 a.getDescripcion(),
                 a.getOperacion()
         );
@@ -23,7 +23,7 @@ public class AuditoriaMapper {
         a.setIdAuditoria(dto.getIdAuditoria());
         a.setNombreTabla(dto.getNombreTabla());
         a.setFechaModificacion(dto.getFechaModificacion());
-        a.setIdUsuarioModificador(dto.getIdUsuarioModificador());
+        a.setNombreUsuarioModificador(dto.getNombreUsuarioModificador());
         a.setDescripcion(dto.getDescripcion());
         a.setOperacion(dto.getOperacion());
         return a;

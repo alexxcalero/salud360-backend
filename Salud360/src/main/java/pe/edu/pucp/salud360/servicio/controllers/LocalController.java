@@ -80,14 +80,6 @@ public class LocalController {
             return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/paginado")
-    public ResponseEntity<Page<LocalVistaAdminDTO>> listarLocalesPaginado(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<LocalVistaAdminDTO> resultado = localService.listarLocalesPaginado(pageable);
-        return ResponseEntity.ok(resultado);
-    }
+
 }
 

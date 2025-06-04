@@ -27,8 +27,11 @@ public class CitaMedica {
     @Column(name = "fecha", unique = false, nullable = false, updatable = true)
     private LocalDate fecha;
 
-    @Column(name = "hora", unique = false, nullable = false, updatable = true)
-    private LocalTime hora;
+    @Column(name = "horaInicio", unique = false, nullable = false, updatable = true)
+    private LocalTime horaInicio;
+
+    @Column(name = "horaFin", unique = false, nullable = false, updatable = true)
+    private LocalTime horaFin;
 
     @Column(name = "estado", unique = false, nullable = false, updatable = true)
     private String estado;
