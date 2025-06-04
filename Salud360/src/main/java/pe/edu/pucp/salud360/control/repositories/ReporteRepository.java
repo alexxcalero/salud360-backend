@@ -7,4 +7,3 @@ import pe.edu.pucp.salud360.control.models.Reporte;
 @Repository
 public interface ReporteRepository extends JpaRepository<Reporte, Integer> {
 }
-
