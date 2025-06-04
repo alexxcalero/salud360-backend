@@ -25,6 +25,9 @@ public class Reporte {
     @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
+    @Column(name = "pdf", unique = false, nullable = false, updatable = false)
+    private byte[] pdf;
+
     @ManyToMany
     private List<Afiliacion> afiliacion;
 

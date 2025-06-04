@@ -6,6 +6,7 @@ import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.models.Pago;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,9 @@ public class ReporteMapper {
         return new ReporteDTO(
                 reporte.getIdReporte(),
                 reporte.getFechaCreacion(),
-                idAfiliaciones,
-                idPagos
+                new ArrayList<>(),
+                new ArrayList<>(),
+                reporte.getPdf()
         );
     }
 
