@@ -12,4 +12,3 @@ public class ReporteLocalRequestDTO {
     private LocalDate fechaFin;
     private Integer idServicio;
 }
-
