@@ -197,6 +197,14 @@ public class ComunidadServiceImp implements ComunidadService {
     public List<ComunidadDTO> listarComunidades() {
         List<Comunidad> comunidades = comunidadRepository.findAll();
         if(!(comunidades.isEmpty())) {
+            for(Comunidad comunidad : comunidades){
+                List<String> imagenes = comunidad.getImagenes();
+                List<String> urls = new ArrayList<>();
+                if(imagenes != null) {
+                    for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
+                    comunidad.setImagenes(urls);
+                }
+            }
             return comunidades.stream().map(comunidadMapper::mapToDTO).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
