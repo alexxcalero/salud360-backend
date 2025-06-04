@@ -14,7 +14,9 @@ import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.models.Pago;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.PagoRepository;
+import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
+import pe.edu.pucp.salud360.servicio.repositories.LocalRepository;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
@@ -26,13 +28,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class ReporteServiceImp implements ReporteService {
     @Autowired
     private ClienteRepository usuarioRepository;
+    @Autowired
     private ServicioRepository servicioRepository;
+    @Autowired
+    private LocalRepository localRepository;
 
     @Override
     public ReporteDTO generarReporteUsuarios(ReporteUsuarioRequestDTO filtro) {
@@ -42,20 +48,25 @@ public class ReporteServiceImp implements ReporteService {
         // Reemplaza con lógica real
         List<Cliente> usuarios = usuarioRepository.findAll();
         StringBuilder htmlBuilder = new StringBuilder();
+
         htmlBuilder.append("<p>Listado de usuarios y sus comunidades:</p>");
+        htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
         htmlBuilder.append("<table>");
-        htmlBuilder.append("<tr><th>Usuario</th><th>Comunidades</th></tr>");
+        htmlBuilder.append("<tr><th>IDUsuario</th><th>Nombre</th><th>Comunidades</th></tr>");
         for (Cliente usuario : usuarios) {
             List<Comunidad> comunidades = usuario.getComunidades();
             List<String> c = new ArrayList<>();
             for(Comunidad com : comunidades){
                 c.add(com.getNombre());
             }
-            htmlBuilder.append("<tr>");
-            htmlBuilder.append("<td>").append(usuario.getIdCliente()).append("</td>");
-            htmlBuilder.append("<td>").append(usuario.getNombres()).append("</td>");
-            htmlBuilder.append("<td>").append(String.join(", ", c)).append("</td>");
-            htmlBuilder.append("</tr>");
+            if(usuario.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
+                    usuario.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay())) {
+                htmlBuilder.append("<tr>");
+                htmlBuilder.append("<td>").append(usuario.getIdCliente()).append("</td>");
+                htmlBuilder.append("<td>").append(usuario.getNombres()).append("</td>");
+                htmlBuilder.append("<td>").append(String.join("\n ", c)).append("</td>");
+                htmlBuilder.append("</tr>");
+            }
         }
         htmlBuilder.append("</table>");
         String titulo = "Reporte de Usuarios por Comunidad";
@@ -76,19 +87,30 @@ public class ReporteServiceImp implements ReporteService {
         List<Servicio> servicios = servicioRepository.findAll();
         StringBuilder htmlBuilder = new StringBuilder();
         htmlBuilder.append("<p>Listado de servicios:</p>");
+        htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
         htmlBuilder.append("<table>");
-        htmlBuilder.append("<tr><th>Servicios</th><th>Comunidad</th></tr>");
+        htmlBuilder.append("<tr><th>IDServicios</th><th>Servicios</th><th>Comunidad</th></tr>");
         for (Servicio servicio : servicios) {
             List<Comunidad> comunidades = servicio.getComunidad();
             List<String> c = new ArrayList<>();
             for(Comunidad com : comunidades){
                 c.add(com.getNombre());
             }
-            htmlBuilder.append("<tr>");
-            htmlBuilder.append("<td>").append(servicio.getIdServicio()).append("</td>");
-            htmlBuilder.append("<td>").append(servicio.getNombre()).append("</td>");
-            htmlBuilder.append("<td>").append(String.join(", ", c)).append("</td>");
-            htmlBuilder.append("</tr>");
+            boolean esLocal=false;
+            for(Local local : servicio.getLocales()){
+                if (Objects.equals(local.getIdLocal(), filtro.getIdLocal())) {
+                    esLocal = true;
+                    break;
+                }
+            }
+            if(servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
+                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && esLocal) {
+                htmlBuilder.append("<tr>");
+                htmlBuilder.append("<td>").append(servicio.getIdServicio()).append("</td>");
+                htmlBuilder.append("<td>").append(servicio.getNombre()).append("</td>");
+                htmlBuilder.append("<td>").append(String.join("\n ", c)).append("</td>");
+                htmlBuilder.append("</tr>");
+            }
         }
         htmlBuilder.append("</table>");
         String titulo = "Reporte de Servicios";
@@ -105,6 +127,30 @@ public class ReporteServiceImp implements ReporteService {
     public ReporteDTO generarReporteLocales(ReporteLocalRequestDTO filtro) {
         ReporteDTO reporte = new ReporteDTO();
         reporte.setFechaCreacion(LocalDateTime.now());
+
+        List<Local> locales = localRepository.findAll();
+        StringBuilder htmlBuilder = new StringBuilder();
+        htmlBuilder.append("<p>Listado de locales y sus servicios:</p>");
+        htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
+        htmlBuilder.append("<table>");
+        htmlBuilder.append("<tr><th>IDLocal</th><th>Nombre</th><th>Servicios</th></tr>");
+        for (Local local : locales) {
+            Servicio servicio = local.getServicio();
+            if(servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
+                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && Objects.equals(filtro.getIdServicio(), servicio.getIdServicio())) {
+                htmlBuilder.append("<tr>");
+                htmlBuilder.append("<td>").append(local.getIdLocal()).append("</td>");
+                htmlBuilder.append("<td>").append(local.getNombre()).append("</td>");
+                htmlBuilder.append("<td>").append(String.join("\n ", servicio.getNombre())).append("</td>");
+                htmlBuilder.append("</tr>");
+            }
+        }
+        htmlBuilder.append("</table>");
+        String titulo = "Reporte de Servicios";
+        String contenidoHTML = htmlBuilder.toString();
+        byte[] pdfBytes = ReportePDFGenerator.generarReporteHTML(titulo, contenidoHTML);
+        reporte.setPdf(pdfBytes);
+
         reporte.setIdAfiliaciones(Collections.singletonList(3));
         reporte.setIdPagos(Collections.singletonList(12));
         return reporte;

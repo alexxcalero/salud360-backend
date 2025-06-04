@@ -20,11 +20,6 @@ public class ReportePDFGenerator {
                 "<body>" +
                 "<h1>" + titulo + "</h1>" +
                 "<p>" + contenido + "</p>" +
-                "<table>" +
-                "<tr><th>Campo</th><th>Valor</th></tr>" +
-                "<tr><td>Ejemplo 1</td><td>Valor 1</td></tr>" +
-                "<tr><td>Ejemplo 2</td><td>Valor 2</td></tr>" +
-                "</table>" +
                 "</body></html>";
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {

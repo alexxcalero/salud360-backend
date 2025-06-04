@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Setter
 public class ReporteUsuarioRequestDTO {
     private LocalDate fechaInicio;
+    private String descripcion;
     private LocalDate fechaFin;
     private Integer idServicio;
     private Integer idLocal;
