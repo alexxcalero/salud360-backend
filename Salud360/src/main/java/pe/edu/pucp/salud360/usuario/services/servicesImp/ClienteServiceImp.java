@@ -13,15 +13,18 @@ import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioPerfilDTO;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.ClienteMapper;
 import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
+import pe.edu.pucp.salud360.usuario.models.TipoDocumento;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.usuario.repositories.RolRepository;
+import pe.edu.pucp.salud360.usuario.repositories.TipoDocumentoRepository;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 import pe.edu.pucp.salud360.usuario.services.ClienteService;
 
@@ -37,6 +40,7 @@ public class ClienteServiceImp implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final ClienteMapper clienteMapper;
     private final UsuarioRepository usuarioRepository;
+    private final TipoDocumentoRepository tipoDocumentoRepository;
     private final TipoDocumentoMapper tipoDocumentoMapper;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
@@ -111,28 +115,29 @@ public class ClienteServiceImp implements ClienteService {
     }
 
     @Override
-    public ClienteLogueadoDTO actualizarClienteVistaPerfil(Integer idCliente, ClienteResumenDTO clienteDTO) {
-        Optional<Cliente> clienteSeleccionado = clienteRepository.findById(idCliente);
-        if(clienteSeleccionado.isPresent()) {
-            Cliente cliente = clienteSeleccionado.get();
-            cliente.setNombres(clienteDTO.getNombres());
-            cliente.setApellidos(clienteDTO.getApellidos());
-            cliente.setNumeroDocumento(clienteDTO.getNumeroDocumento());
-            cliente.setSexo(clienteDTO.getSexo());
-            cliente.setTelefono(clienteDTO.getTelefono());
-            cliente.setFechaNacimiento(clienteDTO.getFechaNacimiento());
-            cliente.setDireccion(clienteDTO.getDireccion());
-            cliente.setFotoPerfil(clienteDTO.getFotoPerfil());
-            cliente.setNotificacionPorCorreo(clienteDTO.getNotificacionPorCorreo());
-            cliente.setNotificacionPorSMS(clienteDTO.getNotificacionPorSMS());
-            cliente.setNotificacionPorWhatsApp(clienteDTO.getNotificacionPorWhatsApp());
-            cliente.setTipoDocumento(tipoDocumentoMapper.mapToModel(clienteDTO.getTipoDocumento()));
+    @Transactional
+    public ClienteLogueadoDTO actualizarClienteVistaPer(Integer id, UsuarioPerfilDTO dto) {
+        Cliente cliente = clienteRepository.findByUsuario_IdUsuario(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+//Crear un findbyID que busque por el id del usuario pero retorne un cliente.
+        System.out.println("📥 Teléfono: " + dto.getTelefono());
+        System.out.println("📥 Dirección: " + dto.getDireccion());
+        System.out.println("📥 ID tipo doc: " + dto.getIdTipoDocumento());
 
-            Cliente clienteActualizado = clienteRepository.save(cliente);
-            return clienteMapper.mapToLogueadoDTO(clienteActualizado);
-        } else {
-            return null;
-        }
+
+        cliente.setTelefono(dto.getTelefono());
+        cliente.setDireccion(dto.getDireccion());
+        cliente.setSexo(dto.getSexo());
+        cliente.setFechaNacimiento(dto.getFechaNacimiento());
+        cliente.setNumeroDocumento(dto.getNumeroDocumento());
+
+        TipoDocumento tipo = tipoDocumentoRepository.findById(dto.getIdTipoDocumento())
+                .orElseThrow(() -> new RuntimeException("Tipo de documento no encontrado"));
+
+        cliente.setTipoDocumento(tipo);
+
+        Cliente actualizado = clienteRepository.save(cliente);
+        return clienteMapper.mapToLogueadoDTO(actualizado);
     }
 
     @Override
@@ -162,6 +167,7 @@ public class ClienteServiceImp implements ClienteService {
             return null;
         }
     }
+
 
     @Override
     public void eliminarCliente(Integer idCliente) {

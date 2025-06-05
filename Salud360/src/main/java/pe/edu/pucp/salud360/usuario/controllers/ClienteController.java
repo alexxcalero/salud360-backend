@@ -9,6 +9,7 @@ import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioPerfilDTO;
 import pe.edu.pucp.salud360.usuario.services.ClienteService;
 
 import java.util.List;
@@ -24,10 +25,10 @@ public class ClienteController {
 
 
     @PutMapping("{idCliente}")
-    public ResponseEntity<ClienteLogueadoDTO> actualizarClienteVistaPerfil(@PathVariable("idCliente") Integer idCliente, @RequestBody ClienteResumenDTO clienteDTO) {
+    public ResponseEntity<ClienteLogueadoDTO> actualizarClienteVistaPerfil(@PathVariable("idCliente") Integer idCliente, @RequestBody UsuarioPerfilDTO clienteDTO) {
         ClienteLogueadoDTO clienteBuscado = clienteService.buscarClienteLogueadoPorId(idCliente);
         if (clienteBuscado != null) {
-            ClienteLogueadoDTO clienteActualizado = clienteService.actualizarClienteVistaPerfil(idCliente, clienteDTO);
+            ClienteLogueadoDTO clienteActualizado = clienteService.actualizarClienteVistaPer(idCliente, clienteDTO);
             return new ResponseEntity<>(clienteActualizado, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

@@ -5,6 +5,7 @@ import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteVistaAdminDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioPerfilDTO;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface ClienteService {
     ClienteLogueadoDTO crearClientePorRegistro(ClienteRegistroDTO clienteDTO);
     ClienteVistaAdminDTO crearClienteVistaAdmin(ClienteRegistroDTO clienteDTO);
 
-    ClienteLogueadoDTO actualizarClienteVistaPerfil(Integer idCliente, ClienteResumenDTO clienteDTO);
+    ClienteLogueadoDTO actualizarClienteVistaPer(Integer idCliente, UsuarioPerfilDTO usuarioPerfilDTO);
     ClienteVistaAdminDTO actualizarClienteVistaAdmin(Integer idCliente, ClienteResumenDTO clienteDTO);
 
     void eliminarCliente(Integer idCliente);
