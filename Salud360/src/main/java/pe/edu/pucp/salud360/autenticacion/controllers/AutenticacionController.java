@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pe.edu.pucp.salud360.autenticacion.models.LoginRequest;
 import pe.edu.pucp.salud360.autenticacion.models.LoginResponse;
+import pe.edu.pucp.salud360.autenticacion.models.UsuarioDetails;
 import pe.edu.pucp.salud360.seguridad.JwtService;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
@@ -62,7 +63,8 @@ public class AutenticacionController {
                     )
             );
 
-            Usuario usuario = (Usuario) auth.getPrincipal();
+            UsuarioDetails userDetails = (UsuarioDetails) auth.getPrincipal();
+            Usuario usuario = userDetails.getUsuario();
             String token = jwtService.generateToken(usuario);
 
             UsuarioLogueadoDTO usuarioDTO = usuarioMapper.mapToLogueadoDTO(usuario);
@@ -79,15 +81,17 @@ public class AutenticacionController {
                 usuarioDTO.setAdministrador(adminDTO);
             }
 
-            Cookie cookie = new Cookie("token", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(false); // Asegúrate de usar HTTPS en producción
-            cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24); // 1 día
+            String cookieHeader = "token=" + token +
+                    "; Path=/" +
+                    "; Max-Age=" + (60 * 60 * 24) +
+                    "; HttpOnly" +
+                    "; SameSite=None" +
+                    "; Secure"; // Solo funciona si usas HTTPS (localhost con Chrome puede requerirlo)
 
-            response.addCookie(cookie);
+            response.setHeader("Set-Cookie", cookieHeader);
 
-            return ResponseEntity.ok(new LoginResponse(null, usuarioDTO));
+
+            return ResponseEntity.ok(new LoginResponse(token, usuarioDTO));
         } catch(BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }

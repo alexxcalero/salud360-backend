@@ -6,7 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.autenticacion.models.ActualizarContrasenhaRequest;
 import pe.edu.pucp.salud360.autenticacion.models.ActualizarCorreoRequest;
+import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoDTO;
+import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
+import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioPerfilDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
+import pe.edu.pucp.salud360.usuario.services.AdministradorService;
+import pe.edu.pucp.salud360.usuario.services.ClienteService;
 import pe.edu.pucp.salud360.usuario.services.UsuarioService;
 
 @CrossOrigin(origins = "http://localhost:5173") // PARA QUE SE CONECTE CON EL FRONT
@@ -16,6 +21,26 @@ import pe.edu.pucp.salud360.usuario.services.UsuarioService;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final ClienteService clienteService;
+    private final AdministradorService administradorService;
+
+    //falta adapatar el segundo parametro para que sea compatible con admin tambien
+    @PutMapping("/{idUsuario}")
+    public ResponseEntity<?> actualizarUsuario(@PathVariable Integer idUsuario, @RequestBody UsuarioPerfilDTO dto) {
+        // Primero intenta actualizar como cliente
+        try {
+            ClienteLogueadoDTO actualizado = clienteService.actualizarClienteVistaPer(idUsuario, dto);
+            return ResponseEntity.ok(actualizado);
+        } catch (Exception e) {
+            // Si no es cliente, intenta como administrador
+            try {
+                AdministradorLogueadoDTO adminActualizado = administradorService.actualizarAdministrador(idUsuario, null);
+                return ResponseEntity.ok(adminActualizado);
+            } catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+            }
+        }
+    }
 
     @PutMapping("{idUsuario}/cambiarContrasenha")
     public ResponseEntity<String> cambiarContrasenha(@PathVariable("idUsuario") Integer idUsuario,
