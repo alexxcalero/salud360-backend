@@ -124,7 +124,8 @@ public class ClienteServiceImp implements ClienteService {
         System.out.println("📥 Dirección: " + dto.getDireccion());
         System.out.println("📥 ID tipo doc: " + dto.getIdTipoDocumento());
 
-
+        cliente.setNombres(dto.getNombre());
+        cliente.setApellidos(dto.getApellido());
         cliente.setTelefono(dto.getTelefono());
         cliente.setDireccion(dto.getDireccion());
         cliente.setSexo(dto.getSexo());
