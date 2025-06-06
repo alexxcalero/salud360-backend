@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import org.springframework.http.MediaType;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
+import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 
 import java.util.List;
@@ -73,6 +75,18 @@ public class ComunidadController {
     @GetMapping("/{idComunidad}/reservas")
     public ResponseEntity<List<ReservaDTO>> listarReservasPorComunidad(@PathVariable("idComunidad") Integer idComunidad) {
         List<ReservaDTO> lista = comunidadService.listarReservasPorComunidad(idComunidad);
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    @GetMapping("/{idComunidad}/clases")
+    public ResponseEntity<List<ClaseResumenDTO>> listarClasesPorComunidad(@PathVariable("idComunidad") Integer idComunidad) {
+        List<ClaseResumenDTO> lista = comunidadService.listarClasesPorComunidad(idComunidad);
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    @GetMapping("/{idComunidad}/citas-medicas")
+    public ResponseEntity<List<CitaMedicaResumenDTO>> listarCitasMedicasPorComunidad(@PathVariable("idComunidad") Integer idComunidad) {
+        List<CitaMedicaResumenDTO> lista = comunidadService.listarCitasMedicasPorComunidad(idComunidad);
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 }
