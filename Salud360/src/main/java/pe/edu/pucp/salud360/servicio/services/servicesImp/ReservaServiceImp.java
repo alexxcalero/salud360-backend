@@ -21,6 +21,7 @@ import pe.edu.pucp.salud360.servicio.repositories.ClaseRepository;
 import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -53,12 +54,14 @@ public class ReservaServiceImp implements ReservaService {
         LocalTime horaInicioNueva = null;
         LocalTime horaFinNueva = null;
 
+        LocalDate fechaActual = null;
         Clase clase = null;
         if(dto.getClase() != null) {
             clase = claseRepository.findById(dto.getClase().getIdClase())
                     .orElseThrow(() -> new RuntimeException("Clase no encontrada"));
             horaInicioNueva = clase.getHoraInicio();
             horaFinNueva = clase.getHoraFin();
+            fechaActual = clase.getFecha();
         }
 
         CitaMedica cita = null;
@@ -67,6 +70,7 @@ public class ReservaServiceImp implements ReservaService {
                     .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
             horaInicioNueva = cita.getHoraInicio();
             horaFinNueva = cita.getHoraFin();
+            fechaActual = cita.getFecha();
         }
 
         List<Membresia> membresiasDelCliente = new ArrayList<>();
@@ -112,27 +116,35 @@ public class ReservaServiceImp implements ReservaService {
         for(Reserva r : cliente.getReservas()) {
             LocalTime horaInicio = null;
             LocalTime horaFin = null;
+            LocalDate fecha = null;
             if(r.getClase() != null) {
                 horaInicio = r.getClase().getHoraInicio();
                 horaFin = r.getClase().getHoraFin();
+                fecha = r.getClase().getFecha();
             }
             if(r.getCitaMedica() != null) {
                 horaInicio = r.getCitaMedica().getHoraInicio();
                 horaFin = r.getCitaMedica().getHoraFin();
+                fecha = r.getCitaMedica().getFecha();
             }
 
-            if(horaInicioNueva.equals(horaInicio)) {
-                throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
-            } else if(horaInicioNueva.isBefore(horaInicio)) {
-                if(horaFinNueva.isAfter(horaInicio)) {
+            if (fecha == fechaActual){
+                if(horaInicioNueva.equals(horaInicio)) {
                     throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
+                } else if(horaInicioNueva.isBefore(horaInicio)) {
+                    if(horaFinNueva.isAfter(horaInicio)) {
+                        throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
+                    }
+                } else {
+                    if(horaInicioNueva.isBefore(horaFin)) {
+                        throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
+                    }
                 }
-            } else {
-                if(horaInicioNueva.isBefore(horaFin)) {
-                    throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
                 }
             }
-        }
+
+        //aura
+
 
         if(clase != null) {
             if(clase.getCantAsistentes() + 1 > clase.getCapacidad()) {
