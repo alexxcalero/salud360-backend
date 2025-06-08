@@ -64,7 +64,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
             LocalDate fechaCita = cita.getFecha();
             LocalTime horaInicio = cita.getHoraInicio();
             LocalTime horaFin = cita.getHoraFin();
-            if(fechaCita == fechaCitaCreada) {
+            if(fechaCita.equals(fechaCitaCreada)) {
                 if(existeCruceDeHorarios(horaInicio, horaFin, horaInicioCitaCreada, horaFinCitaCreada))
                     throw new IllegalStateException("El médico ya tiene una cita asignada para esa hora.");
             }

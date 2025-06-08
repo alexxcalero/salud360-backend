@@ -47,7 +47,7 @@ public class ClaseServiceImp implements ClaseService {
             LocalDate fechaClase = clase.getFecha();
             LocalTime horaInicio = clase.getHoraInicio();
             LocalTime horaFin = clase.getHoraFin();
-            if(fechaClase == fechaClaseCreada) {
+            if(fechaClase.equals(fechaClaseCreada)) {
                 if(existeCruceDeHorarios(horaInicio, horaFin, horaInicioClaseCreada, horaFinClaseCreada))
                     throw new IllegalStateException("El local ya tiene una clase asignada para esa hora.");
             }
@@ -108,7 +108,7 @@ public class ClaseServiceImp implements ClaseService {
         else if(horaInicioNueva.isBefore(horaInicio))
             if(horaFinNueva.isAfter(horaInicio))
                 return true;
-            else
+        else
             if(horaInicioNueva.isBefore(horaFin))
                 return true;
 
