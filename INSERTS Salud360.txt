@@ -1,0 +1,440 @@
+INSERT INTO ingesoft.rol (
+    activo,
+    fecha_creacion,
+    fecha_desactivacion,
+    descripcion,
+    nombre
+) VALUES
+(true, NOW(), NULL, 'Rol con privilegios administrativos completos', 'Admin'),
+(true, NOW(), NULL, 'Usuario registrado que aún no ha adquirido una membresía', 'Cliente Visitante'),
+(true, NOW(), NULL, 'Usuario registrado con una o más membresías activas', 'Cliente Miembro');
+
+
+INSERT INTO ingesoft.tipo_documento (
+    activo,
+    fecha_creacion,
+    fecha_desactivacion,
+    nombre
+) VALUES
+(true, NOW(), NULL, 'DNI'),
+(true, NOW(), NULL, 'Carnet de Extranjería'),
+(true, NOW(), NULL, 'Pasaporte');
+
+
+INSERT INTO ingesoft.usuario (
+    id_rol, correo, contrasenha, activo
+) VALUES (
+    1, 'fabianmr2806@hotmail.com', '$2a$10$h8MRopzlGo4kFkVQdHlc5ez0Z3aR2m5NuSVNGWgUzgA7Rma4kqHlu', true
+);
+
+INSERT INTO ingesoft.administrador (
+    id_usuario, id_tipo_documento, numero_documento, nombres, apellidos,
+    sexo, fecha_creacion, fecha_desactivacion,
+    notificacion_por_correo, notificacion_por_whats_app, notificacion_porsms,
+    telefono, foto_perfil, activo
+) VALUES (
+    1, 1, '47123131', 'Fabián', 'Montenegro',
+    'Masculino', CURRENT_TIMESTAMP, NULL,
+    true, true, true,
+    '987654321', NULL, true
+);
+
+INSERT INTO ingesoft.usuario (
+    id_rol, correo, contrasenha, activo
+) VALUES (
+    3, 'usuario@hotmail.com', '$2a$10$xaXYAXDu.0U/cKyN4OSWZOmT70dlcalLFWYKnXEqQOO.OPWEhfgnu', true
+);
+
+INSERT INTO ingesoft.cliente (
+    id_usuario, id_tipo_documento, numero_documento, nombres, apellidos,
+    sexo, fecha_nacimiento, direccion, telefono, foto_perfil,
+    notificacion_por_correo, notificacion_por_whats_app, notificacion_porsms,
+    fecha_creacion, fecha_desactivacion, activo
+) VALUES (
+    2, 1, '72382921', 'Rodrigo', 'Prado',
+    'Masculino', '1998-04-08', 'Av. Universitaria 1801', '900800700', NULL,
+    true, true, true,
+    CURRENT_TIMESTAMP, NULL, true
+);
+
+-- Médico 1: Carlos Valverde
+INSERT INTO ingesoft.medico (
+    id_tipo_documento, numero_documento, nombres, apellidos,
+    sexo, descripcion, especialidad, foto_perfil,
+    fecha_creacion, fecha_desactivacion, activo
+) VALUES (
+    2, 'CE123456', 'Carlos', 'Valverde Ríos',
+    'Masculino', 'Médico general con amplia experiencia en medicina interna.', 'Medicina General', NULL,
+    CURRENT_TIMESTAMP, NULL, true
+),
+(1, '01234567', 'Alex', 'Calero',
+ 'Masculino', 'Médico Ginecólogo con más de 1 millón de años de experiencia en cirugías.', 'Ginecología', NULL,
+ CURRENT_TIMESTAMP, NULL, true),
+
+-- Médico 2: Clara Guevara Roller
+(1, '07654321', 'Clara', 'Guevara Roller',
+ 'Femenino', 'Pediatra desde el día en que nací. Me gustan mucho los niños como mi Rodrigo querido.', 'Pediatría', NULL,
+ CURRENT_TIMESTAMP, NULL, true),
+
+-- Médico 3: Jean Paul Tomasto Córdova
+(1, '01239876', 'Jean Paul', 'Tomasto Córdova',
+ 'Masculino', 'Soy médico.', 'Médico General', NULL,
+ CURRENT_TIMESTAMP, NULL, true),
+
+-- Médico 4: Rodrigo Roller Cachay
+(1, '07651234', 'Rodrigo', 'Roller Cachay',
+ 'Masculino', 'Me hice cardiólogo porque jugaba voley y me gustaba sentir los latidos de mi corazón. Si me permites, puedo sentir los tuyos.', 'Cardiología', NULL,
+ CURRENT_TIMESTAMP, NULL, true);
+
+
+INSERT INTO ingesoft.comunidad (
+    nombre, descripcion, proposito,
+    activo, fecha_creacion, fecha_desactivacion,
+    cant_miembros, calificacion
+) VALUES 
+(
+    'Comunidad de Psicología',
+    'Espacio para profesionales y estudiantes de psicología',
+    'Intercambio de experiencias, recursos y debates sobre salud mental',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+),
+(
+    'Comunidad de Programación',
+    'Grupo enfocado en compartir conocimientos de desarrollo de software',
+    'Resolver dudas técnicas, compartir proyectos y mejorar habilidades de codificación',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+),
+(
+    'Comunidad de Medicina',
+    'Red de estudiantes y médicos para compartir investigaciones y casos clínicos',
+    'Fomentar el aprendizaje colaborativo y el desarrollo profesional',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+),
+(
+    'Comunidad de Derecho',
+    'Foro de discusión sobre temas legales, jurisprudencia y formación jurídica',
+    'Intercambiar conocimientos, experiencias y debates en el ámbito legal',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+),
+(
+    'Comunidad de Emprendimiento',
+    'Espacio para emprendedores y líderes de proyectos de negocio',
+    'Fomentar el desarrollo de ideas, networking y gestión empresarial',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+),
+(
+    'Comunidad de Inteligencia Artificial',
+    'Grupo dedicado al estudio y aplicación de la IA en diferentes sectores',
+    'Compartir investigaciones, herramientas y casos de uso de IA',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+),
+(
+    'Comunidad de Mindfulness Corporativo#',
+    'Red de profesionales interesados en la salud mental y bienestar dentro del entorno laboral',
+    'Promover prácticas de bienestar emocional y físico en contextos empresariales',
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    0,
+    0.0
+);
+
+INSERT INTO ingesoft.servicio (
+    activo, descripcion, fecha_creacion,
+    fecha_desactivacion, nombre, tipo
+) VALUES 
+(
+    true,
+    'Atención nutricional personalizada para mejora de hábitos alimenticios.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Consulta Nutricional',
+    'Nutrición'
+),
+(
+    true,
+    'Sesiones psicológicas individuales y grupales enfocadas en bienestar mental.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Terapia Psicológica',
+    'Psicología'
+),
+(
+    true,
+    'Consultas médicas generales para evaluación y seguimiento de pacientes.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Consulta Médica General',
+    'Medicina'
+),
+(
+    true,
+    'Sesiones guiadas de entrenamiento físico con equipos y pesas.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Gimnasio Funcional',
+    'Gimnasio'
+),
+(
+    true,
+    'Clases dirigidas de yoga enfocadas en flexibilidad, equilibrio y respiración.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Yoga Integral',
+    'Yoga'
+),
+(
+    true,
+    'Rutinas de estiramiento y movilidad para prevenir lesiones y mejorar postura.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Estiramiento y Movilidad',
+    'Entrenamiento'
+),
+(
+    true,
+    'Sesiones de meditación y mindfulness para manejo del estrés y bienestar emocional.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Meditación Guiada',
+    'Bienestar'
+),
+(
+    true,
+    'Evaluación y seguimiento postural con planes personalizados de corrección.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Terapia Postural#',
+    'Fisioterapia'
+),
+(
+    true,
+    'Asesoría en técnicas de respiración, pausas activas y gestión del estrés laboral.',
+    CURRENT_TIMESTAMP,
+    NULL,
+    'Bienestar Corporativo#',
+    'Salud Ocupacional'
+);;
+
+INSERT INTO ingesoft.comunidad_servicio (id_comunidad, id_servicio) VALUES
+(1, 2),  -- Psicología: Terapia Psicológica
+(1, 3),  -- Psicología: Consulta Médica General
+(1, 4),  -- Psicología: Gimnasio Funcional
+(1, 7),  -- Psicología: Meditación Guiada
+
+(2, 1),  -- Programación: Consulta Nutricional
+(2, 3),  -- Programación: Consulta Médica General
+(2, 4),  -- Programación: Gimnasio Funcional
+(2, 6),  -- Programación: Estiramiento y Movilidad
+(2, 7),  -- Programación: Meditación Guiada
+
+(3, 1),  -- Medicina: Consulta Nutricional
+(3, 3),  -- Medicina: Consulta Médica General
+(3, 2),  -- Medicina: Terapia Psicológica
+(3, 6),  -- Medicina: Estiramiento y Movilidad
+(3, 5),  -- Medicina: Yoga Integral
+
+(4, 2),  -- Derecho: Terapia Psicológica
+(4, 4),  -- Derecho: Gimnasio Funcional
+(4, 5),  -- Derecho: Yoga Integral
+(4, 7),  -- Derecho: Meditación Guiada
+
+(5, 1),  -- Emprendimiento: Consulta Nutricional
+(5, 2),  -- Emprendimiento: Terapia Psicológica
+(5, 3),  -- Emprendimiento: Consulta Médica General
+(5, 5),  -- Emprendimiento: Yoga Integral
+(5, 6),  -- Emprendimiento: Estiramiento y Movilidad
+
+(6, 3),  -- IA: Consulta Médica General
+(6, 4),  -- IA: Gimnasio Funcional
+(6, 5),  -- IA: Yoga Integral
+(6, 6),  -- IA: Estiramiento y Movilidad
+(6, 7),  -- IA: Meditación Guiada
+
+(7, 5),   -- Yoga Integral
+(7, 6),   -- Estiramiento y Movilidad
+(7, 7),   -- Meditación Guiada
+(7, 8),   -- Terapia Postural
+(7, 9);   -- Bienestar Corporativo
+
+INSERT INTO ingesoft.membresia (
+    activo, cant_usuarios, con_tope, descripcion,
+    fecha_creacion, fecha_desactivacion, icono,
+    max_reservas, nombre, precio, tipo, id_comunidad
+) VALUES 
+-- Comunidad 1: Psicología
+(true, 0, true,
+'Acceso limitado a servicios y recursos de la comunidad de Psicología. Incluye 20 usos al mes.',
+CURRENT_TIMESTAMP, NULL, 'icono-mensual.png',
+20, 'Membresía Mensual Psicología',
+200.0, 'Mensual', 1),
+(true, 0, false,
+'Acceso ilimitado durante el mes a los servicios premium de Psicología.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-mensual.png',
+-1, 'Membresía Mensual VIP Psicología',
+400.0, 'Mensual VIP', 1),
+(true, 0, false,
+'Acceso sin restricciones durante todo el año a todos los beneficios y servicios de Psicología.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
+-1, 'Membresía Anual VIP Psicología',
+1800.0, 'Anual VIP', 1),
+
+-- Comunidad 2: Programación
+(true, 0, true,
+'Acceso limitado a servicios y recursos de la comunidad de Programación. Incluye 20 usos al mes.',
+CURRENT_TIMESTAMP, NULL, 'icono-mensual.png',
+20, 'Membresía Mensual Programación',
+200.0, 'Mensual', 2),
+(true, 0, false,
+'Acceso ilimitado durante el mes a los servicios premium de Programación.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-mensual.png',
+-1, 'Membresía Mensual VIP Programación',
+400.0, 'Mensual VIP', 2),
+(true, 0, false,
+'Acceso sin restricciones durante todo el año a todos los beneficios y servicios de Programación.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
+-1, 'Membresía Anual VIP Programación',
+1800.0, 'Anual VIP', 2),
+
+-- Comunidad 3: Medicina
+(true, 0, true,
+'Acceso limitado a servicios y recursos de la comunidad de Medicina. Incluye 20 usos al mes.',
+CURRENT_TIMESTAMP, NULL, 'icono-mensual.png',
+20, 'Membresía Mensual Medicina',
+200.0, 'Mensual', 3),
+(true, 0, false,
+'Acceso ilimitado durante el mes a los servicios premium de Medicina.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-mensual.png',
+-1, 'Membresía Mensual VIP Medicina',
+400.0, 'Mensual VIP', 3),
+(true, 0, false,
+'Acceso sin restricciones durante todo el año a todos los beneficios y servicios de Medicina.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
+-1, 'Membresía Anual VIP Medicina',
+1800.0, 'Anual VIP', 3),
+
+-- Comunidad 4: Derecho
+(true, 0, true,
+'Acceso limitado a servicios y recursos de la comunidad de Derecho. Incluye 20 usos al mes.',
+CURRENT_TIMESTAMP, NULL, 'icono-mensual.png',
+20, 'Membresía Mensual Derecho',
+200.0, 'Mensual', 4),
+(true, 0, false,
+'Acceso ilimitado durante el mes a los servicios premium de Derecho.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-mensual.png',
+-1, 'Membresía Mensual VIP Derecho',
+400.0, 'Mensual VIP', 4),
+(true, 0, false,
+'Acceso sin restricciones durante todo el año a todos los beneficios y servicios de Derecho.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
+-1, 'Membresía Anual VIP Derecho',
+1800.0, 'Anual VIP', 4),
+
+-- Comunidad 5: Emprendimiento
+(true, 0, true,
+'Acceso limitado a servicios y recursos de la comunidad de Emprendimiento. Incluye 20 usos al mes.',
+CURRENT_TIMESTAMP, NULL, 'icono-mensual.png',
+20, 'Membresía Mensual Emprendimiento',
+200.0, 'Mensual', 5),
+(true, 0, false,
+'Acceso ilimitado durante el mes a los servicios premium de Emprendimiento.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-mensual.png',
+-1, 'Membresía Mensual VIP Emprendimiento',
+400.0, 'Mensual VIP', 5),
+(true, 0, false,
+'Acceso sin restricciones durante todo el año a todos los beneficios y servicios de Emprendimiento.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
+-1, 'Membresía Anual VIP Emprendimiento',
+1800.0, 'Anual VIP', 5),
+
+-- Comunidad 6: Inteligencia Artificial
+(true, 0, true,
+'Acceso limitado a servicios y recursos de la comunidad de Inteligencia Artificial. Incluye 20 usos al mes.',
+CURRENT_TIMESTAMP, NULL, 'icono-mensual.png',
+20, 'Membresía Mensual Inteligencia Artificial',
+200.0, 'Mensual', 6),
+(true, 0, false,
+'Acceso ilimitado durante el mes a los servicios premium de Inteligencia Artificial.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-mensual.png',
+-1, 'Membresía Mensual VIP Inteligencia Artificial',
+400.0, 'Mensual VIP', 6),
+(true, 0, false,
+'Acceso sin restricciones durante todo el año a todos los beneficios y servicios de Inteligencia Artificial.',
+CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
+-1, 'Membresía Anual VIP Inteligencia Artificial',
+1800.0, 'Anual VIP', 6);
+
+INSERT INTO ingesoft.local (
+    activo, direccion, fecha_creacion, fecha_desactivacion,
+    nombre, telefono, tipo_servicio, id_servicio, descripcion
+) VALUES 
+(
+    true, 'Av. La Marina 785, San Miguel', CURRENT_TIMESTAMP, NULL,
+    'Local Nutrición La Marina', '912222333', 'Nutrición', 1,
+    'Centro especializado en planes de alimentación y evaluación nutricional para todas las edades.'
+),
+(
+    true, 'Calle Los Álamos 234, Miraflores', CURRENT_TIMESTAMP, NULL,
+    'Centro Psicológico Miraflores', '913444555', 'Psicología', 2,
+    'Atención psicológica individual, de pareja y talleres de salud mental en un ambiente cálido y confidencial.'
+),
+(
+    true, 'Av. Túpac Amaru 998, Comas', CURRENT_TIMESTAMP, NULL,
+    'Policlínico Popular Comas', '914666777', 'Medicina', 3,
+    'Policlínico accesible con servicios médicos generales, laboratorio y atención primaria de calidad.'
+);
+
+insert into ingesoft.reglas_de_negocio 
+(max_capacidad, max_dias_suspension, max_reservas, max_tiempo_cancelacion) 
+values 
+(10, 10, 10, 10);
+
+--ALTER TABLE ingesoft.usuario ALTER COLUMN contrasenha DROP NOT NULL;
+
+
+INSERT INTO ingesoft.cita_medica (
+  id_cliente, id_medico, id_servicio, fecha, hora_inicio, hora_fin, activo, estado, fecha_creacion, fecha_desactivacion
+)
+VALUES
+  (1, 1, 1, '2025-06-05', '09:00:00', '10:00:00', true, 'Pendiente', now(), NULL),
+  (1, 1, 2, '2025-06-06', '10:30:00', '11:30:00', true, 'Pendiente', now(), NULL),
+  (1, 1, 3, '2025-06-07', '12:00:00', '13:00:00', true, 'Pendiente', now(), NULL),
+  (1, 2, 1, '2025-06-08', '09:30:00', '10:30:00', true, 'Pendiente', now(), NULL),
+  (1, 3, 1, '2025-06-09', '10:00:00', '11:00:00', true, 'Pendiente', now(), NULL),
+  (1, 4, 1, '2025-06-10', '11:00:00', '12:00:00', true, 'Pendiente', now(), NULL),
+  (1, 5, 1, '2025-06-11', '12:30:00', '13:30:00', true, 'Pendiente', now(), NULL);
+
+INSERT INTO ingesoft.mediodepago (id_medio_de_pago, id_cliente, ncuenta, cvv, vencimiento, tipo, activo, fecha_creacion, fecha_desactivacion)
+VALUES (1, 1, 12345678, 123, '2026-06-30 23:59:59', 'tarjeta_credito', true, now(), NULL);
+
+INSERT INTO ingesoft.afiliacion (id_afiliacion, id_cliente, id_medio_de_pago, id_membresia, fecha_afiliacion, fecha_desafiliacion, fecha_reactivacion, estado) VALUES (1, 1, 1, 1, now(), NULL, NULL, 'Activa');
+
+INSERT INTO ingesoft.comunidad_cliente (id_cliente, id_comunidad)
+VALUES (1, 1);
+
+INSERT INTO ingesoft.periodo (id_periodo, afiliacion, cant_reservas, fecha_inicio, fecha_fin)
+VALUES (1, 1, 0, '2025-06-01', '2025-06-30');
