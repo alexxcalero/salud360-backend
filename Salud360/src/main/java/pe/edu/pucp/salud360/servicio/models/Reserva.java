@@ -46,7 +46,7 @@ public class Reserva {
     @OneToMany(mappedBy = "reserva")
     private List<Notificacion> notificaciones;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "idComunidad")
     private Comunidad comunidad;
 }

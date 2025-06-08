@@ -140,7 +140,7 @@ public class ReservaServiceImp implements ReservaService {
                 horaFin = r.getCitaMedica().getHoraFin();
             }
 
-            if (fecha == fechaReserva)
+            if (fecha.equals(fechaReserva))
                 if(existeCruceDeHorarios(horaInicio, horaFin, horaInicioReserva, horaFinReserva))
                     throw new IllegalStateException("El cliente ya tiene una clase o cita reservada para esa hora.");
         }
@@ -154,6 +154,7 @@ public class ReservaServiceImp implements ReservaService {
             }
             claseReservada.setCantAsistentes(claseReservada.getCantAsistentes() + 1);
             claseReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la clase
+            claseReservada.getClientes().add(cliente);
             reserva.setClase(claseReservada);
             cliente.getClases().add(claseReservada);
             claseRepository.save(claseReservada);
@@ -163,6 +164,7 @@ public class ReservaServiceImp implements ReservaService {
             }
             citaMedicaReservada.setEstado("Reservada");
             citaMedicaReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la cita
+            citaMedicaReservada.setCliente(cliente);
             reserva.setCitaMedica(citaMedicaReservada);
             cliente.getCitasMedicas().add(citaMedicaReservada);
             citaMedicaRepository.save(citaMedicaReservada);
@@ -220,10 +222,12 @@ public class ReservaServiceImp implements ReservaService {
                 if(clase.getEstado().equals("Completa"))
                     clase.setEstado("Disponible");
 
+                clase.getClientes().remove(cliente);
                 cliente.getClases().remove(clase);
                 claseRepository.save(clase);
             } else {
                 citaMedica.setEstado("Disponible");
+                citaMedica.setCliente(null);
                 cliente.getCitasMedicas().remove(citaMedica);
                 citaMedicaRepository.save(citaMedica);
             }
@@ -247,7 +251,7 @@ public class ReservaServiceImp implements ReservaService {
         else if(horaInicioNueva.isBefore(horaInicio))
             if(horaFinNueva.isAfter(horaInicio))
                 return true;
-            else
+        else
             if(horaInicioNueva.isBefore(horaFin))
                 return true;
 
