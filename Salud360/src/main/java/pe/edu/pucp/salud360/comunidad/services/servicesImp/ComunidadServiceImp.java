@@ -282,7 +282,8 @@ public class ComunidadServiceImp implements ComunidadService {
         for(Servicio servicio : comunidad.getServicios()) {
             for(Local local : servicio.getLocales()) {
                 for(Clase clase : local.getClases()) {
-                    clases.add(clase);
+                    if(clase.getActivo())  // Solo voy a mostrar las clases activas al publico
+                        clases.add(clase);
                 }
             }
         }
@@ -301,7 +302,8 @@ public class ComunidadServiceImp implements ComunidadService {
 
         for(Servicio servicio : comunidad.getServicios()) {
             for(CitaMedica cita : servicio.getCitasMedicas()) {
-                citas.add(cita);
+                if(cita.getActivo())  // Solo voy a mostrar las citas activas al publico
+                    citas.add(cita);
             }
         }
 
