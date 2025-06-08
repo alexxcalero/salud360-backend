@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.servicio.mappers;
 
 import org.mapstruct.Mapper;
+import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaResumenDTO;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
@@ -11,7 +12,8 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {
         ClienteMapper.class,
         ClaseMapper.class,
-        CitaMedicaMapper.class
+        CitaMedicaMapper.class,
+        ComunidadMapper.class
 })
 public interface ReservaMapper {
 
@@ -26,4 +28,3 @@ public interface ReservaMapper {
     // Listas
     List<ReservaDTO> mapToDTOList(List<Reserva> reservas);
 }
-

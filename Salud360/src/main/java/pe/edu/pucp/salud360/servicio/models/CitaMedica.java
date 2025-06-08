@@ -34,10 +34,10 @@ public class CitaMedica {
     private LocalTime horaFin;
 
     @Column(name = "estado", unique = false, nullable = false, updatable = true)
-    private String estado;
+    private String estado;  // Disponible - Reservada - Finalizada
 
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
-    private Boolean activo;
+    private Boolean activo;  // Esto va a servir para que el administrador pueda desactivar o activar citas (true o false)
 
     @Column(name = "fechaCreacion", unique = false, nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;

@@ -8,6 +8,7 @@ import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
+import pe.edu.pucp.salud360.membresia.models.Periodo;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
@@ -51,26 +52,28 @@ public class ReservaServiceImp implements ReservaService {
         Cliente cliente = clienteRepository.findById(dto.getCliente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        LocalTime horaInicioNueva = null;
-        LocalTime horaFinNueva = null;
+        LocalDate fechaReserva;
+        LocalTime horaInicioReserva;
+        LocalTime horaFinReserva;
+        Clase claseReservada;
+        CitaMedica citaMedicaReservada;
 
-        LocalDate fechaActual = null;
-        Clase clase = null;
         if(dto.getClase() != null) {
-            clase = claseRepository.findById(dto.getClase().getIdClase())
+            claseReservada = claseRepository.findById(dto.getClase().getIdClase())
                     .orElseThrow(() -> new RuntimeException("Clase no encontrada"));
-            horaInicioNueva = clase.getHoraInicio();
-            horaFinNueva = clase.getHoraFin();
-            fechaActual = clase.getFecha();
-        }
+            fechaReserva = claseReservada.getFecha();
+            horaInicioReserva = claseReservada.getHoraInicio();
+            horaFinReserva = claseReservada.getHoraFin();
 
-        CitaMedica cita = null;
-        if(dto.getCitaMedica() != null) {
-            cita = citaMedicaRepository.findById(dto.getCitaMedica().getIdCitaMedica())
+            citaMedicaReservada = null;
+        } else {
+            citaMedicaReservada = citaMedicaRepository.findById(dto.getCitaMedica().getIdCitaMedica())
                     .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
-            horaInicioNueva = cita.getHoraInicio();
-            horaFinNueva = cita.getHoraFin();
-            fechaActual = cita.getFecha();
+            fechaReserva = citaMedicaReservada.getFecha();
+            horaInicioReserva = citaMedicaReservada.getHoraInicio();
+            horaFinReserva = citaMedicaReservada.getHoraFin();
+
+            claseReservada = null;
         }
 
         List<Membresia> membresiasDelCliente = new ArrayList<>();
@@ -81,99 +84,97 @@ public class ReservaServiceImp implements ReservaService {
         Comunidad comunidad = comunidadRepository.findById(dto.getComunidad().getIdComunidad())
                 .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
 
-        List<Membresia> membresiasDeLaComunidad = comunidad.getMembresias();
+        //        List<Membresia> membresiasDeLaComunidad = comunidad.getMembresias();
+//
+//        Optional<Membresia> membresia = membresiasDeLaComunidad.stream()
+//                .filter(mC -> membresiasDelCliente.stream()
+//                .anyMatch(mCli -> Objects.equals(mCli.getIdMembresia(), mC.getIdMembresia())))
+//                .findFirst();
+//
+//        if(membresia.isEmpty()) {
+//            throw new IllegalStateException("El cliente no posee una membresía asociada a la comunidad.");
+//        }
+//
+//        Membresia membresiaEspecifica = membresia.get();
+//
+//        Afiliacion afiliacionEspecifica = null;
+//        for(Afiliacion afiliacion : membresiaEspecifica.getAfiliacion()) {
+//            if(Objects.equals(afiliacion.getCliente().getIdCliente(), cliente.getIdCliente())) {
+//                afiliacionEspecifica = afiliacion;
+//            }
+//        }
 
-        Optional<Membresia> membresiaMatch = membresiasDeLaComunidad.stream()
-                .filter(mC -> membresiasDelCliente.stream()
-                .anyMatch(mCli -> Objects.equals(mCli.getIdMembresia(), mC.getIdMembresia())))
-                .findFirst();
+        Afiliacion afiliacion = buscarAfiliacionDelCliente(cliente, comunidad.getIdComunidad());
 
-        if(membresiaMatch.isEmpty()) {
-            throw new IllegalStateException("El cliente no posee una membresía asociada a la comunidad.");
+        // Verifico si se encontro afiliacion del cliente a la comunidad
+        if(afiliacion == null) {
+            throw new IllegalStateException("El cliente no posee una afiliación para esta comunidad.");
         }
 
-        Membresia membresiaEspecifica = membresiaMatch.get();
-
-        Afiliacion afiliacionEspecifica = null;
-        for(Afiliacion afiliacion : membresiaEspecifica.getAfiliacion()) {
-            if(Objects.equals(afiliacion.getCliente().getIdCliente(), cliente.getIdCliente())) {
-                afiliacionEspecifica = afiliacion;
-            }
-        }
-
-        // Verificación obligatoria
-        if (afiliacionEspecifica == null) {
-            throw new IllegalStateException("El cliente no posee una afiliación específica de la membresía.");
-        }
-
+        // Si la membresía es con tope, se verifica si todavia puede reservar o no un servicio
+        Membresia membresiaEspecifica = afiliacion.getMembresia();
         if(membresiaEspecifica.getConTope()) {
-            if(afiliacionEspecifica.getPeriodo().getLast().getCantReservas() + 1 > membresiaEspecifica.getMaxReservas()) {
+            Periodo periodoActual = afiliacion.getPeriodo().getLast();
+            if(periodoActual.getCantReservas().equals(membresiaEspecifica.getMaxReservas())) {
                 throw new IllegalStateException("El cliente no tiene reservas disponibles.");
             }
         }
 
-        List<Reserva> reservasDelCliente = new ArrayList<>();
-        for(Reserva r : cliente.getReservas()) {
-            LocalTime horaInicio = null;
-            LocalTime horaFin = null;
-            LocalDate fecha = null;
+        List<Reserva> reservasDelCliente = cliente.getReservas();
+        for(Reserva r : reservasDelCliente) {
+            // No considero reservas canceladas
+            if(r.getEstado().equals("Cancelada")) continue;
+
+            LocalDate fecha;
+            LocalTime horaInicio;
+            LocalTime horaFin;
+
             if(r.getClase() != null) {
+                fecha = r.getClase().getFecha();
                 horaInicio = r.getClase().getHoraInicio();
                 horaFin = r.getClase().getHoraFin();
-                fecha = r.getClase().getFecha();
-            }
-            if(r.getCitaMedica() != null) {
+
+            } else {
+                fecha = r.getCitaMedica().getFecha();
                 horaInicio = r.getCitaMedica().getHoraInicio();
                 horaFin = r.getCitaMedica().getHoraFin();
-                fecha = r.getCitaMedica().getFecha();
             }
 
-            if (fecha == fechaActual){
-                if(horaInicioNueva.equals(horaInicio)) {
-                    throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
-                } else if(horaInicioNueva.isBefore(horaInicio)) {
-                    if(horaFinNueva.isAfter(horaInicio)) {
-                        throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
-                    }
-                } else {
-                    if(horaInicioNueva.isBefore(horaFin)) {
-                        throw new IllegalStateException("El cliente ya tiene una clase reservada para esa hora.");
-                    }
-                }
-                }
-            }
+            if (fecha == fechaReserva)
+                if(existeCruceDeHorarios(horaInicio, horaFin, horaInicioReserva, horaFinReserva))
+                    throw new IllegalStateException("El cliente ya tiene una clase o cita reservada para esa hora.");
+        }
 
-        //aura
-
-
-        if(clase != null) {
-            if(clase.getCantAsistentes() + 1 > clase.getCapacidad()) {
+        if(claseReservada != null) {
+            if(claseReservada.getEstado().equals("Completa")) {
                 throw new IllegalStateException("La clase ya alcanzó el máximo de participantes.");
             }
-            if(clase.getCantAsistentes() + 1 == clase.getCapacidad()) {
-                clase.setEstado("Completa");
+            if(claseReservada.getCantAsistentes() + 1 == claseReservada.getCapacidad()) {
+                claseReservada.setEstado("Completa");
             }
-            reserva.setClase(clase);
-            cliente.getClases().add(clase);
-            claseRepository.save(clase);
-        }
-
-        if(cita != null) {
-            if(cita.getEstado().equals("Reservada")) {
+            claseReservada.setCantAsistentes(claseReservada.getCantAsistentes() + 1);
+            claseReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la clase
+            reserva.setClase(claseReservada);
+            cliente.getClases().add(claseReservada);
+            claseRepository.save(claseReservada);
+        } else {
+            if(citaMedicaReservada.getEstado().equals("Reservada")) {
                 throw new IllegalStateException("La cita ya está reservada.");
             }
-            cita.setEstado("Reservada");
-            reserva.setCitaMedica(cita);
-            cliente.getCitasMedicas().add(cita);
-            citaMedicaRepository.save(cita);
+            citaMedicaReservada.setEstado("Reservada");
+            citaMedicaReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la cita
+            reserva.setCitaMedica(citaMedicaReservada);
+            cliente.getCitasMedicas().add(citaMedicaReservada);
+            citaMedicaRepository.save(citaMedicaReservada);
         }
 
-        reserva.setEstado("Reservada");
+        reserva.setEstado("Confirmada");
         reserva.setCliente(cliente);
+        reserva.setComunidad(comunidad);  // Porciaca lo seteo, pero creo que el mapper ya lo asigna
         cliente.getReservas().add(reserva);
         reserva.setFechaReserva(LocalDateTime.now());
-        afiliacionEspecifica.getPeriodo().getLast().setCantReservas(afiliacionEspecifica.getPeriodo().getLast().getCantReservas() + 1);
-        afiliacionRepository.save(afiliacionEspecifica);
+        afiliacion.getPeriodo().getLast().setCantReservas(afiliacion.getPeriodo().getLast().getCantReservas() + 1);
+        afiliacionRepository.save(afiliacion);
 
         return reservaMapper.mapToDTO(reservaRepository.save(reserva));
     }
@@ -184,26 +185,86 @@ public class ReservaServiceImp implements ReservaService {
         Optional<Reserva> optional = reservaRepository.findById(id);
         if(optional.isPresent()) {
             Reserva reserva = optional.get();
+
+            LocalTime horaInicio;
+            Clase clase;
+            CitaMedica citaMedica;
+
+            if(reserva.getClase() != null) {
+                clase = claseRepository.findById(reserva.getClase().getIdClase())
+                        .orElseThrow(() -> new RuntimeException("Clase no encontrada"));
+                horaInicio = clase.getHoraInicio();
+                citaMedica = null;
+            } else {
+                citaMedica = citaMedicaRepository.findById(reserva.getCitaMedica().getIdCitaMedica())
+                        .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
+                horaInicio = citaMedica.getHoraInicio();
+                clase = null;
+            }
+
+            // No se va a permitir la cancelacion de la reserva si es faltan menos de 30 minutos para que empiece la clase o cita
+            LocalTime horaActual = LocalTime.now();
+            if(horaActual.isAfter(horaInicio.minusMinutes(30)))
+                throw new IllegalStateException("No se puede cancelar la reserva. Solo se permiten cancelaciones con al menos 30 minutos de anticipación.");
+
+            // Si llegamos a este punto, es xq faltan mas de 30 minutos para que empiece la clase o cita, por ende, se puede cancelar
             reserva.setEstado("Cancelada");
             reserva.setFechaCancelacion(LocalDateTime.now());
 
-            Cliente cliente = reserva.getCliente();
+            Cliente cliente = clienteRepository.findById(reserva.getCliente().getIdCliente())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            if(reserva.getClase() != null) {
-                reserva.getClase().setCantAsistentes(reserva.getClase().getCantAsistentes() - 1);
-                if(reserva.getClase().getCantAsistentes() == reserva.getClase().getCapacidad() - 1) {
-                    reserva.getClase().setEstado("Disponible");
-                }
-                cliente.getClases().remove(reserva.getClase());
+            if(clase != null) {
+                clase.setCantAsistentes(clase.getCantAsistentes() - 1);
+
+                if(clase.getEstado().equals("Completa"))
+                    clase.setEstado("Disponible");
+
+                cliente.getClases().remove(clase);
+                claseRepository.save(clase);
+            } else {
+                citaMedica.setEstado("Disponible");
+                cliente.getCitasMedicas().remove(citaMedica);
+                citaMedicaRepository.save(citaMedica);
             }
 
-            if(reserva.getCitaMedica() != null) {
-                reserva.getCitaMedica().setEstado("Disponible");
-                cliente.getCitasMedicas().remove(reserva.getCitaMedica());
+            // Actualizar contador si la membresía tiene tope
+            Afiliacion afiliacion = buscarAfiliacionDelCliente(cliente, reserva.getComunidad().getIdComunidad());
+            if(afiliacion != null && afiliacion.getMembresia().getConTope()) {
+                Periodo periodoActual = afiliacion.getPeriodo().getLast();
+                int nuevasReservas = periodoActual.getCantReservas() - 1;
+                periodoActual.setCantReservas(Math.max(nuevasReservas, 0));  // evitar negativos
+                afiliacionRepository.save(afiliacion);
             }
 
             reservaRepository.save(reserva);
         }
+    }
+
+    private boolean existeCruceDeHorarios(LocalTime horaInicio, LocalTime horaFin, LocalTime horaInicioNueva, LocalTime horaFinNueva) {
+        if(horaInicioNueva.equals(horaInicio))
+            return true;
+        else if(horaInicioNueva.isBefore(horaInicio))
+            if(horaFinNueva.isAfter(horaInicio))
+                return true;
+            else
+            if(horaInicioNueva.isBefore(horaFin))
+                return true;
+
+        return false;
+    }
+
+    private Afiliacion buscarAfiliacionDelCliente(Cliente cliente, Integer idComunidad) {
+        for(Afiliacion af : cliente.getAfiliaciones()) {
+            Membresia membresia = af.getMembresia();
+            if(membresia.getComunidad().getIdComunidad().equals(idComunidad)) {
+                Periodo periodoActual = af.getPeriodo().getLast();
+                LocalDate fechaActual = LocalDate.now();
+                if(!fechaActual.isBefore(periodoActual.getFechaInicio()) && !fechaActual.isAfter(periodoActual.getFechaFin()))
+                    return af;
+            }
+        }
+        return null;
     }
 
     @Override

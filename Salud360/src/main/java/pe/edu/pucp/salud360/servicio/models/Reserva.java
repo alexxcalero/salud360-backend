@@ -2,6 +2,7 @@ package pe.edu.pucp.salud360.servicio.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.models.Notificacion;
 
@@ -22,13 +23,13 @@ public class Reserva {
     private Integer idReserva;
 
     @Column(name = "estado", unique = false, nullable = false, updatable = true)
-    private String estado;
+    private String estado;  // Confirmada (ni bien se cree la reserva), Cancelada (si es que el cliente cancela la reserva)
 
     @Column(name = "fechaReserva", unique = false, nullable = false, updatable = false)
-    private LocalDateTime fechaReserva;
+    private LocalDateTime fechaReserva;  // Se asigna automaticamente al crear la reserva
 
     @Column(name = "fechaCancelacion", unique = false, nullable = true, updatable = true)
-    private LocalDateTime fechaCancelacion;
+    private LocalDateTime fechaCancelacion;  // Se asigna automaticamente al cancelar la reserva
 
     @ManyToOne
     @JoinColumn(name = "idCliente")
@@ -44,4 +45,8 @@ public class Reserva {
 
     @OneToMany(mappedBy = "reserva")
     private List<Notificacion> notificaciones;
+
+    @OneToOne
+    @JoinColumn(name = "idComunidad")
+    private Comunidad comunidad;
 }
