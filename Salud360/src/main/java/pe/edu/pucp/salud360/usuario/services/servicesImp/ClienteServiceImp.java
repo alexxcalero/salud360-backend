@@ -131,9 +131,13 @@ public class ClienteServiceImp implements ClienteService {
         cliente.setSexo(dto.getSexo());
         cliente.setFechaNacimiento(dto.getFechaNacimiento());
         cliente.setNumeroDocumento(dto.getNumeroDocumento());
+        
+        if (dto.getIdTipoDocumento() == null) {
+            throw new RuntimeException("El ID del tipo de documento no puede ser nulo");
+        }
 
         TipoDocumento tipo = tipoDocumentoRepository.findById(dto.getIdTipoDocumento())
-                .orElseThrow(() -> new RuntimeException("Tipo de documento no encontrado"));
+        .orElseThrow(() -> new RuntimeException("Tipo de documento con id " + dto.getIdTipoDocumento() + " no encontrado"));
 
         cliente.setTipoDocumento(tipo);
 

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class MedioDePagoDTO {
     private Integer idMedioDePago;
     private String tipo;
-    private Integer ncuenta;
+    private String ncuenta;
     private LocalDateTime vencimiento;
     private Integer cvv;
     private Boolean activo;

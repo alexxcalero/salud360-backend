@@ -25,7 +25,7 @@ public class MedioDePago {
     private String tipo;
 
     @Column(name = "ncuenta", unique = false, nullable = false, updatable = true)
-    private Integer ncuenta;
+    private String ncuenta;  // Cambiado de Integer/Long a String
 
     @Column(name = "vencimiento", unique = false, nullable = false, updatable = true)
     private LocalDateTime vencimiento;

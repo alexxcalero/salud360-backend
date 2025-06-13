@@ -42,5 +42,13 @@ public class MedioDePagoController {
         boolean eliminado = medioDePagoService.eliminar(id);
         return eliminado ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<MedioDePagoResumenDTO>> listarPorUsuario(@PathVariable Integer id) {
+        // Obtiene los medios de pago asociados al usuario con el id proporcionado
+        List<MedioDePagoResumenDTO> mediosDePago = medioDePagoService.listarPorUsuario(id);
+        return ResponseEntity.ok(mediosDePago);
+    }
+
 }
 
