@@ -32,17 +32,28 @@ public class LocalServiceImp implements LocalService {
 
     @Override
     public LocalVistaAdminDTO crearLocal(LocalVistaAdminDTO dto) {
+        String nombre = dto.getNombre().trim();
+        Integer idServicio = dto.getServicio().getIdServicio();
+
+        // Validar si ya existe un local con ese nombre y servicio
+        boolean existe = localRepository.existsByNombreAndServicio_IdServicio(nombre, idServicio);
+        if (existe) {
+            throw new RuntimeException("Ya existe un local con ese nombre para el servicio seleccionado.");
+        }
+
+        // Convertir DTO a entidad
         Local local = localMapper.mapToModel(dto);
 
-        // Extraer el id del servicio desde el DTO anidado
-        Integer idServicio = dto.getServicio().getIdServicio();
+        // Buscar el servicio
         Servicio servicio = servicioRepository.findById(idServicio)
                 .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
 
+        // Setear datos del local
         local.setServicio(servicio);
         local.setFechaCreacion(LocalDateTime.now());
         local.setActivo(true);
 
+        // Guardar y devolver el DTO de respuesta
         return localMapper.mapToVistaAdminDTO(localRepository.save(local));
     }
 
