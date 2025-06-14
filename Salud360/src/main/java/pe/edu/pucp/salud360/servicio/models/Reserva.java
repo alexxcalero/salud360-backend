@@ -31,6 +31,14 @@ public class Reserva {
     @Column(name = "fechaCancelacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaCancelacion;  // Se asigna automaticamente al cancelar la reserva
 
+    //CON FE
+    @Column(name = "descripcion")
+    private String descripcion;
+
+    @Column(name = "nombre_archivo")
+    private String nombreArchivo;
+    //
+
     @ManyToOne
     @JoinColumn(name = "idCliente")
     private Cliente cliente;

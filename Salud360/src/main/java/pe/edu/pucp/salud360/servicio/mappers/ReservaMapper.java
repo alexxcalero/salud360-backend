@@ -1,6 +1,8 @@
 package pe.edu.pucp.salud360.servicio.mappers;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaResumenDTO;
@@ -18,7 +20,15 @@ import java.util.List;
 public interface ReservaMapper {
 
     // Para operaciones CRUD
+    @Mappings({
+            @Mapping(source = "descripcion", target = "descripcion"),
+            @Mapping(source = "nombreArchivo", target = "nombreArchivo")
+    })
     ReservaDTO mapToDTO(Reserva reserva);
+    @Mappings({
+            @Mapping(source = "descripcion", target = "descripcion"),
+            @Mapping(source = "nombreArchivo", target = "nombreArchivo")
+    })
     Reserva mapToModel(ReservaDTO dto);
 
     // Para vistas resumidas

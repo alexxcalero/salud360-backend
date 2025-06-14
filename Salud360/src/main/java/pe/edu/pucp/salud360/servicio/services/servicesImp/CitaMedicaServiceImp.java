@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
+import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapperHelper;
 import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
@@ -171,18 +172,32 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
         }
     }
 
-    @Override
-    public List<CitaMedicaDTO> listarCitasMedicasTodas() {
-        return citaMedicaRepository.findAll().stream()
-                .map(citaMedicaMapper::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
+//    @Override
+//    public List<CitaMedicaDTO> listarCitasMedicasTodas() {
+//        return citaMedicaRepository.findAll().stream()
+//                .map(citaMedicaMapper::mapToDTO)
+//                .collect(Collectors.toList());
+//    }
+//
+//
+//    @Override
+//    public CitaMedicaDTO buscarCitaMedicaPorId(Integer id) {
+//        return citaMedicaRepository.findById(id)
+//                .map(citaMedicaMapper::mapToDTO)
+//                .orElse(null);
+//    }
+@Override
+public List<CitaMedicaDTO> listarCitasMedicasTodas() {
+    return citaMedicaRepository.findAll().stream()
+            .map(c -> CitaMedicaMapperHelper.mapToDTOIncluyendoArchivo(citaMedicaMapper, c))
+            .collect(Collectors.toList());
+}
 
     @Override
     public CitaMedicaDTO buscarCitaMedicaPorId(Integer id) {
         return citaMedicaRepository.findById(id)
-                .map(citaMedicaMapper::mapToDTO)
+                .map(c -> CitaMedicaMapperHelper.mapToDTOIncluyendoArchivo(citaMedicaMapper, c))
                 .orElse(null);
     }
+
 }
