@@ -12,7 +12,11 @@ import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
+import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
+import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
+import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.*;
@@ -36,6 +40,8 @@ public class ComunidadServiceImp implements ComunidadService {
     private final S3UrlGenerator s3UrlGenerator;
     private final ReservaMapper reservaMapper;
     private final ServicioRepository servicioRepository;
+    private final ClaseMapper claseMapper;
+    private final CitaMedicaMapper citaMedicaMapper;
 
     @Override
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
@@ -263,6 +269,46 @@ public class ComunidadServiceImp implements ComunidadService {
 
         return reservas.stream()
                 .map(reservaMapper::mapToDTO)
+                .toList();
+    }
+
+    @Override
+    public List<ClaseResumenDTO> listarClasesPorComunidad(Integer idComunidad) {
+        Comunidad comunidad = comunidadRepository.findById(idComunidad)
+                .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
+
+        List<Clase> clases = new ArrayList<>();
+
+        for(Servicio servicio : comunidad.getServicios()) {
+            for(Local local : servicio.getLocales()) {
+                for(Clase clase : local.getClases()) {
+                    if(clase.getActivo())  // Solo voy a mostrar las clases activas al publico
+                        clases.add(clase);
+                }
+            }
+        }
+
+        return clases.stream()
+                .map(claseMapper::mapToResumenDTO)
+                .toList();
+    }
+
+    @Override
+    public List<CitaMedicaResumenDTO> listarCitasMedicasPorComunidad(Integer idComunidad) {
+        Comunidad comunidad = comunidadRepository.findById(idComunidad)
+                .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
+
+        List<CitaMedica> citas = new ArrayList<>();
+
+        for(Servicio servicio : comunidad.getServicios()) {
+            for(CitaMedica cita : servicio.getCitasMedicas()) {
+                if(cita.getActivo())  // Solo voy a mostrar las citas activas al publico
+                    citas.add(cita);
+            }
+        }
+
+        return citas.stream()
+                .map(citaMedicaMapper::mapToResumenDTO)
                 .toList();
     }
 }

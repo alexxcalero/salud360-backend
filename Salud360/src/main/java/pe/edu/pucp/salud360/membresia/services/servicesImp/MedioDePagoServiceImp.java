@@ -14,6 +14,7 @@ import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class MedioDePagoServiceImp implements MedioDePagoService {
@@ -35,10 +36,37 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
     }
 
     @Override
+    public List<MedioDePagoResumenDTO> listarPorUsuario(Integer idUsuario) {
+        // Obtener todos los métodos de pago asociados al usuario con el id proporcionado
+        List<MedioDePago> mediosDePago = medioDePagoRepository.findByCliente_IdCliente(idUsuario);
+        return mediosDePago.stream()
+            .map(medioDePagoMapper::mapToMedioDePagoDTO)
+            .collect(Collectors.toList());
+    }
+    
+
+    @Override
     public MedioDePagoDTO crear(MedioDePagoDTO dto) {
+        // Mapear el DTO al modelo
+        MedioDePago medioDePago = medioDePagoMapper.mapToModel(dto);
+
+        // Buscar el usuario por el id_cliente
         Cliente cliente = clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null);
-        MedioDePago m = medioDePagoMapper.mapToModel(dto);
-        return medioDePagoMapper.mapToDTO(medioDePagoRepository.save(m));
+        
+        if (cliente == null) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+
+        // Asignar el usuario al medio de pago
+        medioDePago.setCliente(cliente);
+        medioDePago.setActivo(true);
+        // Asignar la fecha de creación
+        medioDePago.setFechaCreacion(LocalDateTime.now());
+
+        // Guardar el medio de pago en la base de datos
+        medioDePago = medioDePagoRepository.save(medioDePago);
+
+        return medioDePagoMapper.mapToDTO(medioDePago);
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pe.edu.pucp.salud360.autenticacion.models.UsuarioDetails;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 
@@ -41,8 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Usuario user = usuarioRepository.findByCorreo(correo).orElse(null);
 
             if(user != null && jwtService.isTokenValid(jwt, user)) {
+                UsuarioDetails userDetails = new UsuarioDetails(user);
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

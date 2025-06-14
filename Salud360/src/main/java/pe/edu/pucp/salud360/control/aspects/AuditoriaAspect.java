@@ -4,9 +4,11 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pe.edu.pucp.salud360.autenticacion.models.UsuarioDetails;
 import pe.edu.pucp.salud360.control.models.Auditoria;
 import pe.edu.pucp.salud360.control.repositories.AuditoriaRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
+import pe.edu.pucp.salud360.usuario.models.Usuario;
 
 
 import java.time.LocalDateTime;
@@ -33,6 +35,12 @@ public class AuditoriaAspect {
         guardarAuditoria("ELIMINAR", joinPoint, "ID=" + id);
     }
 
+    @Before("execution(* pe.edu.pucp.salud360..*.reactivar*(..)) && args(id)")
+    public void auditarReactivacionConId(JoinPoint joinPoint, Object id) {
+        guardarAuditoria("REACTIVAR", joinPoint, "ID=" + id);
+    }
+
+
     private void guardarAuditoria(String operacion, JoinPoint joinPoint, Object datos) {
         try {
             String clase = joinPoint.getTarget().getClass().getSimpleName().replace("ServiceImp", "");
@@ -56,14 +64,26 @@ public class AuditoriaAspect {
 
     private String obtenerNombreUsuarioActual() {
         try {
-            return org.springframework.security.core.context.SecurityContextHolder
-                    .getContext()
-                    .getAuthentication()
-                    .getName();
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            if (principal instanceof UsuarioDetails usuarioDetails) {
+                System.out.println("✅ Usuario autenticado: " + usuarioDetails.getUsuario().getCorreo());
+                return usuarioDetails.getUsuario().getCorreo(); // ✅ tu caso actual
+            } else if (principal instanceof Usuario usuario) {
+                System.out.println("⚠️ No es UsuarioDetails, es: " + principal);
+                return usuario.getCorreo(); // ⛑️ fallback si usaste Usuario directamente
+            } else {
+                System.out.println("⚠️ No es UsuarioDetails, es: " + principal);
+                return "anónimo"; // 🤷‍♂️ por si es otra cosa
+            }
         } catch (Exception e) {
+            System.err.println("❌ Error al obtener usuario autenticado: " + e.getMessage());
             return "anónimo";
         }
     }
+
+
+
 
 
     private String generarDescripcion(Object datos) {

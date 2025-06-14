@@ -44,10 +44,10 @@ public class Clase {
     private Integer cantAsistentes;
 
     @Column(name = "estado", nullable = false)
-    private String estado;
+    private String estado;  // Disponible - Completa (cuando se llena el aforo) - Finalizada
 
     @Column(name = "activo", nullable = false)
-    private Boolean activo;
+    private Boolean activo;  // Esto va a servir para que el administrador pueda desactivar o activar citas (true o false)
 
     @Column(name = "fechaCreacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;

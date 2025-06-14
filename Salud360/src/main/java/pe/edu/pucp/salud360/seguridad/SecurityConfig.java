@@ -14,7 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import pe.edu.pucp.salud360.autenticacion.services.UsuarioDetailsService;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,48 +30,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:5173")); // frontend
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+                    config.setAllowCredentials(true); // ✅ permite cookies
+                    config.setExposedHeaders(List.of("Set-Cookie"));
+                    return config;
+                }))
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                                .anyRequest().permitAll()
+                        //.requestMatchers("/api/autenticacion/**").permitAll()
+                        //.anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .userDetailsService(usuarioDetailsService)
                 .authenticationProvider(authenticationProvider())
                 .build();
-
-        /*
-        http
-                .csrf().disable()  // Solo para pruebas; idealmente manejar token CSRF luego
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuarios/**",
-                                "/api/medicos/**",
-                                "/api/personas/**",
-                                "/api/tiposDocumentos/**",
-                                "/api/permisos/**",
-                                "/api/roles/**",
-                                "/api/notificaciones/**",
-                                "/api/citas-medicas/**",
-                                "/api/documentos-medicos/**",
-                                "/api/locales/**",
-                                "/api/servicios/**",
-                                "/api/afiliaciones/**",
-                                "/api/mediosDePago/**",
-                                "/api/membresias/**",
-                                "/api/pagos/**",
-                                "/api/periodos/**",
-                                "/api/solicitudes/**",
-                                "/api/comentarios/**",
-                                "/api/comunidades/**",
-                                "/api/foros/**",
-                                "/api/publicaciones/**",
-                                "/api/testimonios/**",
-                                "/api/reglas/**").permitAll()  // Agregar los endpoints a probar, sino dara error
-                        .anyRequest().authenticated()
-                )
-                .httpBasic();  // Soporta autenticación básica vía Postman
-        return http.build();
-        */
     }
+
 
     // Para poder hashear las contrasenhas de usuario antes de guardarlas en la BD
     @Bean

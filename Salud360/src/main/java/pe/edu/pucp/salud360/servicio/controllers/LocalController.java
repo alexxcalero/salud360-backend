@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.services.LocalService;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
+import pe.edu.pucp.salud360.servicio.repositories.LocalRepository;
 
 import java.util.List;
 
@@ -21,6 +22,12 @@ public class LocalController {
 
     @Autowired
     private LocalService localService;
+    private final LocalRepository localRepository;
+
+    @Autowired
+    public LocalController(LocalRepository localRepository) {
+        this.localRepository = localRepository;
+    }
 
     @PostMapping
     public ResponseEntity<LocalVistaAdminDTO> crearLocal(@RequestBody LocalVistaAdminDTO dto) {
@@ -80,6 +87,14 @@ public class LocalController {
             return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/validar-existencia")
+    public ResponseEntity<Boolean> validarExistenciaLocal(
+            @RequestParam String nombre,
+            @RequestParam Integer idServicio) {
+
+        boolean existe = localRepository.existsByNombreAndServicio_IdServicio(nombre.trim(), idServicio);
+        return ResponseEntity.ok(existe);
+    }
 
 }
 

@@ -12,5 +12,6 @@ public interface MedioDePagoService {
     MedioDePagoResumenDTO obtenerPorId(Integer id);
     boolean eliminar(Integer id);
     MedioDePagoDTO actualizar(Integer id, MedioDePagoDTO dto);
+    List<MedioDePagoResumenDTO> listarPorUsuario(Integer idUsuario);
 }
 

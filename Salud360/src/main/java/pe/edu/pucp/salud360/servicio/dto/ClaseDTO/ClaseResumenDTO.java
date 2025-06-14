@@ -17,5 +17,6 @@ public class ClaseResumenDTO {
     private LocalTime horaInicio;
     private LocalTime horaFin;
     private LocalDate fecha;
+    private String estado;
     private Integer capacidad;
 }
