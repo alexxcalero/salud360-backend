@@ -17,7 +17,7 @@ public class NotificacionController {
 
     @PostMapping
     public ResponseEntity<NotificacionDTO> crearNotificacion(@RequestBody NotificacionDTO notificacionDTO) {
-        NotificacionDTO notificacionCreada = notificacionService.crearNotificacion(notificacionDTO);
+        NotificacionDTO notificacionCreada = notificacionService.crearNotificacion(notificacionDTO, "Notificación Salud 360");
         return new ResponseEntity<>(notificacionCreada, HttpStatus.CREATED);
     }
 
