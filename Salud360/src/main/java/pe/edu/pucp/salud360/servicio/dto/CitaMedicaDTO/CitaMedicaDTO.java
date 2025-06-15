@@ -27,4 +27,7 @@ public class CitaMedicaDTO {
     private ServicioDTO servicio;
     private ClienteResumenDTO cliente;
     private MedicoResumenDTO medico;
+    //Para que funque en la vista de admin
+    private String nombreArchivo;
+
 }

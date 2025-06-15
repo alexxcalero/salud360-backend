@@ -22,4 +22,7 @@ public class ReservaDTO {
     private ClaseResumenDTO clase;
     private CitaMedicaResumenDTO citaMedica;
     private ComunidadResumenDTO comunidad;
+    //Con fe
+    private String descripcion;
+    private String nombreArchivo;
 }

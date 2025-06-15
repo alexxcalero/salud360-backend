@@ -48,6 +48,8 @@ public class ReservaServiceImp implements ReservaService {
     public ReservaDTO crearReserva(ReservaDTO dto) {
         Reserva reserva = reservaMapper.mapToModel(dto);
 
+        reserva.setDescripcion(dto.getDescripcion());
+        reserva.setNombreArchivo(dto.getNombreArchivo());
         // Asignar relaciones
         Cliente cliente = clienteRepository.findById(dto.getCliente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
