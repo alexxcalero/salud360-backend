@@ -246,6 +246,15 @@ public class ComunidadServiceImp implements ComunidadService {
     }
 
     @Override
+    public List<ComunidadDTO> obtenerComunidadesExcluyendoCliente(Integer idCliente) {
+        List<Comunidad> entidades = comunidadRepository.findComunidadesExcluyendoCliente(idCliente);
+        return entidades.stream()
+                .map(comunidadMapper::mapToDTO)
+                .toList();
+    }
+
+
+    @Override
     public List<ReservaDTO> listarReservasPorComunidad(Integer idComunidad) {
         Comunidad comunidad = comunidadRepository.findById(idComunidad)
                 .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));

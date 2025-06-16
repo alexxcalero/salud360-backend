@@ -45,4 +45,11 @@ public class ClienteController {
         ComunidadDTO dto = comunidadService.obtenerComunidadAleatoriaExcluyendoCliente(idCliente);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/excluyendo-cliente")
+    public ResponseEntity<List<ComunidadDTO>> obtenerComunidadesExcluyendoCliente(@RequestParam Integer idCliente) {
+        List<ComunidadDTO> dtoList = comunidadService.obtenerComunidadesExcluyendoCliente(idCliente);
+        return dtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(dtoList);
+    }
+
 }

@@ -40,4 +40,11 @@ public class TestimonioController {
         TestimonioDTO dto = testimonioService.obtenerTestimonioPorId(id);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/reactivar/{id}")
+    public ResponseEntity<Void> reactivarTestimonio(@PathVariable Integer id) {
+        testimonioService.reactivarTestimonio(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

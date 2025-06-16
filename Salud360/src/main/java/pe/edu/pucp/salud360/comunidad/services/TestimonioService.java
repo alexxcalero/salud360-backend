@@ -10,4 +10,6 @@ public interface TestimonioService {
     boolean eliminarTestimonio(Integer id);
     List<TestimonioDTO> listarTestimonios();
     TestimonioDTO obtenerTestimonioPorId(Integer id);
+    void reactivarTestimonio(Integer idTestimonio);
+
 }
