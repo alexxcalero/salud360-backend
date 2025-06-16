@@ -390,23 +390,27 @@ CURRENT_TIMESTAMP, NULL, 'icono-vip-anual.png',
 
 INSERT INTO ingesoft.local (
     activo, direccion, fecha_creacion, fecha_desactivacion,
-    nombre, telefono, tipo_servicio, id_servicio, descripcion
+    nombre, telefono, tipo_servicio, id_servicio, descripcion, aforo
 ) VALUES 
 (
     true, 'Av. La Marina 785, San Miguel', CURRENT_TIMESTAMP, NULL,
     'Local Nutrición La Marina', '912222333', 'Nutrición', 1,
-    'Centro especializado en planes de alimentación y evaluación nutricional para todas las edades.'
+    'Centro especializado en planes de alimentación y evaluación nutricional para todas las edades.',
+    0
 ),
 (
     true, 'Calle Los Álamos 234, Miraflores', CURRENT_TIMESTAMP, NULL,
     'Centro Psicológico Miraflores', '913444555', 'Psicología', 2,
-    'Atención psicológica individual, de pareja y talleres de salud mental en un ambiente cálido y confidencial.'
+    'Atención psicológica individual, de pareja y talleres de salud mental en un ambiente cálido y confidencial.',
+   	0
 ),
 (
     true, 'Av. Túpac Amaru 998, Comas', CURRENT_TIMESTAMP, NULL,
     'Policlínico Popular Comas', '914666777', 'Medicina', 3,
-    'Policlínico accesible con servicios médicos generales, laboratorio y atención primaria de calidad.'
+    'Policlínico accesible con servicios médicos generales, laboratorio y atención primaria de calidad.',
+    0
 );
+
 
 insert into ingesoft.reglas_de_negocio 
 (max_capacidad, max_dias_suspension, max_reservas, max_tiempo_cancelacion) 
@@ -438,3 +442,6 @@ VALUES (1, 1);
 
 INSERT INTO ingesoft.periodo (id_periodo, afiliacion, cant_reservas, fecha_inicio, fecha_fin)
 VALUES (1, 1, 0, '2025-06-01', '2025-06-30');
+
+INSERT INTO ingesoft.testimonio (activo, calificacion, id_cliente, id_comunidad, fecha_creacion, fecha_desactivacion, comentario)
+VALUES (true, 4.5, 1, 1, NOW(), NULL, 'Este es un testimonio de ejemplo.');
