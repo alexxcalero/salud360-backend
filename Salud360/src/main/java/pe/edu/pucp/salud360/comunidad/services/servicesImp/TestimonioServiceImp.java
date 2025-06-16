@@ -1,5 +1,6 @@
 package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.dto.TestimonioDTO.TestimonioDTO;
@@ -89,4 +90,14 @@ public class TestimonioServiceImp implements TestimonioService {
                 .map(testimonioMapper::mapToDTO)
                 .orElse(null);
     }
+
+    @Override
+    public void reactivarTestimonio(Integer idTestimonio) {
+        Testimonio testimonio = testimonioRepository.findById(idTestimonio)
+                .orElseThrow(() -> new EntityNotFoundException("Testimonio no encontrado"));
+
+        testimonio.setActivo(true);
+        testimonioRepository.save(testimonio);
+    }
+
 }
