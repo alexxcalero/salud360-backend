@@ -31,6 +31,12 @@ public class Local {
     @Column(name = "telefono", unique = false, nullable = false, updatable = true)
     private String telefono;
 
+    @Column(name = "aforo", unique = false, nullable = false, updatable = true)
+    private Integer aforo;
+
+    @Column(name = "ocupados", unique = false, nullable = false, updatable = true)
+    private Integer ocupados;
+
     @ElementCollection
     @CollectionTable(name = "imagenesDeLocal", joinColumns = @JoinColumn(name = "idLocal"))
     @Column(name = "urlImagen", unique = false, nullable = true, updatable = true)
