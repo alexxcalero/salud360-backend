@@ -445,3 +445,36 @@ VALUES (1, 1, 0, '2025-06-01', '2025-06-30');
 
 INSERT INTO ingesoft.testimonio (activo, calificacion, id_cliente, id_comunidad, fecha_creacion, fecha_desactivacion, comentario)
 VALUES (true, 4.5, 1, 1, NOW(), NULL, 'Este es un testimonio de ejemplo.');
+
+INSERT INTO ingesoft.testimonio (
+    comentario, calificacion, activo, fecha_creacion, fecha_desactivacion,
+    id_comunidad, id_cliente
+) VALUES 
+(
+    'Excelente comunidad, me sentí muy acompañado durante mi proceso.',
+    5.0,
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    1, -- Comunidad de Psicología
+    1  -- Cliente: Rodrigo Prado
+),
+(
+    'Los recursos que ofrecen son muy útiles. Recomiendo totalmente.',
+    4.5,
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    2, -- Comunidad de Programación
+    1
+),
+(
+    'Las sesiones de meditación me ayudaron mucho. Gracias a todos.',
+    4.8,
+    true,
+    CURRENT_TIMESTAMP,
+    NULL,
+    7, -- Comunidad de Mindfulness Corporativo
+    1
+);
+
