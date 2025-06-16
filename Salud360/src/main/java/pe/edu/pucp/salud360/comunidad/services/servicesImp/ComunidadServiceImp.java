@@ -253,6 +253,13 @@ public class ComunidadServiceImp implements ComunidadService {
                 .toList();
     }
 
+    @Override
+    public List<ComunidadDTO> obtenerComunidadesInactivasCliente(Integer idCliente) {
+        return comunidadRepository.findComunidadesInactivasDeCliente(idCliente)
+                .stream().map(comunidadMapper::mapToDTO).toList();
+    }
+
+
 
     @Override
     public List<ReservaDTO> listarReservasPorComunidad(Integer idComunidad) {

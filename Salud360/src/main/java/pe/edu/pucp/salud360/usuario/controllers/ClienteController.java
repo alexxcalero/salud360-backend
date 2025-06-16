@@ -52,4 +52,11 @@ public class ClienteController {
         return dtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(dtoList);
     }
 
+    @GetMapping("/comunidades-inactivas")
+    public ResponseEntity<List<ComunidadDTO>> obtenerComunidadesInactivas(@RequestParam Integer idCliente) {
+        List<ComunidadDTO> comunidades = comunidadService.obtenerComunidadesInactivasCliente(idCliente);
+        return comunidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(comunidades);
+    }
+
+
 }

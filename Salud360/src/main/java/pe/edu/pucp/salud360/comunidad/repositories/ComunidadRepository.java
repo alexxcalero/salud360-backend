@@ -32,4 +32,18 @@ public interface ComunidadRepository extends JpaRepository<Comunidad, Integer> {
 """, nativeQuery = true)
     List<Comunidad> findComunidadesExcluyendoCliente(@Param("idCliente") Integer idCliente);
 
+    @Query(value = """
+SELECT DISTINCT c.*
+FROM ingesoft.comunidad_cliente cc
+JOIN ingesoft.comunidad c ON c.id_comunidad = cc.id_comunidad
+LEFT JOIN ingesoft.afiliacion a ON a.id_cliente = cc.id_cliente
+AND a.id_membresia IN (
+    SELECT m.id_membresia FROM ingesoft.membresia m WHERE m.id_comunidad = c.id_comunidad
+)
+WHERE cc.id_cliente = :idCliente
+AND (a.estado IS NULL OR a.estado NOT IN ('Activa'))
+""", nativeQuery = true)
+    List<Comunidad> findComunidadesInactivasDeCliente(@Param("idCliente") Integer idCliente);
+
+
 }
