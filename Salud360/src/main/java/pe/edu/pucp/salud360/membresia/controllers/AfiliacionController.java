@@ -77,5 +77,16 @@ public class AfiliacionController {
     public ResponseEntity<Boolean> eliminarAfiliacion(@PathVariable Integer id) {
         return ResponseEntity.ok(afiliacionService.eliminarAfiliacion(id));
     }
+
+    @PutMapping("/{id}/suspender")
+    public ResponseEntity<Boolean> suspenderAfiliacion(@PathVariable Integer id) {
+        return ResponseEntity.ok(afiliacionService.desafiliar(id));
+    }
+
+    @PutMapping("/{id}/reactivar")
+    public ResponseEntity<Boolean> reactivarAfiliacion(@PathVariable Integer id) {
+        return ResponseEntity.ok(afiliacionService.reactivarAfiliacion(id));
+    }
+
 }
 

@@ -12,6 +12,7 @@ import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,6 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
-
         afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
@@ -71,7 +71,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         if(afiliacionRepository.existsById(id)){
             Optional<Afiliacion> afiliacion = afiliacionRepository.findById(id);
             Afiliacion af = afiliacion.get();
-            af.setEstado("DESACTIVADO");
+            af.setEstado("Suspendido");
             afiliacionRepository.save(af);
             return true;
         }
@@ -102,5 +102,17 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
+
+    @Override
+    public boolean reactivarAfiliacion(Integer idAfiliacion) {
+        Afiliacion af = afiliacionRepository.findById(idAfiliacion)
+                .orElseThrow(() -> new EntityNotFoundException("Afiliación no encontrada"));
+
+        af.setEstado("Activa");
+        af.setFechaReactivacion(LocalDate.now()); // o LocalDateTime.now() si prefieres
+        afiliacionRepository.save(af);
+        return true;
+    }
+
 }
 

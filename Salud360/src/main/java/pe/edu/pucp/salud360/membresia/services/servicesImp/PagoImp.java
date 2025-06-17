@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
+import pe.edu.pucp.salud360.membresia.mappers.PagoMapper;
 import pe.edu.pucp.salud360.membresia.models.Pago;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
@@ -23,6 +24,9 @@ public class PagoImp implements PagoService {
     private final PagoRepository pagoRepository;
 
     @Autowired
+    private PagoMapper pagoMapper;
+
+    @Autowired
     private final AfiliacionRepository afiliacionRepository;
 
     @Autowired
@@ -31,10 +35,21 @@ public class PagoImp implements PagoService {
     @Autowired
     private final MedioDePagoMapper medioDePagoMapper;
 
+
+
     @Override
     public List<PagoDTO> listarPagos() {
         return pagoRepository.findAll().stream().map(this::convertirADTO).collect(Collectors.toList());
     }
+
+    @Override
+    public List<PagoDTO> obtenerPagosPorCliente(Integer idCliente) {
+        return pagoRepository.findPagosByIdCliente(idCliente)
+                .stream()
+                .map(pagoMapper::mapToDTO)
+                .toList();
+    }
+
 
     @Override
     public PagoDTO obtenerPagoPorId(Integer id) {
