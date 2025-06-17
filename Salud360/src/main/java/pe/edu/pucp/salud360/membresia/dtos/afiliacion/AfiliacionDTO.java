@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
@@ -28,6 +29,7 @@ public class AfiliacionDTO {
     private LocalDate fechaReactivacion;
     private MedioDePagoResumenDTO medioDePago;
     private UsuarioResumenDTO usuario;
+    private ComunidadResumenDTO comunidad;
 }
 
 
