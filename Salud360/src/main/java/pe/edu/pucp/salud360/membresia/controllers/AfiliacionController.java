@@ -29,6 +29,7 @@ public class AfiliacionController {
     @PostMapping
     public ResponseEntity<AfiliacionResumenDTO> crearAfiliacion(@RequestBody AfiliacionDTO dto) {
         return ResponseEntity.ok(afiliacionService.crearAfiliacion(dto));
+        //a
     }
 
     @GetMapping
