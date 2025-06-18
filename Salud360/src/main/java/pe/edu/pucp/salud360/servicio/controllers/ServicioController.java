@@ -5,13 +5,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.services.ServicioService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/servicios")
@@ -61,6 +64,20 @@ public class ServicioController {
     public ResponseEntity<List<ServicioVistaAdminDTO>> listarServicios() {
         List<ServicioVistaAdminDTO> lista = servicioService.listarServiciosTodos();
         return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    @GetMapping("/comunidad")
+    public ResponseEntity<Map<String, Integer>> cantServiciosComunidad(){
+        Map<String, Integer> mapa = new HashMap<>();
+        List<ServicioVistaAdminDTO> lista = servicioService.listarServiciosTodos();
+        for (ServicioVistaAdminDTO serv : lista){
+            List<ComunidadResumenDTO> comunidades = serv.getComunidades();
+            for (ComunidadResumenDTO comunidad : comunidades) {
+                String clave = comunidad.getNombre(); // o el campo que quieras usar como clave
+                mapa.put(clave, mapa.getOrDefault(clave, 0) + 1);
+            }
+        }
+        return new ResponseEntity<>(mapa, HttpStatus.OK);
     }
 
     @GetMapping("/activos")
