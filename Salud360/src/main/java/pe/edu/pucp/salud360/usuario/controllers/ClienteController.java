@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
+import pe.edu.pucp.salud360.membresia.services.PagoService;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
@@ -21,7 +23,7 @@ public class ClienteController {
 
     private final ClienteService clienteService;
     private final ComunidadService comunidadService;
-
+    private final  PagoService pagoService;
 
 
     @PutMapping("{idCliente}")
@@ -45,4 +47,26 @@ public class ClienteController {
         ComunidadDTO dto = comunidadService.obtenerComunidadAleatoriaExcluyendoCliente(idCliente);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/excluyendo-cliente")
+    public ResponseEntity<List<ComunidadDTO>> obtenerComunidadesExcluyendoCliente(@RequestParam Integer idCliente) {
+        List<ComunidadDTO> dtoList = comunidadService.obtenerComunidadesExcluyendoCliente(idCliente);
+        return dtoList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(dtoList);
+    }
+
+    @GetMapping("/comunidades-inactivas")
+    public ResponseEntity<List<ComunidadDTO>> obtenerComunidadesInactivas(@RequestParam Integer idCliente) {
+        List<ComunidadDTO> comunidades = comunidadService.obtenerComunidadesInactivasCliente(idCliente);
+        return comunidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(comunidades);
+    }
+
+    @GetMapping("/{idCliente}")
+    public ResponseEntity<List<PagoDTO>> listarPagosPorCliente(@PathVariable Integer idCliente) {
+
+        List<PagoDTO> pagos = pagoService.obtenerPagosPorCliente(idCliente);
+        return pagos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(pagos);
+    }
+
+
+
 }

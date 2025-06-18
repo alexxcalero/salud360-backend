@@ -109,8 +109,12 @@ public class ReservaServiceImp implements ReservaService {
         Afiliacion afiliacion = buscarAfiliacionDelCliente(cliente, comunidad.getIdComunidad());
 
         // Verifico si se encontro afiliacion del cliente a la comunidad
-        if(afiliacion == null) {
+        if(afiliacion == null || afiliacion.getEstado().equals("Cancelado")) {
             throw new IllegalStateException("El cliente no posee una afiliación para esta comunidad.");
+        }
+
+        if(afiliacion.getEstado().equals("Suspendida")) {
+            throw new IllegalStateException("El cliente tiene la membresía suspendida, por ende no puede hacer uso de los servicios de esta comunidad.");
         }
 
         // Si la membresía es con tope, se verifica si todavia puede reservar o no un servicio

@@ -12,5 +12,7 @@ public interface AfiliacionService {
     AfiliacionResumenDTO buscarAfiliacionPorId(Integer id);
     AfiliacionResumenDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto);
     boolean desafiliar(Integer id);
+    boolean reactivarAfiliacion(Integer idAfiliacion);
+
 }
 

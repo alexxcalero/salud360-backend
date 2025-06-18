@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 
 import java.time.LocalDateTime;
@@ -20,4 +21,5 @@ public class AfiliacionResumenDTO {
     private String estado;
     private LocalDateTime fechaAfiliacion;
     private LocalDateTime fechaDesafiliacion;
+    private ComunidadResumenDTO comunidad;
 }

@@ -19,4 +19,6 @@ public interface ComunidadService {
     List<ClaseResumenDTO> listarClasesPorComunidad(Integer idComunidad);
     List<CitaMedicaResumenDTO> listarCitasMedicasPorComunidad(Integer idComunidad);
     ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente);
+    List<ComunidadDTO> obtenerComunidadesExcluyendoCliente(Integer idCliente);
+    List<ComunidadDTO> obtenerComunidadesInactivasCliente(Integer idCliente);
 }

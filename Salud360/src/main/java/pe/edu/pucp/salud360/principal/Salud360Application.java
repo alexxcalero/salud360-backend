@@ -1,4 +1,4 @@
-package pe.edu.pucp.salud360;
+package pe.edu.pucp.salud360.principal;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
