@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.awsS3;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,8 +56,14 @@ public class ArchivoController {
     public ResponseEntity<Resource> verImagen(@PathVariable String nombreArchivo) {
         try {
             Resource recurso = s3Service.obtenerArchivo(nombreArchivo);
+
+            // Detectar automáticamente el tipo MIME por el nombre
+            MediaType contentType = MediaTypeFactory.getMediaType(nombreArchivo)
+                    .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM) // acepta cualquier tipo de archivo
+                    .contentType(contentType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + nombreArchivo + "\"")
                     .body(recurso);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

@@ -50,14 +50,7 @@ public class ComunidadServiceImp implements ComunidadService {
         Comunidad comunidad = comunidadMapper.mapToModel(dto);
 
         // Procesar imágenes
-        if (comunidad.getImagenes() != null) {
-            for (String imagen : comunidad.getImagenes()) {
-                String url = s3UrlGenerator.generarUrl(imagen);
-                urls.add(url);
-                keys.add(s3UrlGenerator.extraerKeyDeUrl(url));
-            }
-        }
-        comunidad.setImagenes(keys); //Guarda las keys para la bd
+        comunidad.setImagen(dto.getImagen());
         comunidad.setFechaCreacion(LocalDateTime.now());
         comunidad.setActivo(true);
         Comunidad guardada = comunidadRepository.save(comunidad);
@@ -92,7 +85,6 @@ public class ComunidadServiceImp implements ComunidadService {
         }
 
         guardada = comunidadRepository.save(guardada);
-        guardada.setImagenes(urls);
         return comunidadMapper.mapToDTO(guardada);
     }
 
@@ -106,7 +98,7 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setNombre(dto.getNombre());
         comunidad.setDescripcion(dto.getDescripcion());
         comunidad.setProposito(dto.getProposito());
-        comunidad.setImagenes(dto.getImagenes());
+        comunidad.setImagen(dto.getImagen());
         comunidad.setCantMiembros(dto.getCantMiembros());
         comunidad.setCalificacion(dto.getCalificacion());
 
@@ -190,11 +182,11 @@ public class ComunidadServiceImp implements ComunidadService {
     @Override
     public ComunidadDTO obtenerComunidadPorId(Integer id) {
         Comunidad comunidad = comunidadRepository.findById(id).orElse(null);
-        List<String> urls = new ArrayList<>(), imagenes = comunidad.getImagenes();
-        /*Comentar*/
-        if(imagenes != null) {
-            for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
-            comunidad.setImagenes(urls);
+        if (comunidad == null) return null;
+
+        // Generar URL de lectura para la imagen única
+        if (comunidad.getImagen() != null) {
+            comunidad.setImagen(s3UrlGenerator.generarUrlLectura(comunidad.getImagen()));
         }
         return comunidadMapper.mapToDTO(comunidad);
     }
@@ -202,19 +194,15 @@ public class ComunidadServiceImp implements ComunidadService {
     @Override
     public List<ComunidadDTO> listarComunidades() {
         List<Comunidad> comunidades = comunidadRepository.findAll();
-        if(!(comunidades.isEmpty())) {
-            for(Comunidad comunidad : comunidades){
-                List<String> imagenes = comunidad.getImagenes();
-                List<String> urls = new ArrayList<>();
-                if(imagenes != null) {
-                    for(String key : imagenes) urls.add(s3UrlGenerator.generarUrlLectura(key));
-                    comunidad.setImagenes(urls);
-                }
+        for (Comunidad comunidad : comunidades) {
+            if (comunidad.getImagen() != null) {
+                comunidad.setImagen(s3UrlGenerator.generarUrlLectura(comunidad.getImagen()));
             }
-            return comunidades.stream().map(comunidadMapper::mapToDTO).collect(Collectors.toList());
-        } else {
-            return new ArrayList<>();
         }
+
+        return comunidades.stream()
+                .map(comunidadMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -222,6 +210,11 @@ public class ComunidadServiceImp implements ComunidadService {
         List<Comunidad> comunidades = comunidadRepository.findAll();
         return comunidades.stream()
                 .filter(Comunidad::getActivo)
+                .peek(c -> {
+                    if (c.getImagen() != null) {
+                        c.setImagen(s3UrlGenerator.generarUrlLectura(c.getImagen()));
+                    }
+                })
                 .map(comunidadMapper::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -242,6 +235,10 @@ public class ComunidadServiceImp implements ComunidadService {
     @Override
     public ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente) {
         Comunidad entidad = comunidadRepository.findComunidadAleatoriaExcluyendoCliente(idCliente);
+        if (entidad != null && entidad.getImagen() != null) {
+            entidad.setImagen(s3UrlGenerator.generarUrlLectura(entidad.getImagen()));
+        }
+
         return entidad != null ? comunidadMapper.mapToDTO(entidad) : null;
     }
 
