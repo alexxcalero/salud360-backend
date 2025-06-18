@@ -9,6 +9,11 @@ import pe.edu.pucp.salud360.awsS3.S3Service;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
 @RestController
 @RequestMapping("/api/archivo")
 public class ArchivoController {
@@ -42,6 +47,19 @@ public class ArchivoController {
             return ResponseEntity.ok(Map.of("url", urlTemporal));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "No se pudo generar la URL de descarga"));
+        }
+    }
+
+    // NUEVO: servir directamente la imagen
+    @GetMapping("/{nombreArchivo}")
+    public ResponseEntity<Resource> verImagen(@PathVariable String nombreArchivo) {
+        try {
+            Resource recurso = s3Service.obtenerArchivo(nombreArchivo);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM) // acepta cualquier tipo de archivo
+                    .body(recurso);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

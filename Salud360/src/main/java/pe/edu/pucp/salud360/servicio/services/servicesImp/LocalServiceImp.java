@@ -67,7 +67,7 @@ public class LocalServiceImp implements LocalService {
         local.setNombre(dto.getNombre());
         local.setDireccion(dto.getDireccion());
         local.setTelefono(dto.getTelefono());
-        local.setImagenes(dto.getImagenes());
+        local.setImagen(dto.getImagen());
         local.setTipoServicio(dto.getTipoServicio());
         local.setDescripcion(dto.getDescripcion());
 
