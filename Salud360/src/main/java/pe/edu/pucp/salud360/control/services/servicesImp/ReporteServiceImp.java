@@ -69,7 +69,7 @@ public class ReporteServiceImp implements ReporteService {
         htmlBuilder.append("</style>");
         htmlBuilder.append("</head><body>");
 
-        htmlBuilder.append("<h2>Listado de usuarios y sus comunidades y membresías</h2>");
+        htmlBuilder.append("<h2>Usuarios y membresías activas por comunidad</h2>");
         htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
 
         htmlBuilder.append("<table>");
@@ -79,48 +79,52 @@ public class ReporteServiceImp implements ReporteService {
             if (usuario.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
                     usuario.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay())) {
 
-                List<Comunidad> comunidades = usuario.getComunidades();
                 List<String> combinaciones = new ArrayList<>();
 
-                for (Comunidad comunidad : comunidades) {
-                    String nombreComunidad = comunidad.getNombre();
+                // Lista de IDs de membresías activas del usuario
+                Set<Integer> membresiasUsuario = usuario.getAfiliaciones().stream()
+                        .map(af -> af.getMembresia().getIdMembresia())
+                        .collect(Collectors.toSet());
 
-                    // Si hay membresías asociadas
+                for (Comunidad comunidad : usuario.getComunidades()) {
                     for (Membresia membresia : comunidad.getMembresias()) {
-                        String combinacion = STR."\{nombreComunidad} - \{membresia.getNombre()}";
-                        combinaciones.add(combinacion);
-                        conteoComunidadMembresia.merge(combinacion, 1, Integer::sum);
+                        if (membresiasUsuario.contains(membresia.getIdMembresia())) {
+                            String combo = comunidad.getNombre() + " - " + membresia.getNombre();
+                            combinaciones.add(combo);
+                            conteoComunidadMembresia.merge(combo, 1, Integer::sum);
+                        }
                     }
                 }
 
-                htmlBuilder.append("<tr>");
-                htmlBuilder.append("<td>").append(usuario.getIdCliente()).append("</td>");
-                htmlBuilder.append("<td>").append(usuario.getNombres()).append("</td>");
-                htmlBuilder.append("<td>").append(String.join(", ", combinaciones)).append("</td>");
-                htmlBuilder.append("</tr>");
+                if (!combinaciones.isEmpty()) {
+                    htmlBuilder.append("<tr>");
+                    htmlBuilder.append("<td>").append(usuario.getIdCliente()).append("</td>");
+                    htmlBuilder.append("<td>").append(usuario.getNombres()).append("</td>");
+                    htmlBuilder.append("<td>").append(String.join(", ", combinaciones)).append("</td>");
+                    htmlBuilder.append("</tr>");
+                }
             }
         }
 
         htmlBuilder.append("</table>");
 
-// Crear dataset del gráfico pastel
+// Crear gráfico
         DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
         for (Map.Entry<String, Integer> entry : conteoComunidadMembresia.entrySet()) {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
         JFreeChart chart = ChartFactory.createPieChart(
-                "Distribución de usuarios por comunidad y membresía",
+                "Distribución de usuarios por Comunidad y Membresía",
                 dataset,
                 true, true, false
         );
 
-// Convertir gráfico a base64
+// Convertir a base64
         String base64Image = "";
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ChartUtils.writeChartAsPNG(baos, chart, 600, 400);
-            byte[] bytes = baos.toByteArray();
-            base64Image = Base64.getEncoder().encodeToString(bytes);
+            base64Image = Base64.getEncoder().encodeToString(baos.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,7 +139,7 @@ public class ReporteServiceImp implements ReporteService {
         htmlBuilder.append("</body></html>");
 
 // Generar PDF
-        String titulo = "Reporte de Usuarios por Comunidad y Membresía";
+        String titulo = "Reporte de Usuarios y Afiliaciones por Comunidad";
         String contenidoHTML = htmlBuilder.toString();
         byte[] pdfBytes = ReportePDFGenerator.generarReporteHTML(titulo, contenidoHTML);
 
