@@ -128,16 +128,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
     }
 
     private boolean existeCruceDeHorarios(LocalTime horaInicio, LocalTime horaFin, LocalTime horaInicioNueva, LocalTime horaFinNueva) {
-        if(horaInicioNueva.equals(horaInicio))
-            return true;
-        else if(horaInicioNueva.isBefore(horaInicio))
-            if(horaFinNueva.isAfter(horaInicio))
-                return true;
-        else
-            if(horaInicioNueva.isBefore(horaFin))
-                return true;
-
-        return false;
+        return horaInicioNueva.isBefore(horaFin) && horaFinNueva.isAfter(horaInicio);
     }
 
     @Override
