@@ -23,7 +23,6 @@ public class MembresiaResumenDTO {
     private Double precio;
     private Integer cantUsuarios;
     private Integer maxReservas;
-    private String icono;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;

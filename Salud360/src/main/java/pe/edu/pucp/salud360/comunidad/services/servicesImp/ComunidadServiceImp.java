@@ -79,15 +79,17 @@ public class ComunidadServiceImp implements ComunidadService {
                     .nombre(m.getNombre())
                     .tipo(m.getTipo())
                     .cantUsuarios(m.getCantUsuarios())
-                    .maxReservas(reglas.getMaxReservas())  // Aca se anhade el valor que este en la tabla de reglas generales
                     .precio(m.getPrecio())
                     .descripcion(m.getDescripcion())
-                    .icono(m.getIcono())
                     .conTope(m.getConTope())
                     .comunidad(guardada)
                     .activo(true)
                     .fechaCreacion(LocalDateTime.now())
                     .build();
+                if(membresia.getConTope())
+                    membresia.setMaxReservas(reglas.getMaxReservas());  // Aca se anhade el valor que este en la tabla de reglas generales
+                else
+                    membresia.setMaxReservas(-1);  // Valor por defecto cuando la membresia sea sin tope
                 membresiaRepository.save(membresia);
             }
         }
@@ -108,7 +110,7 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setDescripcion(dto.getDescripcion());
         comunidad.setProposito(dto.getProposito());
         comunidad.setImagen(dto.getImagen());
-        comunidad.setCantMiembros(dto.getCantMiembros());
+        //comunidad.setCantMiembros(dto.getCantMiembros());
         comunidad.setCalificacion(dto.getCalificacion());
 
         // 1. Actualizar membresías (elimina previas no incluidas si es reemplazo total)
@@ -135,12 +137,11 @@ public class ComunidadServiceImp implements ComunidadService {
 
                 membresia.setNombre(m.getNombre());
                 membresia.setTipo(m.getTipo());
-                membresia.setConTope(m.getConTope());
-                //membresia.setCantUsuarios(m.getCantUsuarios());  // No se debe modificar cant usuarios, ni maxreservas
+                //membresia.setConTope(m.getConTope());  // No se debe modificar cant usuarios, ni maxreservas
+                //membresia.setCantUsuarios(m.getCantUsuarios());
                 //membresia.setMaxReservas(m.getMaxReservas());
                 membresia.setPrecio(m.getPrecio());
                 membresia.setDescripcion(m.getDescripcion());
-                membresia.setIcono(m.getIcono());
 
                 membresiasActualizadas.add(membresia);
             }

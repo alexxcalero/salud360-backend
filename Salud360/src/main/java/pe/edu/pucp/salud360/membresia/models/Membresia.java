@@ -44,9 +44,6 @@ public class Membresia {
     @Column(name = "maxReservas", unique = false, nullable = false, updatable = true)
     private Integer maxReservas;
 
-    @Column(name = "icono", unique = false, nullable = false, updatable = true)
-    private String icono;
-
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     private Boolean activo;
 
