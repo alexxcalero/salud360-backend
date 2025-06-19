@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.servicio.mappers;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
@@ -14,6 +15,7 @@ import java.util.List;
 public interface ServicioMapper {
 
     // CRUD: crear / editar
+    @Mapping(source = "imagen", target = "imagen")
     ServicioDTO mapToDTO(Servicio servicio);
     Servicio mapToModel(ServicioDTO dto);
     List<ServicioDTO> mapToDTOList(List<Servicio> servicios); //listarservicioporcomunidad
@@ -24,7 +26,9 @@ public interface ServicioMapper {
     List<ServicioVistaAdminDTO> mapToVistaAdminList(List<Servicio> servicios);
 
     // Listados
+    @Mapping(source = "imagen", target = "imagen")
     ServicioResumenDTO mapToResumenDTO(Servicio servicio);
+    @Mapping(source = "imagen", target = "imagen")
     Servicio mapToModel(ServicioResumenDTO dto);
 
     List<ServicioResumenDTO> mapToResumenList(List<Servicio> servicios);
