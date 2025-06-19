@@ -85,10 +85,12 @@ public class ReporteServiceImp implements ReporteService {
                 for (Comunidad comunidad : comunidades) {
                     String nombreComunidad = comunidad.getNombre();
                     // Si hay membresías asociadas
-                    for (Membresia membresia : comunidad.getMembresias()) {
-                        String combinacion = STR."\{nombreComunidad} - \{membresia.getNombre()}";
-                        combinaciones.add(combinacion);
-                        conteoComunidadMembresia.merge(combinacion, 1, Integer::sum);
+                    for (Afiliacion af : usuario.getAfiliaciones()) {
+                        if(Objects.equals(af.getMembresia().getComunidad().getIdComunidad(), comunidad.getIdComunidad())) {
+                            String combinacion = STR."\{nombreComunidad} - \{af.getMembresia().getNombre()}";
+                            combinaciones.add(combinacion);
+                            conteoComunidadMembresia.merge(combinacion, 1, Integer::sum);
+                        }
                     }
                 }
 
