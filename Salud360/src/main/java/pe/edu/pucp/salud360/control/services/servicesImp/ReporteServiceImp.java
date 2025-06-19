@@ -29,6 +29,18 @@ import java.util.*;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Base64;
+import java.util.Map;
+
+import static java.util.Base64.getEncoder;
+
 @Service
 public class ReporteServiceImp implements ReporteService {
     @Autowired
@@ -132,13 +144,17 @@ public class ReporteServiceImp implements ReporteService {
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head>");
-        htmlBuilder.append("<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>");
+        htmlBuilder.append("<style>");
+        htmlBuilder.append("body { font-family: Arial, sans-serif; padding: 20px; }");
+        htmlBuilder.append("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
+        htmlBuilder.append("th, td { border: 1px solid #aaa; padding: 8px; text-align: left; }");
+        htmlBuilder.append("</style>");
         htmlBuilder.append("</head><body>");
 
-        htmlBuilder.append("<p>Listado de locales y sus servicios:</p>");
+        htmlBuilder.append("<h2>Listado de locales y sus servicios</h2>");
         htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
 
-        htmlBuilder.append("<table border='1'>");
+        htmlBuilder.append("<table>");
         htmlBuilder.append("<tr><th>IDLocal</th><th>Nombre</th><th>Servicios</th></tr>");
 
         for (Local local : locales) {
@@ -147,8 +163,7 @@ public class ReporteServiceImp implements ReporteService {
             if (filtro.getIdServicio() == null) filtros = true;
 
             if (servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
-                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) &&
-                    filtros) {
+                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && filtros) {
 
                 htmlBuilder.append("<tr>");
                 htmlBuilder.append("<td>").append(local.getIdLocal()).append("</td>");
@@ -156,65 +171,51 @@ public class ReporteServiceImp implements ReporteService {
                 htmlBuilder.append("<td>").append(servicio.getNombre()).append("</td>");
                 htmlBuilder.append("</tr>");
 
-                // Acumular para el gráfico
                 conteoServicios.merge(servicio.getNombre(), 1, Integer::sum);
             }
         }
 
         htmlBuilder.append("</table>");
 
-// Preparar datos JS para el gráfico
-        StringBuilder labels = new StringBuilder();
-        StringBuilder values = new StringBuilder();
-
-        labels.append("[");
-        values.append("[");
+// 👇 Generar gráfico como imagen base64
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
         for (Map.Entry<String, Integer> entry : conteoServicios.entrySet()) {
-            labels.append("'").append(entry.getKey()).append("',");
-            values.append(entry.getValue()).append(",");
+            dataset.addValue(entry.getValue(), "Servicios", entry.getKey());
         }
 
-        if (!conteoServicios.isEmpty()) {
-            labels.setLength(labels.length() - 1); // quitar última coma
-            values.setLength(values.length() - 1);
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Distribución de locales por servicio",
+                "Servicio",
+                "Cantidad",
+                dataset,
+                PlotOrientation.VERTICAL,
+                false, true, false
+        );
+        String base64Image = "";
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ChartUtils.writeChartAsPNG(baos, chart, 600, 400);
+            byte[] bytes = baos.toByteArray();
+            base64Image = Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            base64Image = "";
         }
-
-        labels.append("]");
-        values.append("]");
-
-// Gráfico de barras
-        htmlBuilder.append("<h3>Distribución de locales por servicio</h3>");
-        htmlBuilder.append("<canvas id='graficoServicios' width='400' height='200'></canvas>");
-
-        htmlBuilder.append("<script>");
-        htmlBuilder.append("const ctx = document.getElementById('graficoServicios').getContext('2d');");
-        htmlBuilder.append("new Chart(ctx, {");
-        htmlBuilder.append("  type: 'bar',");
-        htmlBuilder.append("  data: {");
-        htmlBuilder.append("    labels: ").append(labels).append(",");
-        htmlBuilder.append("    datasets: [{");
-        htmlBuilder.append("      label: 'Cantidad de locales',");
-        htmlBuilder.append("      data: ").append(values).append(",");
-        htmlBuilder.append("      backgroundColor: 'rgba(54, 162, 235, 0.6)',");
-        htmlBuilder.append("      borderColor: 'rgba(54, 162, 235, 1)',");
-        htmlBuilder.append("      borderWidth: 1");
-        htmlBuilder.append("    }]");
-        htmlBuilder.append("  },");
-        htmlBuilder.append("  options: {");
-        htmlBuilder.append("    scales: { y: { beginAtZero: true } }");
-        htmlBuilder.append("  }");
-        htmlBuilder.append("});");
-        htmlBuilder.append("</script>");
+        if (!base64Image.isEmpty()) {
+            htmlBuilder.append("<h3>Distribución de locales por servicio</h3>");
+            htmlBuilder.append("<img src='data:image/png;base64,")
+                    .append(base64Image)
+                    .append("' width='600'/>");
+        }
 
         htmlBuilder.append("</body></html>");
 
-// Generar PDF con el contenido completo
-        String titulo = "Reporte de Servicios con Dashboard";
+// 👉 Convertir HTML a PDF
+        String titulo = "Reporte de Servicios con Gráfico Integrado";
         String contenidoHTML = htmlBuilder.toString();
         byte[] pdfBytes = ReportePDFGenerator.generarReporteHTML(titulo, contenidoHTML);
-        reporte.setPdf(pdfBytes);
 
+        reporte.setPdf(pdfBytes);
         reporte.setIdAfiliaciones(Collections.singletonList(3));
         reporte.setIdPagos(Collections.singletonList(12));
         return reporte;
