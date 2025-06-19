@@ -1,5 +1,6 @@
 package pe.edu.pucp.salud360.control.services.servicesImp;
 
+import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.control.dto.*;
@@ -52,38 +53,92 @@ public class ReporteServiceImp implements ReporteService {
 
     @Override
     public ReporteDTO generarReporteUsuarios(ReporteUsuarioRequestDTO filtro) {
-        // Aquí se arma el reporte usando el filtro
         ReporteDTO reporte = new ReporteDTO();
         reporte.setFechaCreacion(LocalDateTime.now());
-        // Reemplaza con lógica real
+
+// Listado de usuarios
         List<Cliente> usuarios = usuarioRepository.findAll();
+        Map<String, Integer> conteoComunidades = new HashMap<>();
         StringBuilder htmlBuilder = new StringBuilder();
 
-        htmlBuilder.append("<p>Listado de usuarios y sus comunidades:</p>");
+        htmlBuilder.append("<html><head>");
+        htmlBuilder.append("<style>");
+        htmlBuilder.append("body { font-family: Arial, sans-serif; padding: 20px; }");
+        htmlBuilder.append("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
+        htmlBuilder.append("th, td { border: 1px solid #aaa; padding: 8px; text-align: left; }");
+        htmlBuilder.append("</style>");
+        htmlBuilder.append("</head><body>");
+
+        htmlBuilder.append("<h2>Listado de usuarios y sus comunidades</h2>");
         htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
+
         htmlBuilder.append("<table>");
         htmlBuilder.append("<tr><th>IDUsuario</th><th>Nombre</th><th>Comunidades</th></tr>");
+
         for (Cliente usuario : usuarios) {
-            List<Comunidad> comunidades = usuario.getComunidades();
-            List<String> c = new ArrayList<>();
-            for(Comunidad com : comunidades){
-                c.add(com.getNombre());
-            }
-            if(usuario.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
+            if (usuario.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
                     usuario.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay())) {
+
+                List<Comunidad> comunidades = usuario.getComunidades();
+                List<String> nombres = new ArrayList<>();
+
+                for (Comunidad comunidad : comunidades) {
+                    String nombre = comunidad.getNombre();
+                    nombres.add(nombre);
+
+                    // Contar usuarios por comunidad
+                    conteoComunidades.merge(nombre, 1, Integer::sum);
+                }
+
                 htmlBuilder.append("<tr>");
                 htmlBuilder.append("<td>").append(usuario.getIdCliente()).append("</td>");
                 htmlBuilder.append("<td>").append(usuario.getNombres()).append("</td>");
-                htmlBuilder.append("<td>").append(String.join("\n ", c)).append("</td>");
+                htmlBuilder.append("<td>").append(String.join(", ", nombres)).append("</td>");
                 htmlBuilder.append("</tr>");
             }
         }
+
         htmlBuilder.append("</table>");
-        String titulo = "Reporte de Usuarios por Comunidad";
+
+        // Crear gráfico de pastel
+        DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+        for (Map.Entry<String, Integer> entry : conteoComunidades.entrySet()) {
+            dataset.setValue(entry.getKey(), entry.getValue());
+        }
+
+        JFreeChart chart = ChartFactory.createPieChart(
+                "Distribución de usuarios por comunidad",
+                dataset,
+                true, // leyenda
+                true,
+                false
+        );
+
+// Convertir el gráfico a base64
+        String base64Image = "";
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ChartUtils.writeChartAsPNG(baos, chart, 600, 400);
+            byte[] bytes = baos.toByteArray();
+            base64Image = Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (!base64Image.isEmpty()) {
+            htmlBuilder.append("<h3>Distribución de usuarios por comunidad</h3>");
+            htmlBuilder.append("<img src='data:image/png;base64,")
+                    .append(base64Image)
+                    .append("' width='600'/>");
+        }
+
+        htmlBuilder.append("</body></html>");
+
+// Generar PDF
+        String titulo = "Reporte de Usuarios por Comunidad con Dashboard";
         String contenidoHTML = htmlBuilder.toString();
         byte[] pdfBytes = ReportePDFGenerator.generarReporteHTML(titulo, contenidoHTML);
-        reporte.setPdf(pdfBytes);
 
+        reporte.setPdf(pdfBytes);
         reporte.setIdAfiliaciones(Collections.singletonList(1));
         reporte.setIdPagos(Collections.singletonList(10));
         return reporte;
