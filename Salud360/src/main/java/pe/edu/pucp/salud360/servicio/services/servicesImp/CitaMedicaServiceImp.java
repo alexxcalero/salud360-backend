@@ -148,7 +148,7 @@ public class CitaMedicaServiceImp implements CitaMedicaService {
 
             // No se va a permitir la actualizacion si la cita ya ha sido reservada
             if(cita.getEstado().equals("Reservada"))
-                throw new IllegalStateException("No se puede actualizar esta cita, debido a que ya ha sido reservada por un cliente.");
+                throw new IllegalStateException("No se puede eliminar esta cita, debido a que ya ha sido reservada por un cliente.");
 
 //            for(Reserva r : cita.getReservas()) {
 //                if(r.getEstado().equals("Confirmada"))
