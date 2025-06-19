@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.awsS3;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,6 +9,11 @@ import pe.edu.pucp.salud360.awsS3.S3Service;
 
 import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/archivo")
@@ -42,6 +48,25 @@ public class ArchivoController {
             return ResponseEntity.ok(Map.of("url", urlTemporal));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "No se pudo generar la URL de descarga"));
+        }
+    }
+
+    // NUEVO: servir directamente la imagen
+    @GetMapping("/{nombreArchivo}")
+    public ResponseEntity<Resource> verImagen(@PathVariable String nombreArchivo) {
+        try {
+            Resource recurso = s3Service.obtenerArchivo(nombreArchivo);
+
+            // Detectar automáticamente el tipo MIME por el nombre
+            MediaType contentType = MediaTypeFactory.getMediaType(nombreArchivo)
+                    .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .contentType(contentType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + nombreArchivo + "\"")
+                    .body(recurso);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

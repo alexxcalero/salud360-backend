@@ -17,9 +17,11 @@ public class ComunidadVistaClienteDTO {
     private String nombre;
     private String descripcion;
     private String proposito;
-    private List<String> imagenes;
     private Integer cantMiembros;
     private Double calificacion;
+    //Ahora solo 1 imagen
+    private String imagen;
+
     private List<ServicioVistaClienteDTO> servicios; //agregado
     private List<MembresiaResumenDTO> membresias;
 }

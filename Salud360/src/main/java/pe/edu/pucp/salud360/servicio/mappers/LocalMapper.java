@@ -26,8 +26,12 @@ public interface LocalMapper {
     Local mapToModel(LocalDTO dto);
 
     // Vista administrativa enriquecida
+    @Mapping(source = "imagen", target = "imagen")
     LocalVistaAdminDTO mapToVistaAdminDTO(Local local);
+
+    @Mapping(source = "imagen", target = "imagen")
     Local mapToModel(LocalVistaAdminDTO dto);
+
 
     List<LocalDTO> mapToDTOList(List<Local> locales);
     List<LocalVistaAdminDTO> mapToVistaAdminList(List<Local> locales);

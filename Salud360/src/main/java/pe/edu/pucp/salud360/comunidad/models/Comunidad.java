@@ -35,10 +35,10 @@ public class Comunidad {
     @Column(name = "proposito", unique = false, nullable = false, updatable = true)
     private String proposito;
 
-    @ElementCollection
-    @CollectionTable(name = "imagenesDeComunidad", joinColumns = @JoinColumn(name = "idComunidad"))
-    @Column(name = "urlImagen", unique = false, nullable = true, updatable = true)
-    private List<String> imagenes;
+//    @ElementCollection
+//    @CollectionTable(name = "imagenesDeComunidad", joinColumns = @JoinColumn(name = "idComunidad"))
+//    @Column(name = "urlImagen", unique = false, nullable = true, updatable = true)
+//    private List<String> imagenes;
 
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     private Boolean activo;
@@ -60,6 +60,10 @@ public class Comunidad {
 
     @OneToMany(mappedBy = "comunidad")
     private List<Testimonio> testimonios;
+
+    //Vamos a mapear ahora una unicaImagen
+    @Column(name = "urlImagen")
+    private String imagen;
 
     @ManyToMany
     @JoinTable(

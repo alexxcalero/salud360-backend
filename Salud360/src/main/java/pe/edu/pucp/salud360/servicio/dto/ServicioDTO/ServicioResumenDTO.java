@@ -17,7 +17,8 @@ public class ServicioResumenDTO {
     private String descripcion;
     private String tipo;
     private Boolean activo;
-    private List<String> imagenes;
+    //Ahora solo 1 imagen
+    private String imagen;
     private List<LocalResumenDTO> locales;
     private List<CitaMedicaResumenDTO> citasMedicas;
 }
