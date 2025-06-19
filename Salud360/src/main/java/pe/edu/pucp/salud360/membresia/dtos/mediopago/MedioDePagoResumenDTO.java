@@ -17,6 +17,7 @@ public class MedioDePagoResumenDTO {
     private Integer idMedioDePago;
     private String tipo;
     private String ncuenta;
+    private Double totalGastado;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;

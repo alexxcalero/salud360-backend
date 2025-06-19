@@ -33,6 +33,9 @@ public class MedioDePago {
     @Column(name = "cvv", unique = false, nullable = false, updatable = true)
     private Integer cvv;
 
+    @Column(name = "totalGastado", unique = false, nullable = false, updatable = true)
+    private Double totalGastado;
+
     @Column(name = "activo", unique = false, nullable = false, updatable = true)
     private Boolean activo;
 

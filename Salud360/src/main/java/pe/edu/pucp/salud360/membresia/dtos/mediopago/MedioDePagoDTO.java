@@ -20,6 +20,7 @@ public class MedioDePagoDTO {
     private String tipo;
     private String ncuenta;
     private LocalDateTime vencimiento;
+    private Double totalGastado;
     private Integer cvv;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
