@@ -133,6 +133,19 @@ public class ReporteServiceImp implements ReporteService {
                     .append("' width='600'/>");
         }
 
+        htmlBuilder.append("<h3>Resumen de usuarios por comunidad y membresía</h3>");
+        htmlBuilder.append("<table>");
+        htmlBuilder.append("<tr><th>Comunidad - Membresía</th><th>Total Usuarios</th></tr>");
+
+        for (Map.Entry<String, Integer> entry : conteoComunidadMembresia.entrySet()) {
+            htmlBuilder.append("<tr>");
+            htmlBuilder.append("<td>").append(entry.getKey()).append("</td>");
+            htmlBuilder.append("<td>").append(entry.getValue()).append("</td>");
+            htmlBuilder.append("</tr>");
+        }
+
+        htmlBuilder.append("</table>");
+
         htmlBuilder.append("</body></html>");
 
 // Generar PDF
