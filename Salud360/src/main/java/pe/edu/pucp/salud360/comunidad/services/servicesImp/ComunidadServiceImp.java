@@ -2,12 +2,15 @@ package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
+import pe.edu.pucp.salud360.control.models.ReglasDeNegocio;
+import pe.edu.pucp.salud360.control.repositories.ReglasDeNegocioRepository;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
@@ -42,12 +45,17 @@ public class ComunidadServiceImp implements ComunidadService {
     private final ServicioRepository servicioRepository;
     private final ClaseMapper claseMapper;
     private final CitaMedicaMapper citaMedicaMapper;
+    private final ReglasDeNegocioRepository reglasDeNegocioRepository;
 
     @Override
+    @Transactional
     public ComunidadDTO crearComunidad(ComunidadDTO dto) {
         List<String> urls = new ArrayList<>();
         List<String> keys = new ArrayList<>();
         Comunidad comunidad = comunidadMapper.mapToModel(dto);
+        ReglasDeNegocio reglas = reglasDeNegocioRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("Regla de negocio no encontrada"));
+
 
         // Procesar imágenes
         if (comunidad.getImagenes() != null) {
@@ -78,7 +86,7 @@ public class ComunidadServiceImp implements ComunidadService {
                     .nombre(m.getNombre())
                     .tipo(m.getTipo())
                     .cantUsuarios(m.getCantUsuarios())
-                    .maxReservas(m.getMaxReservas())
+                    .maxReservas(reglas.getMaxReservas())  // Aca se anhade el valor que este en la tabla de reglas generales
                     .precio(m.getPrecio())
                     .descripcion(m.getDescripcion())
                     .icono(m.getIcono())
@@ -98,6 +106,7 @@ public class ComunidadServiceImp implements ComunidadService {
 
 
     @Override
+    @Transactional
     public ComunidadDTO actualizarComunidad(Integer id, ComunidadDTO dto) {
         Optional<Comunidad> optional = comunidadRepository.findById(id);
         if (optional.isEmpty()) return null;
@@ -135,8 +144,8 @@ public class ComunidadServiceImp implements ComunidadService {
                 membresia.setNombre(m.getNombre());
                 membresia.setTipo(m.getTipo());
                 membresia.setConTope(m.getConTope());
-                membresia.setCantUsuarios(m.getCantUsuarios());
-                membresia.setMaxReservas(m.getMaxReservas());
+                //membresia.setCantUsuarios(m.getCantUsuarios());  // No se debe modificar cant usuarios, ni maxreservas
+                //membresia.setMaxReservas(m.getMaxReservas());
                 membresia.setPrecio(m.getPrecio());
                 membresia.setDescripcion(m.getDescripcion());
                 membresia.setIcono(m.getIcono());
@@ -181,10 +190,15 @@ public class ComunidadServiceImp implements ComunidadService {
         if (optional.isEmpty()) return false;
 
         Comunidad comunidad = optional.get();
-        comunidad.setActivo(false);
-        comunidad.setFechaDesactivacion(LocalDateTime.now());
-        comunidadRepository.save(comunidad);
-        return true;
+
+        if(comunidad.getClientes().isEmpty()) {
+            comunidad.setActivo(false);
+            comunidad.setFechaDesactivacion(LocalDateTime.now());
+            comunidadRepository.save(comunidad);
+            return true;
+        } else {
+            throw new IllegalStateException("No se puede eliminar esta comunidad, debido a que tiene miembros en ella.");
+        }
     }
 
     @Override
