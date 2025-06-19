@@ -13,5 +13,6 @@ public class MedicoResumenDTO {
     private String apellidos;
     private String especialidad;
     private String descripcion;
+    //Ahora solo 1 imagen
     private String fotoPerfil;
 }
