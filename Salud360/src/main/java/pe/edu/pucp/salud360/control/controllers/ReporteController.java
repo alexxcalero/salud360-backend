@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.control.dto.*;
 
 import pe.edu.pucp.salud360.control.services.ReporteService;
+import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -32,6 +33,12 @@ public class ReporteController {
     @PostMapping("/locales")
     public ResponseEntity<ReporteDTO> generarReporteLocales(@RequestBody ReporteLocalRequestDTO filtro) {
         ReporteDTO reporte = reporteService.generarReporteLocales(filtro);
+        return ResponseEntity.ok(reporte);
+    }
+
+    @PostMapping("/boleta")
+    public ResponseEntity<ReporteDTO> generarBoleta(@RequestBody PagoDTO pago) {
+        ReporteDTO reporte = reporteService.generarBoleta(pago);
         return ResponseEntity.ok(reporte);
     }
 }

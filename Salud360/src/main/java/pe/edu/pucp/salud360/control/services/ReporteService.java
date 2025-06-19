@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.control.services;
 
 import pe.edu.pucp.salud360.control.dto.*;
+import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
 
 public interface ReporteService {
 
@@ -9,4 +10,6 @@ public interface ReporteService {
     ReporteDTO generarReporteServicios(ReporteServicioRequestDTO filtro);
 
     ReporteDTO generarReporteLocales(ReporteLocalRequestDTO filtro);
+
+    ReporteDTO generarBoleta(PagoDTO pago);
 }
