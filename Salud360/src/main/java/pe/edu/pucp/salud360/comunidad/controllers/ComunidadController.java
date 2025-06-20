@@ -89,4 +89,6 @@ public class ComunidadController {
         List<CitaMedicaResumenDTO> lista = comunidadService.listarCitasMedicasPorComunidad(idComunidad);
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
+
+
 }
