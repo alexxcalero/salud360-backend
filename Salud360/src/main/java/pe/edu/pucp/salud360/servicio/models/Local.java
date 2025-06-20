@@ -37,10 +37,9 @@ public class Local {
     @Column(name = "ocupados", unique = false, nullable = true, updatable = true)
     private Integer ocupados;
 
-    @ElementCollection
-    @CollectionTable(name = "imagenesDeLocal", joinColumns = @JoinColumn(name = "idLocal"))
-    @Column(name = "urlImagen", unique = false, nullable = true, updatable = true)
-    private List<String> imagenes;
+    //Vamos a mapear ahora una unicaImagen
+    @Column(name = "urlImagen")
+    private String imagen;
 
     @Column(name = "tipoServicio", unique = false, nullable = false, updatable = true)
     private String tipoServicio;

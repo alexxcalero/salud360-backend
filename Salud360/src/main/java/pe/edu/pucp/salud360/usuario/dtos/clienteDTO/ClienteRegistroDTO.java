@@ -17,6 +17,8 @@ public class ClienteRegistroDTO {
     private String correo;
     private String contrasenha;
     private String sexo;
+    //Imagen
+    private String fotoPerfil;
     private String telefono;
     private LocalDate fechaNacimiento;
     private String direccion;

@@ -15,6 +15,7 @@ public class UsuarioPerfilDTO {
     private String telefono;
     private String direccion;
     private String sexo;
+    private String fotoPerfil;
     private LocalDate fechaNacimiento;
     private String numeroDocumento;
     private Integer idTipoDocumento;

@@ -23,12 +23,13 @@ public class ComunidadDTO {
     private String nombre;
     private String descripcion;
     private String proposito;
-    private List<String> imagenes;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
     private Integer cantMiembros;
     private Double calificacion;
+    //Ahora solo 1 imagen
+    private String imagen;
 
 
     private List<ServicioResumenDTO> servicios; //agregado

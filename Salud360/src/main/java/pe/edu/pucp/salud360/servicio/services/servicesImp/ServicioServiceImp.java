@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
@@ -10,6 +11,7 @@ import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 import pe.edu.pucp.salud360.servicio.services.ServicioService;
+import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,10 +27,15 @@ public class ServicioServiceImp implements ServicioService {
     @Autowired
     private ServicioMapper servicioMapper;
 
+    @Autowired
+    private S3UrlGenerator s3UrlGenerator;
+
     @Override
     public ServicioDTO crearServicio(ServicioDTO dto) {
         Servicio servicio = servicioMapper.mapToModel(dto);
         servicio.setActivo(true);
+        // Procesar imágenes
+        servicio.setImagen(dto.getImagen());
         servicio.setFechaCreacion(LocalDateTime.now());
 
         return servicioMapper.mapToDTO(servicioRepository.save(servicio));
@@ -42,7 +49,7 @@ public class ServicioServiceImp implements ServicioService {
         Servicio servicio = optional.get();
         servicio.setNombre(dto.getNombre());
         servicio.setDescripcion(dto.getDescripcion());
-        servicio.setImagenes(dto.getImagenes());
+        servicio.setImagen(dto.getImagen());
         servicio.setTipo(dto.getTipo());
 
         return servicioMapper.mapToDTO(servicioRepository.save(servicio));
@@ -72,6 +79,11 @@ public class ServicioServiceImp implements ServicioService {
     @Override
     public List<ServicioVistaAdminDTO> listarServiciosTodos() {
         return servicioRepository.findAll().stream()
+                .peek(servicio -> {
+                    if (servicio.getImagen() != null) {
+                        servicio.setImagen(s3UrlGenerator.generarUrlLectura(servicio.getImagen()));
+                    }
+                })
                 .map(servicioMapper::mapToVistaAdminDTO)
                 .collect(Collectors.toList());
     }
@@ -80,6 +92,11 @@ public class ServicioServiceImp implements ServicioService {
     public List<ServicioVistaClienteDTO> listarServiciosClientes() {
         return servicioRepository.findAll().stream()
                 .filter(servicio -> Boolean.TRUE.equals(servicio.getActivo()))
+                .peek(servicio -> {
+                    if (servicio.getImagen() != null) {
+                        servicio.setImagen(s3UrlGenerator.generarUrlLectura(servicio.getImagen()));
+                    }
+                })
                 .map(servicioMapper::mapToVistaClienteDTO)
                 .collect(Collectors.toList());
     }
@@ -87,8 +104,13 @@ public class ServicioServiceImp implements ServicioService {
 
     @Override
     public ServicioVistaAdminDTO buscarServicioPorId(Integer id) {
-        return servicioRepository.findById(id)
-                .map(servicioMapper::mapToVistaAdminDTO)
-                .orElse(null);
+        Servicio servicio = servicioRepository.findById(id).orElse(null);
+        if (servicio == null) return null;
+
+        if (servicio.getImagen() != null) {
+            servicio.setImagen(s3UrlGenerator.generarUrlLectura(servicio.getImagen()));
+        }
+
+        return servicioMapper.mapToVistaAdminDTO(servicio);
     }
 }

@@ -26,10 +26,9 @@ public class Servicio {
     @Column(name = "descripcion", unique = false, nullable = false, updatable = true)
     private String descripcion;
 
-    @ElementCollection
-    @CollectionTable(name = "imagenesDeServicio", joinColumns = @JoinColumn(name = "idServicio"))
-    @Column(name = "urlImagen", unique = false, nullable = true, updatable = true)
-    private List<String> imagenes;
+    //Vamos a mapear ahora una unicaImagen
+    @Column(name = "urlImagen")
+    private String imagen;
 
     @Column(name = "tipo", unique = false, nullable = false, updatable = true)
     private String tipo;

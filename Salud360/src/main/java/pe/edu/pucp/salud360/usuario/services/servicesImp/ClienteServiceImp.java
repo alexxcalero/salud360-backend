@@ -128,6 +128,7 @@ public class ClienteServiceImp implements ClienteService {
         cliente.setApellidos(dto.getApellido());
         cliente.setTelefono(dto.getTelefono());
         cliente.setDireccion(dto.getDireccion());
+        cliente.setFotoPerfil(dto.getFotoPerfil());
         cliente.setSexo(dto.getSexo());
         cliente.setFechaNacimiento(dto.getFechaNacimiento());
         cliente.setNumeroDocumento(dto.getNumeroDocumento());
@@ -154,6 +155,7 @@ public class ClienteServiceImp implements ClienteService {
             cliente.setApellidos(clienteDTO.getApellidos());
             cliente.setNumeroDocumento(clienteDTO.getNumeroDocumento());
             cliente.setSexo(clienteDTO.getSexo());
+            cliente.setFotoPerfil((clienteDTO.getFotoPerfil()));
             cliente.setTelefono(clienteDTO.getTelefono());
             cliente.setFechaNacimiento(clienteDTO.getFechaNacimiento());
             cliente.setDireccion(clienteDTO.getDireccion());
@@ -239,4 +241,17 @@ public class ClienteServiceImp implements ClienteService {
                 .map(reservaMapper::mapToDTO)
                 .toList();
     }
+
+    //YA NO LO USAMOS PORQUE SE ACTUALIZA EN actualizarClienteVistaPer
+//    @Override
+//    public UsuarioVistaClienteDTO actualizarFotoPerfil(Integer idUsuario, String fotoPerfil) {
+//        if(usuarioRepository.findById(idUsuario).isPresent()){
+//            Usuario usuario = usuarioRepository.findById(idUsuario).get();
+//            usuario.setFotoPerfil(fotoPerfil);
+//            Usuario usuarioActualizado = usuarioRepository.save(usuario);
+//            return usuarioMapper.mapToVistaClienteDTO(usuarioActualizado);
+//        } else {
+//            return null;
+//        }
+//    }
 }

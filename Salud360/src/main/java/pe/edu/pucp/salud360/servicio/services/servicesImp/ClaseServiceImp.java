@@ -2,6 +2,9 @@ package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.pucp.salud360.control.models.ReglasDeNegocio;
+import pe.edu.pucp.salud360.control.repositories.ReglasDeNegocioRepository;
 import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
@@ -28,11 +31,16 @@ public class ClaseServiceImp implements ClaseService {
     private final ClaseMapper claseMapper;
     private final LocalMapper localMapper;
     private final LocalRepository localRepository;
+    private final ReglasDeNegocioRepository reglasDeNegocioRepository;
 
     @Override
+    @Transactional
     public ClaseDTO crearClase(ClaseDTO dto) {
         Local local = localRepository.findById(dto.getLocal().getIdLocal())
                 .orElseThrow(() -> new RuntimeException("Local no encontrado"));
+
+        ReglasDeNegocio reglas = reglasDeNegocioRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("Regla de negocio no encontrada"));
 
         List<Clase> clasesDelLocal = local.getClases();
 
@@ -53,6 +61,7 @@ public class ClaseServiceImp implements ClaseService {
             }
         }
 
+        claseCreada.setCapacidad(reglas.getMaxCapacidad());
         claseCreada.setCantAsistentes(0);
         claseCreada.setEstado("Disponible");
         claseCreada.setActivo(true);
@@ -65,6 +74,7 @@ public class ClaseServiceImp implements ClaseService {
     }
 
     @Override
+    @Transactional
     public ClaseDTO actualizarClase(Integer idClase, ClaseDTO dto) {
         Optional<Clase> optional = claseRepository.findById(idClase);
         if (optional.isEmpty()) return null;
@@ -96,23 +106,14 @@ public class ClaseServiceImp implements ClaseService {
         clase.setFecha(dto.getFecha());
         clase.setHoraInicio(dto.getHoraInicio());
         clase.setHoraFin(dto.getHoraFin());
-        clase.setCapacidad(dto.getCapacidad());
+        //clase.setCapacidad(dto.getCapacidad());  // No se debe modificar la capacidad
         //clase.setEstado(dto.getEstado());
 
         return claseMapper.mapToDTO(claseRepository.save(clase));
     }
 
     private boolean existeCruceDeHorarios(LocalTime horaInicio, LocalTime horaFin, LocalTime horaInicioNueva, LocalTime horaFinNueva) {
-        if(horaInicioNueva.equals(horaInicio))
-            return true;
-        else if(horaInicioNueva.isBefore(horaInicio))
-            if(horaFinNueva.isAfter(horaInicio))
-                return true;
-        else
-            if(horaInicioNueva.isBefore(horaFin))
-                return true;
-
-        return false;
+        return horaInicioNueva.isBefore(horaFin) && horaFinNueva.isAfter(horaInicio);
     }
 
     @Override
@@ -123,7 +124,7 @@ public class ClaseServiceImp implements ClaseService {
 
             for(Reserva r : clase.getReservas()) {
                 if(r.getEstado().equals("Confirmada"))
-                    throw new IllegalStateException("No se puede actualizar esta clase, debido a que ya ha sido reservada por un cliente.");
+                    throw new IllegalStateException("No se puede eliminar esta clase, debido a que ya ha sido reservada por un cliente.");
             }
 
             clase.setActivo(false);

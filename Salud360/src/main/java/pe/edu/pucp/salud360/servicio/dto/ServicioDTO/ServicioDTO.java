@@ -13,7 +13,8 @@ public class ServicioDTO {
     private Integer idServicio;
     private String nombre;
     private String descripcion;
-    private List<String> imagenes;
+    //Ahora solo 1 imagen
+    private String imagen;
     //private List<LocalResumenDTO> locales;
     private String tipo;
 }
