@@ -113,10 +113,12 @@ public class ComunidadServiceImp implements ComunidadService {
         //comunidad.setCantMiembros(dto.getCantMiembros());
         comunidad.setCalificacion(dto.getCalificacion());
 
-        // 1. Actualizar membresías (elimina previas no incluidas si es reemplazo total)
         if (dto.getMembresias() != null) {
             List<Membresia> membresiasActualizadas = new ArrayList<>();
             List<Integer> idsDesdeFrontend = new ArrayList<>();
+
+            ReglasDeNegocio reglas = reglasDeNegocioRepository.findById(1)
+                    .orElseThrow(() -> new RuntimeException("Regla de negocio no encontrada"));
 
             for (MembresiaResumenDTO m : dto.getMembresias()) {
                 Membresia membresia;
@@ -124,7 +126,7 @@ public class ComunidadServiceImp implements ComunidadService {
                 if (m.getIdMembresia() != null) {
                     // Ya existe, buscar
                     membresia = membresiaRepository.findById(m.getIdMembresia()).orElse(null);
-                    if (membresia == null) continue; // puede lanzar error si prefieres
+                    if (membresia == null) continue;
 
                     idsDesdeFrontend.add(m.getIdMembresia());
                 } else {
@@ -133,23 +135,27 @@ public class ComunidadServiceImp implements ComunidadService {
                     membresia.setFechaCreacion(LocalDateTime.now());
                     membresia.setComunidad(comunidad);
                     membresia.setActivo(true);
+                    membresia.setCantUsuarios(0); // al inicio debe ser 0
+
+                    if (m.getConTope()) {
+                        membresia.setConTope(true);
+                        membresia.setMaxReservas(reglas.getMaxReservas());
+                    } else {
+                        membresia.setConTope(false);
+                        membresia.setMaxReservas(-1);
+                    }
                 }
 
                 membresia.setNombre(m.getNombre());
                 membresia.setTipo(m.getTipo());
-                //membresia.setConTope(m.getConTope());  // No se debe modificar cant usuarios, ni maxreservas
-                //membresia.setCantUsuarios(m.getCantUsuarios());
-                //membresia.setMaxReservas(m.getMaxReservas());
                 membresia.setPrecio(m.getPrecio());
                 membresia.setDescripcion(m.getDescripcion());
 
                 membresiasActualizadas.add(membresia);
             }
 
-            // Buscar las actuales en BD asociadas a esta comunidad
+            // Eliminar las membresías no incluidas
             List<Membresia> existentes = membresiaRepository.findByComunidad(comunidad);
-
-            // Filtrar las que ya no están en el frontend
             for (Membresia existente : existentes) {
                 if (existente.getIdMembresia() != null && !idsDesdeFrontend.contains(existente.getIdMembresia())) {
                     membresiaRepository.delete(existente);
@@ -157,7 +163,7 @@ public class ComunidadServiceImp implements ComunidadService {
             }
 
             membresiaRepository.saveAll(membresiasActualizadas);
-            comunidad.setMembresias(membresiasActualizadas); // opcional: si usas lazy, puede omitirse
+            comunidad.setMembresias(membresiasActualizadas);
         }
 
 
