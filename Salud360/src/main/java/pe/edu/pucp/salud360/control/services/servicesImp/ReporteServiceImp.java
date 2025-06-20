@@ -304,7 +304,7 @@ public class ReporteServiceImp implements ReporteService {
         htmlBuilder.append("<p><strong>BOLETA:</strong> B001-").append(pago.getIdPago()).append("</p>");
         htmlBuilder.append("<p><strong>FECHA:</strong> ").append(pago.getFechaPago().toLocalDate()).append("</p>");
         htmlBuilder.append("<p><strong>HORA:</strong> ").append(pago.getFechaPago().toLocalTime().withNano(0)).append("</p>");
-        htmlBuilder.append("<p><strong>ID AFILIACIÓN:</strong> ").append(pago.getIdAfiliacion()).append("</p>");
+        htmlBuilder.append("<p><strong>ID AFILIACIÓN:</strong> ").append(pago.getAfiliacion().getIdAfiliacion()).append("</p>");
         htmlBuilder.append("<p><strong>MEDIO DE PAGO:</strong> ").append(pago.getMedioDePago().getNcuenta(), 0, 4).append("****</p>");
 
         htmlBuilder.append("<table>");

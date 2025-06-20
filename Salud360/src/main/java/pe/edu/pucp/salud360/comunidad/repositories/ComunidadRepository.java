@@ -41,7 +41,7 @@ AND a.id_membresia IN (
     SELECT m.id_membresia FROM ingesoft.membresia m WHERE m.id_comunidad = c.id_comunidad
 )
 WHERE cc.id_cliente = :idCliente
-AND (a.estado IS NULL OR a.estado NOT IN ('Activa'))
+AND (a.estado IS NULL OR a.estado NOT IN ('Activado'))
 """, nativeQuery = true)
     List<Comunidad> findComunidadesInactivasDeCliente(@Param("idCliente") Integer idCliente);
 
@@ -55,7 +55,7 @@ AND a.id_membresia IN (
     SELECT m.id_membresia FROM ingesoft.membresia m WHERE m.id_comunidad = c.id_comunidad
 )
 WHERE cc.id_cliente = :idCliente
-AND (a.estado IS NULL OR a.estado IN ('Activa'))
+AND (a.estado IS NULL OR a.estado IN ('Activado'))
 """, nativeQuery = true)
     List<Comunidad> findComunidadesActivasDeCliente(@Param("idCliente") Integer idCliente);
 }
