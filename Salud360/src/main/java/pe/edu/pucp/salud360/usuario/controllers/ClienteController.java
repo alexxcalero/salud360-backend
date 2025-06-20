@@ -106,7 +106,7 @@ public class ClienteController {
         return comunidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(comunidades);
     }
 
-    @GetMapping("/{idCliente}")
+    @GetMapping("/{idCliente}/pagos-cliente")
     public ResponseEntity<List<PagoDTO>> listarPagosPorCliente(@PathVariable Integer idCliente) {
 
         List<PagoDTO> pagos = pagoService.obtenerPagosPorCliente(idCliente);
