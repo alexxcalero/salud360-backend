@@ -32,7 +32,7 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:5173")); // frontend
+                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://ec2-3-226-224-118.compute-1.amazonaws.com:5173")); // frontend
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
                     config.setAllowCredentials(true); // ✅ permite cookies
