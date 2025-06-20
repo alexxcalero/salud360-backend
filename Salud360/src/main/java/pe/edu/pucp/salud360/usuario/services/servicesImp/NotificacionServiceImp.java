@@ -35,7 +35,9 @@ public class NotificacionServiceImp implements NotificacionService {
     private final NotificacionMapper notificacionMapper;
     @Autowired
     private TemplateEngine templateEngine;
-    @Value("A")//${spring.sendgrid.api-key}
+
+    @Value("${spring.sendgrid.api-key}")//${spring.sendgrid.api-key}
+
     private String sendGridApiKey;
 
     @Override

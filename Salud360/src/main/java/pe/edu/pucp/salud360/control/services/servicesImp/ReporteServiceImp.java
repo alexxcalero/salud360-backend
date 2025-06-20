@@ -304,7 +304,7 @@ public class ReporteServiceImp implements ReporteService {
         htmlBuilder.append("<p><strong>BOLETA:</strong> B001-").append(pago.getIdPago()).append("</p>");
         htmlBuilder.append("<p><strong>FECHA:</strong> ").append(pago.getFechaPago().toLocalDate()).append("</p>");
         htmlBuilder.append("<p><strong>HORA:</strong> ").append(pago.getFechaPago().toLocalTime().withNano(0)).append("</p>");
-        htmlBuilder.append("<p><strong>ID AFILIACIÓN:</strong> ").append(pago.getIdAfiliacion()).append("</p>");
+        htmlBuilder.append("<p><strong>ID AFILIACIÓN:</strong> ").append(pago.getAfiliacion().getIdAfiliacion()).append("</p>");
         htmlBuilder.append("<p><strong>MEDIO DE PAGO:</strong> ").append(pago.getMedioDePago().getNcuenta(), 0, 4).append("****</p>");
 
         htmlBuilder.append("<table>");
@@ -329,4 +329,97 @@ public class ReporteServiceImp implements ReporteService {
         reporte.setPdf(pdfBytes);
         return reporte;
     }
+    @Override
+    public String generarHTMLVistaPreviaUsuarios(ReporteUsuarioRequestDTO filtro) {
+        List<Cliente> usuarios = usuarioRepository.findAll();
+        Map<String, Integer> conteoComunidadMembresia = new HashMap<>();
+        StringBuilder htmlBuilder = new StringBuilder();
+
+        htmlBuilder.append("<html><head>");
+        htmlBuilder.append("<style>");
+        htmlBuilder.append("body { font-family: Arial, sans-serif; padding: 20px; }");
+        htmlBuilder.append("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
+        htmlBuilder.append("th, td { border: 1px solid #aaa; padding: 8px; text-align: left; }");
+        htmlBuilder.append("</style>");
+        htmlBuilder.append("</head><body>");
+
+        htmlBuilder.append("<h2>Listado de usuarios y sus comunidades y membresías</h2>");
+        htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
+
+        htmlBuilder.append("<table>");
+        htmlBuilder.append("<tr><th>IDUsuario</th><th>Nombre</th><th>Comunidad - Membresía</th></tr>");
+
+        for (Cliente usuario : usuarios) {
+            if (usuario.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
+                    usuario.getFechaCreacion().isBefore(filtro.getFechaFin().plusDays(1).atStartOfDay())) {
+
+                List<Comunidad> comunidades = usuario.getComunidades();
+                List<String> combinaciones = new ArrayList<>();
+
+                for (Comunidad comunidad : comunidades) {
+                    String nombreComunidad = comunidad.getNombre();
+
+                    for (Afiliacion af : usuario.getAfiliaciones()) {
+                        if (Objects.equals(af.getMembresia().getComunidad().getIdComunidad(), comunidad.getIdComunidad())) {
+                            String combinacion = STR."\{nombreComunidad} - \{af.getMembresia().getNombre()}";
+                            combinaciones.add(combinacion);
+                            conteoComunidadMembresia.merge(combinacion, 1, Integer::sum);
+                        }
+                    }
+                }
+
+                htmlBuilder.append("<tr>");
+                htmlBuilder.append("<td>").append(usuario.getIdCliente()).append("</td>");
+                htmlBuilder.append("<td>").append(usuario.getNombres()).append("</td>");
+                htmlBuilder.append("<td>").append(String.join(", ", combinaciones)).append("</td>");
+                htmlBuilder.append("</tr>");
+            }
+        }
+
+        htmlBuilder.append("</table>");
+
+        // Gráfico pastel en base64
+        DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+        for (Map.Entry<String, Integer> entry : conteoComunidadMembresia.entrySet()) {
+            dataset.setValue(entry.getKey(), entry.getValue());
+        }
+
+        JFreeChart chart = ChartFactory.createPieChart(
+                "Distribución de usuarios por comunidad y membresía",
+                dataset, true, true, false
+        );
+
+        String base64Image = "";
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ChartUtils.writeChartAsPNG(baos, chart, 600, 400);
+            byte[] bytes = baos.toByteArray();
+            base64Image = Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (!base64Image.isEmpty()) {
+            htmlBuilder.append("<h3>Distribución de usuarios por comunidad y membresía</h3>");
+            htmlBuilder.append("<img src='data:image/png;base64,")
+                    .append(base64Image)
+                    .append("' width='600'/>");
+        }
+
+        htmlBuilder.append("<h3>Resumen de usuarios por comunidad y membresía</h3>");
+        htmlBuilder.append("<table>");
+        htmlBuilder.append("<tr><th>Comunidad - Membresía</th><th>Total Usuarios</th></tr>");
+
+        for (Map.Entry<String, Integer> entry : conteoComunidadMembresia.entrySet()) {
+            htmlBuilder.append("<tr>");
+            htmlBuilder.append("<td>").append(entry.getKey()).append("</td>");
+            htmlBuilder.append("<td>").append(entry.getValue()).append("</td>");
+            htmlBuilder.append("</tr>");
+        }
+
+        htmlBuilder.append("</table>");
+        htmlBuilder.append("</body></html>");
+
+        return htmlBuilder.toString();
+    }
+
 }

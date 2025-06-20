@@ -24,13 +24,13 @@ public class Administrador {
     @Column(name = "apellidos", unique = false, nullable = false, updatable = true)
     private String apellidos;
 
-    @Column(name = "numeroDocumento", unique = true, nullable = false, updatable = true)
+    @Column(name = "numeroDocumento", unique = false, nullable = false, updatable = true)
     private String numeroDocumento;
 
     @Column(name = "sexo", unique = false, nullable = false, updatable = true)
     private String sexo;
 
-    @Column(name = "telefono", unique = true, nullable = false, updatable = true)
+    @Column(name = "telefono", unique = false, nullable = false, updatable = true)
     private String telefono;
 
     @Column(name = "fotoPerfil", unique = false, nullable = true, updatable = true)

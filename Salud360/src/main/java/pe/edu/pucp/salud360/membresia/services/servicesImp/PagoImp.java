@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
+import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
 import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
 import pe.edu.pucp.salud360.membresia.mappers.PagoMapper;
 import pe.edu.pucp.salud360.membresia.models.Pago;
@@ -28,6 +29,9 @@ public class PagoImp implements PagoService {
 
     @Autowired
     private final AfiliacionRepository afiliacionRepository;
+
+    @Autowired
+    private final AfiliacionMapper afiliacionMapper;
 
     @Autowired
     private final MedioDePagoRepository medioDePagoRepository;
@@ -70,7 +74,7 @@ public class PagoImp implements PagoService {
         Pago pago = pagoOptional.get();
         pago.setMonto(dto.getMonto());
         pago.setFechaPago(dto.getFechaPago());
-        pago.setAfiliacion(afiliacionRepository.findById(dto.getIdAfiliacion()).orElse(null));
+        pago.setAfiliacion(afiliacionRepository.findById(dto.getAfiliacion().getIdAfiliacion()).orElse(null));
         pago.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
         return convertirADTO(pagoRepository.save(pago));
@@ -86,8 +90,8 @@ public class PagoImp implements PagoService {
                 pago.getIdPago(),
                 pago.getMonto(),
                 pago.getFechaPago(),
-                pago.getAfiliacion() != null ? pago.getAfiliacion().getIdAfiliacion() : null,
-                pago.getMedioDePago() != null ? medioDePagoMapper.mapToMedioDePagoDTO(pago.getMedioDePago()) : null
+                pago.getMedioDePago() != null ? medioDePagoMapper.mapToMedioDePagoDTO(pago.getMedioDePago()) : null,
+                pago.getAfiliacion() != null ? afiliacionMapper.mapToAfiliacionDTO(pago.getAfiliacion()) : null
         );
     }
 
@@ -95,7 +99,7 @@ public class PagoImp implements PagoService {
         Pago pago = new Pago();
         pago.setMonto(dto.getMonto());
         pago.setFechaPago(dto.getFechaPago());
-        pago.setAfiliacion(afiliacionRepository.findById(dto.getIdAfiliacion()).orElse(null));
+        pago.setAfiliacion(afiliacionRepository.findById(dto.getAfiliacion().getIdAfiliacion()).orElse(null));
         pago.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
         return pago;
     }
