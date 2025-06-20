@@ -121,7 +121,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         Afiliacion af = afiliacionRepository.findById(idAfiliacion)
                 .orElseThrow(() -> new EntityNotFoundException("Afiliación no encontrada"));
 
-        af.setEstado("Activa");
+        af.setEstado("Activado");
         af.setFechaReactivacion(LocalDate.now()); // o LocalDateTime.now() si prefieres
         afiliacionRepository.save(af);
         return true;
