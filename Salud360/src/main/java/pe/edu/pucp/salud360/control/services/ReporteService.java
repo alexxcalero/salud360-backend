@@ -12,4 +12,6 @@ public interface ReporteService {
     ReporteDTO generarReporteLocales(ReporteLocalRequestDTO filtro);
 
     ReporteDTO generarBoleta(PagoDTO pago);
+
+    String generarHTMLVistaPreviaUsuarios(ReporteUsuarioRequestDTO filtro);
 }
