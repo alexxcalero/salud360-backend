@@ -46,10 +46,8 @@ public class ReservaServiceImp implements ReservaService {
     @Override
     @Transactional
     public ReservaDTO crearReserva(ReservaDTO dto) {
-        Reserva reserva = reservaMapper.mapToModel(dto);
+        Reserva reserva;
 
-        reserva.setDescripcion(dto.getDescripcion());
-        reserva.setNombreArchivo(dto.getNombreArchivo());
         // Asignar relaciones
         Cliente cliente = clienteRepository.findById(dto.getCliente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -77,6 +75,34 @@ public class ReservaServiceImp implements ReservaService {
 
             claseReservada = null;
         }
+
+        Reserva reservaCancelada = cliente.getReservas().stream()
+                .filter(r -> r.getEstado().equals("Cancelada"))
+                .filter(r -> (claseReservada != null && r.getClase() != null &&
+                        r.getClase().getIdClase().equals(claseReservada.getIdClase())) ||
+                        (citaMedicaReservada != null && r.getCitaMedica() != null &&
+                        r.getCitaMedica().getIdCitaMedica().equals(citaMedicaReservada.getIdCitaMedica())))
+                .findFirst()
+                .orElse(null);
+
+        boolean puedeReutilizarReserva = false;
+
+        if(claseReservada != null && reservaCancelada != null) {
+            // Si hay una reserva cancelada para esta clase, verificar capacidad
+            puedeReutilizarReserva = !(claseReservada.getEstado().equals("Completa"));
+        } else if (citaMedicaReservada != null && reservaCancelada != null) {
+            // Si hay una reserva cancelada para esta cita, verificar que nadie más la haya tomado
+            boolean yaReservada = citaMedicaReservada.getReservas().stream()
+                    .anyMatch(r -> r.getEstado().equals("Confirmada"));
+            puedeReutilizarReserva = !yaReservada;
+        }
+
+        if(reservaCancelada != null && puedeReutilizarReserva)
+            // Reutilizar reserva cancelada
+            reserva = reservaCancelada;
+        else
+            // Crear nueva reserva
+            reserva = reservaMapper.mapToModel(dto);
 
         List<Membresia> membresiasDelCliente = new ArrayList<>();
         for(Afiliacion afiliacion : cliente.getAfiliaciones()) {
@@ -146,7 +172,7 @@ public class ReservaServiceImp implements ReservaService {
                 horaFin = r.getCitaMedica().getHoraFin();
             }
 
-            if (fecha.equals(fechaReserva))
+            if(fecha.equals(fechaReserva))
                 if(existeCruceDeHorarios(horaInicio, horaFin, horaInicioReserva, horaFinReserva))
                     throw new IllegalStateException("El cliente ya tiene una clase o cita reservada para esa hora.");
         }
@@ -159,7 +185,8 @@ public class ReservaServiceImp implements ReservaService {
                 claseReservada.setEstado("Completa");
             }
             claseReservada.setCantAsistentes(claseReservada.getCantAsistentes() + 1);
-            claseReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la clase
+            if(!puedeReutilizarReserva)  // Cuando no se reutilice la reserva cancelada previamente
+                claseReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la clase
             claseReservada.getClientes().add(cliente);
             reserva.setClase(claseReservada);
             cliente.getClases().add(claseReservada);
@@ -169,7 +196,8 @@ public class ReservaServiceImp implements ReservaService {
                 throw new IllegalStateException("La cita ya está reservada.");
             }
             citaMedicaReservada.setEstado("Reservada");
-            citaMedicaReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la cita
+            if(!puedeReutilizarReserva)  // Cuando no se reutilice la reserva cancelada previamente
+                citaMedicaReservada.getReservas().add(reserva);  // Guardo la reserva que estoy generando en el arreglo de reservas de la cita
             citaMedicaReservada.setCliente(cliente);
             reserva.setCitaMedica(citaMedicaReservada);
             cliente.getCitasMedicas().add(citaMedicaReservada);
@@ -177,11 +205,15 @@ public class ReservaServiceImp implements ReservaService {
         }
 
         reserva.setEstado("Confirmada");
+        reserva.setDescripcion(dto.getDescripcion());
+        reserva.setNombreArchivo(dto.getNombreArchivo());
         reserva.setCliente(cliente);
         reserva.setComunidad(comunidad);  // Porciaca lo seteo, pero creo que el mapper ya lo asigna
         cliente.getReservas().add(reserva);
         reserva.setFechaReserva(LocalDateTime.now());
         afiliacion.getPeriodo().getLast().setCantReservas(afiliacion.getPeriodo().getLast().getCantReservas() + 1);
+        if(puedeReutilizarReserva)  // Si se reutiliza la reserva preciamente cancelada, se coloca en null la fecha de cancelacion
+            reserva.setFechaCancelacion(null);
         afiliacionRepository.save(afiliacion);
 
         return reservaMapper.mapToDTO(reservaRepository.save(reserva));
@@ -195,25 +227,31 @@ public class ReservaServiceImp implements ReservaService {
             Reserva reserva = optional.get();
 
             LocalTime horaInicio;
+            LocalDate fechaReserva;
             Clase clase;
             CitaMedica citaMedica;
 
             if(reserva.getClase() != null) {
                 clase = claseRepository.findById(reserva.getClase().getIdClase())
                         .orElseThrow(() -> new RuntimeException("Clase no encontrada"));
+                fechaReserva = clase.getFecha();
                 horaInicio = clase.getHoraInicio();
                 citaMedica = null;
             } else {
                 citaMedica = citaMedicaRepository.findById(reserva.getCitaMedica().getIdCitaMedica())
                         .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
+                fechaReserva = citaMedica.getFecha();
                 horaInicio = citaMedica.getHoraInicio();
                 clase = null;
             }
 
             // No se va a permitir la cancelacion de la reserva si es faltan menos de 30 minutos para que empiece la clase o cita
-            LocalTime horaActual = LocalTime.now();
-            if(horaActual.isAfter(horaInicio.minusMinutes(30)))
-                throw new IllegalStateException("No se puede cancelar la reserva. Solo se permiten cancelaciones con al menos 30 minutos de anticipación.");
+            LocalDate fechaActual = LocalDate.now();
+            if(fechaActual.equals(fechaReserva)) {
+                LocalTime horaActual = LocalTime.now();
+                if(horaActual.isAfter(horaInicio.minusMinutes(30)))
+                    throw new IllegalStateException("No se puede cancelar la reserva. Solo se permiten cancelaciones con al menos 30 minutos de anticipación.");
+            }
 
             // Si llegamos a este punto, es xq faltan mas de 30 minutos para que empiece la clase o cita, por ende, se puede cancelar
             reserva.setEstado("Cancelada");

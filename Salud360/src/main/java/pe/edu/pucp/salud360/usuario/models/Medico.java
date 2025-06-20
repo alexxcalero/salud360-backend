@@ -38,6 +38,7 @@ public class Medico {
     @Column(name = "descripcion", unique = false, nullable = false, updatable = true)
     private String descripcion;
 
+    //Vamos a mapear ahora una unicaImagen
     @Column(name = "fotoPerfil", unique = false, nullable = true, updatable = true)
     private String fotoPerfil;
 
@@ -49,6 +50,7 @@ public class Medico {
 
     @Column(name = "fechaDesactivacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesactivacion;
+
 
     @ManyToOne
     @JoinColumn(name = "idTipoDocumento", unique = false, nullable = false, updatable = true)

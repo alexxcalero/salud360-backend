@@ -11,6 +11,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,11 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @Service
 public class S3Service {
@@ -67,5 +76,25 @@ public class S3Service {
         } catch (IOException e) {
             throw new RuntimeException("Error al subir archivo a S3", e);
         }
+    }
+
+    public Resource obtenerArchivo(String nombreArchivo) {
+        S3Client s3 = S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsSessionCredentials.create(accessKey, secretKey, sessionToken)
+                        )
+                )
+                .build();
+
+        ResponseInputStream<GetObjectResponse> inputStream = s3.getObject(
+                GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(nombreArchivo)
+                        .build()
+        );
+
+        return new InputStreamResource(inputStream);
     }
 }

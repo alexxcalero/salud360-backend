@@ -15,6 +15,7 @@ public class MedicoRegistroDTO {
     private String sexo;
     private String especialidad;
     private String descripcion;
+    //Ahora solo 1 imagen
     private String fotoPerfil;
     private TipoDocumentoResumenDTO tipoDocumento;
 }

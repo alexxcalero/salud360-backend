@@ -60,6 +60,7 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
         // Asignar el usuario al medio de pago
         medioDePago.setCliente(cliente);
         medioDePago.setActivo(true);
+        medioDePago.setTotalGastado(0.0);
         // Asignar la fecha de creación
         medioDePago.setFechaCreacion(LocalDateTime.now());
 

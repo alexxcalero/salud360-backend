@@ -16,15 +16,17 @@ import java.util.List;
         TestimonioMapper.class
 })
 public interface ComunidadMapper {
-
+    @Mapping(source = "imagen", target = "imagen")
     ComunidadDTO mapToDTO(Comunidad comunidad);
 
     @Mapping(target = "servicios", ignore = true)
     @Mapping(target = "membresias", ignore = true)
     @Mapping(target = "testimonios", ignore = true)
     @Mapping(target = "clientes", ignore = true)
+    @Mapping(source = "imagen", target = "imagen")
     Comunidad mapToModel(ComunidadDTO dto);
 
+    @Mapping(source = "imagen", target = "imagen")
     ComunidadResumenDTO mapToResumenDTO(Comunidad comunidad);
     List<ComunidadResumenDTO> mapToResumenList(List<Comunidad> comunidades);
 

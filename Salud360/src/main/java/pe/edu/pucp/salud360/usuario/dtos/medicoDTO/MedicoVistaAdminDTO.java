@@ -21,6 +21,7 @@ public class MedicoVistaAdminDTO {
     private String sexo;
     private String especialidad;
     private String descripcion;
+    //Ahora solo 1 imagen
     private String fotoPerfil;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
