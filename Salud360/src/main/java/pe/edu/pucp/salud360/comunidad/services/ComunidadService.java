@@ -21,4 +21,5 @@ public interface ComunidadService {
     ComunidadDTO obtenerComunidadAleatoriaExcluyendoCliente(Integer idCliente);
     List<ComunidadDTO> obtenerComunidadesExcluyendoCliente(Integer idCliente);
     List<ComunidadDTO> obtenerComunidadesInactivasCliente(Integer idCliente);
+    List<ComunidadDTO> obtenerComunidadesActivasCliente(Integer idCliente);
 }

@@ -86,6 +86,19 @@ public class AfiliacionServiceImp implements AfiliacionService {
     }
 
     @Override
+    public List<AfiliacionResumenDTO> listarAfiliacionesPorCliente(Integer idCliente) {
+        List<Afiliacion> afiliaciones = afiliacionRepository.findAfiliacionesActivasConComunidadByCliente(idCliente);
+        return afiliaciones.stream()
+                .map(afiliacionMapper::mapToAfiliacionDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
+
+    @Override
     public AfiliacionResumenDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto) {
         if (!afiliacionRepository.existsById(id)) return null;
         Optional<Afiliacion> oafiliacion = afiliacionRepository.findById(id);

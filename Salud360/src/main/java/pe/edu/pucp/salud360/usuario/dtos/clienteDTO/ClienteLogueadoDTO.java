@@ -39,7 +39,6 @@ public class ClienteLogueadoDTO {
     private LocalDateTime fechaCreacion;
     private TipoDocumentoResumenDTO tipoDocumento;
     private RolVistaClienteDTO rol;
-    //private UsuarioResumenDTO usuario;
     private List<ComunidadVistaClienteDTO> comunidades;
     private List<AfiliacionDTO> afiliaciones;
     private List<ReservaDTO> reservas;

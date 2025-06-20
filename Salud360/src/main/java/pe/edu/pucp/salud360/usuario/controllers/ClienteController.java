@@ -4,18 +4,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
+import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
+import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
 import pe.edu.pucp.salud360.membresia.services.PagoService;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
+import pe.edu.pucp.salud360.servicio.services.ReservaService;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioPerfilDTO;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.services.ClienteService;
 
 import java.time.LocalDateTime;
@@ -32,6 +37,7 @@ public class ClienteController {
     private final ClienteService clienteService;
     private final ComunidadService comunidadService;
     private final  PagoService pagoService;
+    private final AfiliacionService afiliacionService;
 
 
     @PutMapping("{idCliente}")
@@ -105,6 +111,21 @@ public class ClienteController {
         List<ComunidadDTO> comunidades = comunidadService.obtenerComunidadesInactivasCliente(idCliente);
         return comunidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(comunidades);
     }
+
+    @GetMapping("/comunidades-activas")
+    public ResponseEntity<List<ComunidadDTO>> obtenerComunidadesActivas(@RequestParam Integer idCliente) {
+        List<ComunidadDTO> comunidades = comunidadService.obtenerComunidadesActivasCliente(idCliente);
+        return comunidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(comunidades);
+    }
+
+    @GetMapping("/{idCliente}/afiliaciones-cliente")
+    public ResponseEntity<List<AfiliacionResumenDTO>> listarAfiliacionesPorCliente(@PathVariable Integer idCliente) {
+        List<AfiliacionResumenDTO> afiliaciones = afiliacionService.listarAfiliacionesPorCliente(idCliente);
+        return afiliaciones.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(afiliaciones);
+    }
+
+
+
 
     @GetMapping("/{idCliente}/pagos-cliente")
     public ResponseEntity<List<PagoDTO>> listarPagosPorCliente(@PathVariable Integer idCliente) {

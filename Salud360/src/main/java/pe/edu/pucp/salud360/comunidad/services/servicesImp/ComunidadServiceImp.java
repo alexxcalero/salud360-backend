@@ -277,6 +277,12 @@ public class ComunidadServiceImp implements ComunidadService {
                 .stream().map(comunidadMapper::mapToDTO).toList();
     }
 
+    @Override
+    public List<ComunidadDTO> obtenerComunidadesActivasCliente(Integer idCliente) {
+        return comunidadRepository.findComunidadesActivasDeCliente(idCliente)
+                .stream().map(comunidadMapper::mapToDTO).toList();
+    }
+
 
 
     @Override
