@@ -433,7 +433,7 @@ VALUES
   (1, 5, 1, '2025-06-11', '12:30:00', '13:30:00', true, 'Pendiente', now(), NULL);
 
 INSERT INTO ingesoft.mediodepago (id_medio_de_pago, id_cliente, ncuenta, cvv, vencimiento, tipo, activo, fecha_creacion, fecha_desactivacion)
-VALUES (1, 1, 1234 5678 9340 1123, 123, '2026-06-30 23:59:59', 'tarjeta_credito', true, now(), NULL);
+VALUES (1, 1, '1234 5678 9340 1123', 123, '2026-06-30 23:59:59', 'tarjeta_credito', true, now(), NULL);
 
 INSERT INTO ingesoft.afiliacion (id_afiliacion, id_cliente, id_medio_de_pago, id_membresia, fecha_afiliacion, fecha_desafiliacion, fecha_reactivacion, estado) VALUES (1, 1, 1, 1, now(), NULL, NULL, 'Activado');
 
@@ -547,7 +547,7 @@ INSERT INTO ingesoft.testimonio (
 ),
 (
     'Las sesiones de meditación me ayudaron mucho. Gracias a todos.',
-    4.8,
+    4.5,
     true,
     CURRENT_TIMESTAMP,
     NULL,
