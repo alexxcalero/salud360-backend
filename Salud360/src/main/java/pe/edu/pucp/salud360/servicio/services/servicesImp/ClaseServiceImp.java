@@ -7,7 +7,6 @@ import pe.edu.pucp.salud360.control.models.ReglasDeNegocio;
 import pe.edu.pucp.salud360.control.repositories.ReglasDeNegocioRepository;
 import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
-import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
 import pe.edu.pucp.salud360.servicio.models.Clase;
 import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
@@ -29,7 +28,6 @@ public class ClaseServiceImp implements ClaseService {
 
     private final ClaseRepository claseRepository;
     private final ClaseMapper claseMapper;
-    private final LocalMapper localMapper;
     private final LocalRepository localRepository;
     private final ReglasDeNegocioRepository reglasDeNegocioRepository;
 

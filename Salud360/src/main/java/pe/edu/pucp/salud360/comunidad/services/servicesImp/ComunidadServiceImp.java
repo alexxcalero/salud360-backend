@@ -59,8 +59,12 @@ public class ComunidadServiceImp implements ComunidadService {
 
         // Procesar imágenes
         comunidad.setImagen(dto.getImagen());
+        comunidad.setCantMiembros(0);
+        comunidad.setCalificacion(0.0);
         comunidad.setFechaCreacion(LocalDateTime.now());
         comunidad.setActivo(true);
+        comunidad.setTestimonios(new ArrayList<>());
+        comunidad.setClientes(new ArrayList<>());
         Comunidad guardada = comunidadRepository.save(comunidad);
 
         if (dto.getServicios() != null && !dto.getServicios().isEmpty()) {
@@ -78,7 +82,7 @@ public class ComunidadServiceImp implements ComunidadService {
                 Membresia membresia = Membresia.builder()
                     .nombre(m.getNombre())
                     .tipo(m.getTipo())
-                    .cantUsuarios(m.getCantUsuarios())
+                    .cantUsuarios(0)
                     .precio(m.getPrecio())
                     .descripcion(m.getDescripcion())
                     .conTope(m.getConTope())
@@ -111,7 +115,7 @@ public class ComunidadServiceImp implements ComunidadService {
         comunidad.setProposito(dto.getProposito());
         comunidad.setImagen(dto.getImagen());
         //comunidad.setCantMiembros(dto.getCantMiembros());
-        comunidad.setCalificacion(dto.getCalificacion());
+        //comunidad.setCalificacion(dto.getCalificacion());
 
         if (dto.getMembresias() != null) {
             List<Membresia> membresiasActualizadas = new ArrayList<>();
@@ -129,6 +133,11 @@ public class ComunidadServiceImp implements ComunidadService {
                     if (membresia == null) continue;
 
                     idsDesdeFrontend.add(m.getIdMembresia());
+
+                    // Bloquear edicion si tiene usuarios asociados
+                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
+                        throw new IllegalStateException("No se puede editar la membresía '" + membresia.getNombre() + "' porque tiene usuarios asociados.");
+                    }
                 } else {
                     // Nueva membresía
                     membresia = new Membresia();
@@ -158,6 +167,11 @@ public class ComunidadServiceImp implements ComunidadService {
             List<Membresia> existentes = membresiaRepository.findByComunidad(comunidad);
             for (Membresia existente : existentes) {
                 if (existente.getIdMembresia() != null && !idsDesdeFrontend.contains(existente.getIdMembresia())) {
+                    // Verificar si la membresiaa tiene usuarios asociados
+                    if (existente.getCantUsuarios() != null && existente.getCantUsuarios() > 0) {
+                        throw new IllegalStateException("No se puede eliminar la membresía '" + existente.getNombre() + "' porque tiene usuarios asociados.");
+                    }
+
                     membresiaRepository.delete(existente);
                 }
             }
