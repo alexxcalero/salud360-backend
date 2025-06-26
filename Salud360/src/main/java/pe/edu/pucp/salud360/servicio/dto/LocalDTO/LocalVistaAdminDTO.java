@@ -18,10 +18,7 @@ public class LocalVistaAdminDTO {
     private String descripcion;
     private String direccion;
     private String telefono;
-    private Integer aforo;
-    private Integer ocupados;
-    //Ahora solo 1 imagen
-    private String imagen;
+    private String imagen;  // Ahora solo 1 imagen
     private String tipoServicio;
     private Boolean activo;
     private LocalDateTime fechaCreacion;

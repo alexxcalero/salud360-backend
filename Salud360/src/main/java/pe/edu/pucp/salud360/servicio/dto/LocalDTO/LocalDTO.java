@@ -17,13 +17,10 @@ public class LocalDTO {
     private String descripcion;
     private String direccion;
     private String telefono;
-    private Integer aforo;
-    private Integer ocupados;
-    //Ahora solo 1 imagen
-    private String imagen;
+    private String imagen;  // Ahora solo 1 imagen
     private String tipoServicio;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaDesactivacion;
 
-    private Integer idServicio; // Relación simplificada para registrar el local con su servicio
+    private Integer idServicio;  // Relación simplificada para registrar el local con su servicio
 }

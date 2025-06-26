@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.pucp.salud360.control.dto.ReglasDeNegocioDTO;
 import pe.edu.pucp.salud360.control.services.ReglasDeNegocioService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reglas")
@@ -53,6 +55,19 @@ public class ReglasDeNegocioController {
         ReglasDeNegocioDTO reglasBuscadas = reglasDeNegocioService.buscarReglaDeNegocioPorId(idReglas);
         if(reglasBuscadas != null) {
             return new ResponseEntity<>(reglasBuscadas, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Para el desplegable de días de suspension
+    @GetMapping("/max-dias-suspension")
+    public ResponseEntity<Map<String, Integer>> obtenerMaxDiasSuspension() {
+        ReglasDeNegocioDTO reglasBuscadas = reglasDeNegocioService.buscarReglaDeNegocioPorId(1);
+        if(reglasBuscadas != null) {
+            Map<String, Integer> response = new HashMap<>();
+            response.put("maxDiasSuspension", reglasBuscadas.getMaxDiasSuspension());
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
