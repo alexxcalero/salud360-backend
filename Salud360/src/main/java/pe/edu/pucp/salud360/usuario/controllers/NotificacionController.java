@@ -1,5 +1,6 @@
 package pe.edu.pucp.salud360.usuario.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/notificaciones")
+@RequiredArgsConstructor
 public class NotificacionController {
-    @Autowired
-    private NotificacionService notificacionService;
+
+    private final NotificacionService notificacionService;
 
     @PostMapping
     public ResponseEntity<NotificacionDTO> crearNotificacion(@RequestBody NotificacionDTO notificacionDTO) {

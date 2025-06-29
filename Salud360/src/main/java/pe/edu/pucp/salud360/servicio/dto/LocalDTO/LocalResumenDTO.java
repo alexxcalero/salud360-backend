@@ -15,9 +15,6 @@ public class LocalResumenDTO {
     private String descripcion;
     private String direccion;
     private String tipoServicio;
-    private Integer aforo;
-    private Integer ocupados;
-    //Ahora solo 1 imagen
-    private String imagen;
+    private String imagen;  // Ahora solo 1 imagen
     private Boolean activo;
 }

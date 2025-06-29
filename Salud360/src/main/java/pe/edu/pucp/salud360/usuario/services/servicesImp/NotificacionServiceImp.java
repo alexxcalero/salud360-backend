@@ -33,8 +33,7 @@ public class NotificacionServiceImp implements NotificacionService {
 
     private final NotificacionRepository notificacionRepository;
     private final NotificacionMapper notificacionMapper;
-    @Autowired
-    private TemplateEngine templateEngine;
+    private final TemplateEngine templateEngine;
 
     @Value("${spring.sendgrid.api-key}")//${spring.sendgrid.api-key}
 

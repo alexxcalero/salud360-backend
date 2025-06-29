@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
-import pe.edu.pucp.salud360.membresia.mappers.MembresiaMapper;
+import pe.edu.pucp.salud360.control.models.ReglasDeNegocio;
+import pe.edu.pucp.salud360.control.repositories.ReglasDeNegocioRepository;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.models.Periodo;
@@ -27,7 +28,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -39,9 +39,9 @@ public class ReservaServiceImp implements ReservaService {
     private final ClienteRepository clienteRepository;
     private final ClaseRepository claseRepository;
     private final CitaMedicaRepository citaMedicaRepository;
-    private final MembresiaMapper membresiaMapper;
     private final ComunidadRepository comunidadRepository;
     private final AfiliacionRepository afiliacionRepository;
+    private final ReglasDeNegocioRepository reglasDeNegocioRepository;
 
     @Override
     @Transactional
@@ -52,8 +52,12 @@ public class ReservaServiceImp implements ReservaService {
         Cliente cliente = clienteRepository.findById(dto.getCliente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        LocalDate fechaReserva;
-        LocalTime horaInicioReserva;
+        // Recupero las reglas de negocio
+        ReglasDeNegocio reglas = reglasDeNegocioRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("Regla de negocio no encontrada"));
+
+        LocalDate fechaReserva, fechaMaxCancelacion;
+        LocalTime horaInicioReserva, horaMaxCancelacion;
         LocalTime horaFinReserva;
         Clase claseReservada;
         CitaMedica citaMedicaReservada;
@@ -65,6 +69,12 @@ public class ReservaServiceImp implements ReservaService {
             horaInicioReserva = claseReservada.getHoraInicio();
             horaFinReserva = claseReservada.getHoraFin();
 
+            fechaMaxCancelacion = fechaReserva;  // Dato para guardar en reserva
+
+            // Resto la hora de inicio de la cita menos el valor actual en la tabla
+            // de reglas de negocio y eso mas abajo se va asignar como atributo a la reserva
+            horaMaxCancelacion = horaInicioReserva.minusMinutes(reglas.getMaxTiempoCancelacion());
+
             citaMedicaReservada = null;
         } else {
             citaMedicaReservada = citaMedicaRepository.findById(dto.getCitaMedica().getIdCitaMedica())
@@ -72,6 +82,12 @@ public class ReservaServiceImp implements ReservaService {
             fechaReserva = citaMedicaReservada.getFecha();
             horaInicioReserva = citaMedicaReservada.getHoraInicio();
             horaFinReserva = citaMedicaReservada.getHoraFin();
+
+            fechaMaxCancelacion = fechaReserva;  // Dato para guardar en reserva
+
+            // Resto la hora de inicio de la cita menos el valor actual en la tabla
+            // de reglas de negocio y eso mas abajo se va asignar como atributo a la reserva
+            horaMaxCancelacion = horaInicioReserva.minusMinutes(reglas.getMaxTiempoCancelacion());
 
             claseReservada = null;
         }
@@ -205,6 +221,8 @@ public class ReservaServiceImp implements ReservaService {
         }
 
         reserva.setEstado("Confirmada");
+        reserva.setFechaMaxCancelacion(fechaMaxCancelacion);  // Lo guardo en la entidad reserva
+        reserva.setHoraMaxCancelacion(horaMaxCancelacion);  // Lo guardo en la entidad reserva
         reserva.setDescripcion(dto.getDescripcion());
         reserva.setNombreArchivo(dto.getNombreArchivo());
         reserva.setCliente(cliente);
@@ -226,34 +244,34 @@ public class ReservaServiceImp implements ReservaService {
         if(optional.isPresent()) {
             Reserva reserva = optional.get();
 
-            LocalTime horaInicio;
-            LocalDate fechaReserva;
+            //LocalTime horaInicio;
+            //LocalDate fechaReserva;
             Clase clase;
             CitaMedica citaMedica;
 
             if(reserva.getClase() != null) {
                 clase = claseRepository.findById(reserva.getClase().getIdClase())
                         .orElseThrow(() -> new RuntimeException("Clase no encontrada"));
-                fechaReserva = clase.getFecha();
-                horaInicio = clase.getHoraInicio();
+                //fechaReserva = clase.getFecha();
+                //horaInicio = clase.getHoraInicio();
                 citaMedica = null;
             } else {
                 citaMedica = citaMedicaRepository.findById(reserva.getCitaMedica().getIdCitaMedica())
                         .orElseThrow(() -> new RuntimeException("Cita médica no encontrada"));
-                fechaReserva = citaMedica.getFecha();
-                horaInicio = citaMedica.getHoraInicio();
+                //fechaReserva = citaMedica.getFecha();
+                //horaInicio = citaMedica.getHoraInicio();
                 clase = null;
             }
 
             // No se va a permitir la cancelacion de la reserva si es faltan menos de 30 minutos para que empiece la clase o cita
             LocalDate fechaActual = LocalDate.now();
-            if(fechaActual.equals(fechaReserva)) {
+            if(fechaActual.equals(reserva.getFechaMaxCancelacion())) {
                 LocalTime horaActual = LocalTime.now();
-                if(horaActual.isAfter(horaInicio.minusMinutes(30)))
-                    throw new IllegalStateException("No se puede cancelar la reserva. Solo se permiten cancelaciones con al menos 30 minutos de anticipación.");
+                if(horaActual.isAfter(reserva.getHoraMaxCancelacion()))
+                    throw new IllegalStateException("No se puede cancelar la reserva, porque ha pasado la hora máxima permitida.");
             }
 
-            // Si llegamos a este punto, es xq faltan mas de 30 minutos para que empiece la clase o cita, por ende, se puede cancelar
+            // Si llegamos a este punto, es xq todavia no se excede la hora maxima de cancelacion de la reserva, por ende, se puede cancelar
             reserva.setEstado("Cancelada");
             reserva.setFechaCancelacion(LocalDateTime.now());
 
@@ -290,16 +308,7 @@ public class ReservaServiceImp implements ReservaService {
     }
 
     private boolean existeCruceDeHorarios(LocalTime horaInicio, LocalTime horaFin, LocalTime horaInicioNueva, LocalTime horaFinNueva) {
-        if(horaInicioNueva.equals(horaInicio))
-            return true;
-        else if(horaInicioNueva.isBefore(horaInicio))
-            if(horaFinNueva.isAfter(horaInicio))
-                return true;
-        else
-            if(horaInicioNueva.isBefore(horaFin))
-                return true;
-
-        return false;
+        return horaInicioNueva.isBefore(horaFin) && horaFinNueva.isAfter(horaInicio);
     }
 
     private Afiliacion buscarAfiliacionDelCliente(Cliente cliente, Integer idComunidad) {

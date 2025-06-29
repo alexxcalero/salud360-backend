@@ -37,14 +37,16 @@ public class TestimonioServiceImp implements TestimonioService {
     public TestimonioDTO crearTestimonio(TestimonioDTO dto) {
         Testimonio testimonio = testimonioMapper.mapToModel(dto);
 
-        Cliente autor = clienteRepository.findById(dto.getAutor().getIdCliente())
+        /*
+        Cliente autor = clienteRepository.findById(dto.getCliente().getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Comunidad comunidad = comunidadRepository.findById(dto.getIdComunidad())
                 .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
+        */
 
-        testimonio.setCliente(autor);
-        testimonio.setComunidad(comunidad);
+        //testimonio.setCliente(autor);
+        //testimonio.setComunidad(comunidad);
         testimonio.setFechaCreacion(LocalDateTime.now());
         testimonio.setActivo(true);
 

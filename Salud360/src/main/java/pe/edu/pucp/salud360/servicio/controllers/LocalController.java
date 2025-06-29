@@ -1,6 +1,7 @@
 package pe.edu.pucp.salud360.servicio.controllers;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.services.LocalService;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
@@ -18,16 +20,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/locales")
+@RequiredArgsConstructor
 public class LocalController {
 
-    @Autowired
-    private LocalService localService;
+
+    private final LocalService localService;
     private final LocalRepository localRepository;
 
-    @Autowired
-    public LocalController(LocalRepository localRepository) {
-        this.localRepository = localRepository;
-    }
+
+
 
     @PostMapping
     public ResponseEntity<LocalVistaAdminDTO> crearLocal(@RequestBody LocalVistaAdminDTO dto) {
@@ -95,6 +96,18 @@ public class LocalController {
         boolean existe = localRepository.existsByNombreAndServicio_IdServicio(nombre.trim(), idServicio);
         return ResponseEntity.ok(existe);
     }
+
+    //CON FE
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaLocal(@RequestParam ("file") MultipartFile file) throws Exception {
+        Boolean cargado = localService.cargarMasivamante(file);
+        if(cargado){
+            return "Archivo cargado satisfactoriamente";
+        }else
+            return "Archivo no cargado";
+    }
+
+
 
 }
 
