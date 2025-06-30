@@ -1,8 +1,12 @@
 package pe.edu.pucp.salud360.comunidad.services.servicesImp;
 
+import com.univocity.parsers.common.record.Record;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
@@ -25,10 +29,10 @@ import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
 import pe.edu.pucp.salud360.servicio.models.*;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -365,4 +369,54 @@ public class ComunidadServiceImp implements ComunidadService {
                 .map(citaMedicaMapper::mapToResumenDTO)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamante(MultipartFile file) throws IOException {
+        //LOGICA DEL VIDEO
+        List<Comunidad> listaComunidades= new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords= parser.parseAllRecords(inputStream);
+        parseAllRecords.forEach(record -> {
+            Comunidad comunidad = new Comunidad();
+            //Lectura de los parametros que aparecen en el CSV
+            //nombre,direccion,telefono,tipo_servicio,id_servicio,descripcion
+            comunidad.setNombre(record.getString("nombre"));
+            comunidad.setDescripcion(record.getString("descripcion"));
+            comunidad.setProposito(record.getString("proposito"));
+
+
+//          COMO PODEMOS ASOCIAR VARIOS SERVICIOS A UNA COMUNIDAD:
+            String idsServiciosStr = record.getString("id_servicios"); // ej. "1,2,3"
+            if (idsServiciosStr != null && !idsServiciosStr.isBlank()) {
+                String[] idStrings = idsServiciosStr.split("\\|");
+                Set<Servicio> servicios = Arrays.stream(idStrings)
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .map(Integer::parseInt)
+                        .map(id -> servicioRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Servicio con ID " + id + " no encontrado")))
+                        .collect(Collectors.toSet());
+
+                comunidad.setServicios(new ArrayList<>(servicios));
+            }
+
+
+            //Datos crudos que debemos insertar
+            comunidad.setActivo(true);
+            comunidad.setFechaCreacion(LocalDateTime.now());
+            comunidad.setCalificacion(0.0);
+            comunidad.setCantMiembros(0);
+            //Agregamos el local
+            listaComunidades.add(comunidad);
+        });
+        //El safeAll
+        comunidadRepository.saveAll(listaComunidades);
+        return true;
+    }
+
+
 }

@@ -1,10 +1,12 @@
 package pe.edu.pucp.salud360.comunidad.services;
 
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ComunidadService {
@@ -22,4 +24,7 @@ public interface ComunidadService {
     List<ComunidadDTO> obtenerComunidadesExcluyendoCliente(Integer idCliente);
     List<ComunidadDTO> obtenerComunidadesInactivasCliente(Integer idCliente);
     List<ComunidadDTO> obtenerComunidadesActivasCliente(Integer idCliente);
+
+    //CON FE
+    Boolean cargarMasivamante(MultipartFile file)throws IOException;
 }
