@@ -32,6 +32,11 @@ public class AfiliacionController {
         //a
     }
 
+    @PutMapping("/afiliaciones/{id}/suspender")
+    public ResponseEntity<?> suspenderAfiliacion(@PathVariable Integer id, @RequestParam int dias) {
+        return ResponseEntity.ok(afiliacionService.desafiliar(id, dias));
+    }
+
     @GetMapping
     public ResponseEntity<List<AfiliacionResumenResumenDTO>> listarAfiliaciones() {
         List<AfiliacionResumenDTO>zzz = afiliacionService.listarAfiliaciones();
@@ -79,10 +84,10 @@ public class AfiliacionController {
         return ResponseEntity.ok(afiliacionService.eliminarAfiliacion(id));
     }
 
-    @PutMapping("/{id}/suspender")
-    public ResponseEntity<Boolean> suspenderAfiliacion(@PathVariable Integer id) {
-        return ResponseEntity.ok(afiliacionService.desafiliar(id));
-    }
+    //@PutMapping("/{id}/suspender")
+    //public ResponseEntity<Boolean> suspenderAfiliacion(@PathVariable Integer id) {
+    //    return ResponseEntity.ok(afiliacionService.desafiliar(id));
+    //}
 
     @PutMapping("/{id}/reactivar")
     public ResponseEntity<Boolean> reactivarAfiliacion(@PathVariable Integer id) {
