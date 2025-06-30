@@ -48,6 +48,17 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
     @Override
     public List<AfiliacionResumenDTO> listarAfiliaciones() {
+        List<Afiliacion> af = afiliacionRepository.findAll();
+        for(Afiliacion afs: af){
+            if(!afs.getEstado().equals("Suspendido")) continue;
+            LocalDate fec = afs.getFechaReactivacion();
+            if(fec != null){
+                if(fec.isBefore(LocalDate.now()) && afs.getEstado().equals("Suspendido")){
+                    afs.setEstado("Activado");
+                    afiliacionRepository.save(afs);
+                }
+            }
+        }
         return afiliacionRepository.findAll().stream()
                 .map(afiliacionMapper::mapToAfiliacionDTO)
                 .collect(Collectors.toList());
@@ -67,11 +78,12 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
 
     @Override
-    public boolean desafiliar(Integer id){
+    public boolean desafiliar(Integer id, Integer ndias){
         if(afiliacionRepository.existsById(id)){
             Optional<Afiliacion> afiliacion = afiliacionRepository.findById(id);
             Afiliacion af = afiliacion.get();
             af.setEstado("Suspendido");
+            af.setFechaReactivacion(LocalDate.now().plusDays(ndias));
             afiliacionRepository.save(af);
             return true;
         }
