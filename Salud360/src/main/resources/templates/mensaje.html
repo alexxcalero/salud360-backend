@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -7,5 +7,41 @@
 <body style="font-family: Arial, sans-serif; background-color: #f6f6f6; padding: 20px;">
     <h1>Hola, <span th:text="${nombre}"></span>!</h1>
     <p><span th:text="${mensaje}"></span></p>
+</body>
+</html>-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mensaje Prueba</title>
+</head>
+<body style="margin: 0; padding: 20px; background-color: #f0f8f9; font-family: Arial, sans-serif;">
+<div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
+
+    <!-- Encabezado -->
+    <div style="background-color: #00BCD4; padding: 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Salud360</h1>
+        <p style="color: #e0f7fa; margin-top: 5px;">Tu espacio de bienestar y salud</p>
+    </div>
+
+    <!-- Cuerpo del mensaje -->
+    <div style="padding: 30px; text-align: center; color: #333;">
+        <h2 style="color: #007c91;">¡Hola, <span th:text='${nombre}'></span>!</h2>
+        <p style="font-size: 16px; line-height: 1.6;">
+            <span th:text="${mensaje}"></span>
+        </p>
+
+        <p style="font-size: 14px; color: #555; margin-top: 30px;">
+            Gracias por confiar en <strong>Salud360</strong>. Estamos comprometidos con tu bienestar físico y mental.
+        </p>
+    </div>
+
+    <!-- Pie de página -->
+    <div style="background-color: #e0f7fa; padding: 15px; text-align: center; font-size: 12px; color: #555;">
+        <p>&copy; 2025 Salud360. Todos los derechos reservados.</p>
+        <p>Este mensaje fue generado automáticamente. Por favor, no responda a este correo.</p>
+    </div>
+
+</div>
 </body>
 </html>
