@@ -91,7 +91,7 @@ INSERT INTO ingesoft.comunidad (
     nombre, descripcion, proposito,
     activo, fecha_creacion, fecha_desactivacion,
     cant_miembros, calificacion
-) VALUES 
+) VALUES
 (
     'Comunidad de Psicología',
     'Espacio para profesionales y estudiantes de psicología',
@@ -166,7 +166,7 @@ INSERT INTO ingesoft.comunidad (
 INSERT INTO ingesoft.servicio (
     activo, descripcion, fecha_creacion,
     fecha_desactivacion, nombre, tipo
-) VALUES 
+) VALUES
 (
     true,
     'Atención nutricional personalizada para mejora de hábitos alimenticios.',
@@ -283,9 +283,9 @@ INSERT INTO ingesoft.comunidad_servicio (id_comunidad, id_servicio) VALUES
 
 INSERT INTO ingesoft.membresia (
     activo, cant_usuarios, con_tope, descripcion,
-    fecha_creacion, fecha_desactivacion,
-    max_reservas, nombre, precio, tipo, id_comunidad
-) VALUES 
+    fecha_creacion, fecha_desactivacion, max_reservas,
+	nombre, precio, tipo, id_comunidad
+) VALUES
 -- Comunidad 1: Psicología
 (true, 0, true,
 'Acceso limitado a servicios y recursos de la comunidad de Psicología. Incluye 20 usos al mes.',
@@ -390,31 +390,27 @@ CURRENT_TIMESTAMP, NULL,
 
 INSERT INTO ingesoft.local (
     activo, direccion, fecha_creacion, fecha_desactivacion,
-    nombre, telefono, tipo_servicio, id_servicio, descripcion, aforo
-) VALUES 
+    nombre, telefono, tipo_servicio, id_servicio, descripcion
+) VALUES
 (
     true, 'Av. La Marina 785, San Miguel', CURRENT_TIMESTAMP, NULL,
     'Local Nutrición La Marina', '912222333', 'Nutrición', 1,
-    'Centro especializado en planes de alimentación y evaluación nutricional para todas las edades.',
-    0
+    'Centro especializado en planes de alimentación y evaluación nutricional para todas las edades.'
 ),
 (
     true, 'Calle Los Álamos 234, Miraflores', CURRENT_TIMESTAMP, NULL,
     'Centro Psicológico Miraflores', '913444555', 'Psicología', 2,
-    'Atención psicológica individual, de pareja y talleres de salud mental en un ambiente cálido y confidencial.',
-   	0
+    'Atención psicológica individual, de pareja y talleres de salud mental en un ambiente cálido y confidencial.'
 ),
 (
     true, 'Av. Túpac Amaru 998, Comas', CURRENT_TIMESTAMP, NULL,
     'Policlínico Popular Comas', '914666777', 'Medicina', 3,
-    'Policlínico accesible con servicios médicos generales, laboratorio y atención primaria de calidad.',
-    0
+    'Policlínico accesible con servicios médicos generales, laboratorio y atención primaria de calidad.'
 );
 
-
-insert into ingesoft.reglas_de_negocio 
-(max_capacidad, max_dias_suspension, max_reservas, max_tiempo_cancelacion) 
-values 
+insert into ingesoft.reglas_de_negocio
+(max_capacidad, max_dias_suspension, max_reservas, max_tiempo_cancelacion)
+values
 (10, 10, 10, 10);
 
 --ALTER TABLE ingesoft.usuario ALTER COLUMN contrasenha DROP NOT NULL;
@@ -433,100 +429,20 @@ VALUES
   (1, 5, 1, '2025-06-11', '12:30:00', '13:30:00', true, 'Pendiente', now(), NULL);
 
 INSERT INTO ingesoft.mediodepago (id_medio_de_pago, id_cliente, ncuenta, cvv, vencimiento, tipo, activo, fecha_creacion, fecha_desactivacion)
-VALUES (1, 1, '1234 5678 9340 1123', 123, '2026-06-30 23:59:59', 'tarjeta_credito', true, now(), NULL);
+VALUES (1, 1, 12345678, 123, '2026-06-30 23:59:59', 'tarjeta_credito', true, now(), NULL);
 
-INSERT INTO ingesoft.afiliacion (id_afiliacion, id_cliente, id_medio_de_pago, id_membresia, fecha_afiliacion, fecha_desafiliacion, fecha_reactivacion, estado) VALUES (1, 1, 1, 1, now(), NULL, NULL, 'Activado');
-
--- Afiliación a la comunidad de Programación
-INSERT INTO ingesoft.afiliacion (
-    id_afiliacion, id_cliente, id_medio_de_pago, id_membresia,
-    fecha_afiliacion, fecha_desafiliacion, fecha_reactivacion, estado
-) VALUES (
-    2, 1, 1, 4, NOW(), NULL, NULL, 'Activado'
-);
-
--- Afiliación a la comunidad de Medicina
-INSERT INTO ingesoft.afiliacion (
-    id_afiliacion, id_cliente, id_medio_de_pago, id_membresia,
-    fecha_afiliacion, fecha_desafiliacion, fecha_reactivacion, estado
-) VALUES (
-    3, 1, 1, 7, NOW(), NULL, NULL, 'Activado'
-);
+INSERT INTO ingesoft.afiliacion (id_cliente, id_medio_de_pago, id_membresia, fecha_afiliacion, fecha_desafiliacion, fecha_reactivacion, estado) VALUES(1, 1, 1, now(), NULL, NULL, 'Activado');
 
 INSERT INTO ingesoft.comunidad_cliente (id_cliente, id_comunidad)
 VALUES (1, 1);
 
--- Comunidad de Programación (id = 2)
-INSERT INTO ingesoft.comunidad_cliente (id_cliente, id_comunidad)
-VALUES (1, 2);
-
--- Comunidad de Medicina (id = 3)
-INSERT INTO ingesoft.comunidad_cliente (id_cliente, id_comunidad)
-VALUES (1, 3);
-
 INSERT INTO ingesoft.periodo (id_periodo, afiliacion, cant_reservas, fecha_inicio, fecha_fin)
 VALUES (1, 1, 0, '2025-06-01', '2025-06-30');
-
--- Periodo Programación
-INSERT INTO ingesoft.periodo (
-    id_periodo, afiliacion, cant_reservas, fecha_inicio, fecha_fin
-) VALUES (
-    2, 2, 0, '2025-06-01', '2025-06-30'
-);
-
--- Periodo Medicina
-INSERT INTO ingesoft.periodo (
-    id_periodo, afiliacion, cant_reservas, fecha_inicio, fecha_fin
-) VALUES (
-    3, 3, 0, '2025-06-01', '2025-06-30'
-);
-
-INSERT INTO ingesoft.pago (
-    id_afiliacion,
-    id_medio_de_pago, 
-    monto,
-    fecha_pago
-) VALUES (
-    1,
-    1,
-    200.0,
-    CURRENT_TIMESTAMP
-);
-
--- Pago por membresía de Programación
-INSERT INTO ingesoft.pago (
-    id_afiliacion,
-    id_medio_de_pago,
-    monto,
-    fecha_pago
-) VALUES (
-    2,
-    1,
-    200.0,
-    CURRENT_TIMESTAMP
-);
-
--- Pago por membresía de Medicina
-INSERT INTO ingesoft.pago (
-    id_afiliacion,
-    id_medio_de_pago,
-    monto,
-    fecha_pago
-) VALUES (
-    3,
-    1,
-    200.0,
-    CURRENT_TIMESTAMP
-);
-
-
-INSERT INTO ingesoft.testimonio (activo, calificacion, id_cliente, id_comunidad, fecha_creacion, fecha_desactivacion, comentario)
-VALUES (true, 4.5, 1, 1, NOW(), NULL, 'Este es un testimonio de ejemplo.');
 
 INSERT INTO ingesoft.testimonio (
     comentario, calificacion, activo, fecha_creacion, fecha_desactivacion,
     id_comunidad, id_cliente
-) VALUES 
+) VALUES
 (
     'Excelente comunidad, me sentí muy acompañado durante mi proceso.',
     5.0,
@@ -547,12 +463,10 @@ INSERT INTO ingesoft.testimonio (
 ),
 (
     'Las sesiones de meditación me ayudaron mucho. Gracias a todos.',
-    4.5,
+    4.8,
     true,
     CURRENT_TIMESTAMP,
     NULL,
     7, -- Comunidad de Mindfulness Corporativo
     1
 );
-
-
