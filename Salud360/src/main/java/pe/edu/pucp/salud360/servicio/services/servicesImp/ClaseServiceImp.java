@@ -1,8 +1,12 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
+import com.univocity.parsers.common.record.Record;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.control.models.ReglasDeNegocio;
 import pe.edu.pucp.salud360.control.repositories.ReglasDeNegocioRepository;
 import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
@@ -10,10 +14,14 @@ import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
 import pe.edu.pucp.salud360.servicio.models.Clase;
 import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
+import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.ClaseRepository;
 import pe.edu.pucp.salud360.servicio.repositories.LocalRepository;
+import pe.edu.pucp.salud360.servicio.repositories.ReservaRepository;
 import pe.edu.pucp.salud360.servicio.services.ClaseService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -155,4 +163,53 @@ public class ClaseServiceImp implements ClaseService {
                 .map(claseMapper::mapToDTO)
                 .orElse(null);
     }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamante(MultipartFile file) throws IOException {
+        //LOGICA DEL VIDEO
+        List<Clase> listaClases= new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords= parser.parseAllRecords(inputStream);
+
+
+        //Como partimos de una logica de negocio, necesitamos buscarla o madnar error si no la hemos cargado:
+        ReglasDeNegocio regla = reglasDeNegocioRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("No se encontró la regla de negocio con ID 1"));
+        Integer capacidadMaxima = regla.getMaxCapacidad();
+
+        parseAllRecords.forEach(record -> {
+            Clase clase = new Clase();
+            //Lectura de los parametros que aparecen en el CSV
+            //nombre,direccion,telefono,tipo_servicio,id_servicio,descripcion
+            clase.setNombre(record.getString("nombre"));
+            clase.setDescripcion(record.getString("descripcion"));
+            clase.setFecha(LocalDate.parse(record.getString("fecha"))); // formato: YYYY-MM-DD
+            clase.setHoraInicio(LocalTime.parse(record.getString("hora_inicio"))); // formato: HH:mm:ss
+            clase.setHoraFin(LocalTime.parse(record.getString("hora_fin")));
+
+//            // COMO TENEMOS QUE ASOCIAR UN ID DE UN LOCAL EXISTENTE, LO BUSCAMOS
+            Integer idLocal = Integer.parseInt(record.getString("id_local"));
+            Local local = localRepository.findById(idLocal)
+                    .orElseThrow(() -> new RuntimeException("Local con ID " + idLocal + " no encontrado"));
+            clase.setLocal(local);
+
+
+            //Datos crudos que debemos insertar
+            clase.setActivo(true);
+            clase.setCapacidad(capacidadMaxima);
+            clase.setCantAsistentes(0);
+            clase.setEstado("Disponible");
+            clase.setFechaCreacion(LocalDateTime.now());
+            //Agregamos el local
+            listaClases.add(clase);
+        });
+        //El safeAll
+        claseRepository.saveAll(listaClases);
+        return true;
+    }
+
 }
