@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
+import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
@@ -40,6 +41,9 @@ public class AfiliacionServiceImp implements AfiliacionService {
     @Autowired
     private MembresiaRepository membresiaRepository;
 
+    @Autowired
+    private ComunidadRepository comunidadRepository;
+
     @Override
     public AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto) {
         Afiliacion afiliacion = new Afiliacion();
@@ -63,6 +67,8 @@ public class AfiliacionServiceImp implements AfiliacionService {
                 return afiliacionMapper.mapToAfiliacionDTO(af);
             }
         }
+        c.getClientes().add(afiliacion.getCliente());
+        comunidadRepository.save(c);
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
 
