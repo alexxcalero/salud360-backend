@@ -1,18 +1,29 @@
 package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.common.record.Record;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
 import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
 import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
 import pe.edu.pucp.salud360.membresia.mappers.PagoMapper;
+import pe.edu.pucp.salud360.membresia.models.Afiliacion;
+import pe.edu.pucp.salud360.membresia.models.MedioDePago;
 import pe.edu.pucp.salud360.membresia.models.Pago;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
 import pe.edu.pucp.salud360.membresia.repositories.PagoRepository;
 import pe.edu.pucp.salud360.membresia.services.PagoService;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -102,5 +113,44 @@ public class PagoImp implements PagoService {
         pago.setAfiliacion(afiliacionRepository.findById(dto.getAfiliacion().getIdAfiliacion()).orElse(null));
         pago.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
         return pago;
+    }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamantePago(MultipartFile file) throws IOException {
+        List<Pago> listaPagos = new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        settings.setLineSeparatorDetectionEnabled(true);
+        settings.getFormat().setDelimiter(',');
+        settings.setIgnoreLeadingWhitespaces(true);
+        settings.setIgnoreTrailingWhitespaces(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
+
+        parseAllRecords.forEach(record -> {
+            Pago pago = new Pago();
+
+            pago.setMonto(Double.parseDouble(record.getString("monto")));
+            pago.setFechaPago(LocalDateTime.parse(record.getString("fechaPago")));
+
+            // Asociar Afiliacion
+            Integer idAfiliacion = Integer.parseInt(record.getString("idAfiliacion"));
+            Afiliacion afiliacion = afiliacionRepository.findById(idAfiliacion)
+                    .orElseThrow(() -> new RuntimeException("Afiliacion con ID " + idAfiliacion + " no encontrada"));
+            pago.setAfiliacion(afiliacion);
+
+            // Asociar MedioDePago
+            Integer idMedioDePago = Integer.parseInt(record.getString("idMedioDePago"));
+            MedioDePago medio = medioDePagoRepository.findById(idMedioDePago)
+                    .orElseThrow(() -> new RuntimeException("MedioDePago con ID " + idMedioDePago + " no encontrado"));
+            pago.setMedioDePago(medio);
+
+            listaPagos.add(pago);
+        });
+
+        pagoRepository.saveAll(listaPagos);
+        return true;
     }
 }

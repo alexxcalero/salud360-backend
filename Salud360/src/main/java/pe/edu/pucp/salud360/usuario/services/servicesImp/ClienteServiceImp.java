@@ -1,10 +1,14 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.common.record.Record;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
@@ -20,6 +24,7 @@ import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.ClienteMapper;
 import pe.edu.pucp.salud360.usuario.mappers.TipoDocumentoMapper;
+import pe.edu.pucp.salud360.usuario.models.Rol;
 import pe.edu.pucp.salud360.usuario.models.TipoDocumento;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
@@ -28,6 +33,9 @@ import pe.edu.pucp.salud360.usuario.repositories.TipoDocumentoRepository;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 import pe.edu.pucp.salud360.usuario.services.ClienteService;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -242,6 +250,90 @@ public class ClienteServiceImp implements ClienteService {
                 .toList();
     }
 
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamanteCliente(MultipartFile file) throws IOException {
+        List<Cliente> listaClientes = new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        settings.setLineSeparatorDetectionEnabled(true);
+        settings.getFormat().setDelimiter(',');
+        settings.setIgnoreLeadingWhitespaces(true);
+        settings.setIgnoreTrailingWhitespaces(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
+
+        parseAllRecords.forEach(record -> {
+            Cliente cliente = new Cliente();
+
+            cliente.setNombres(record.getString("nombres"));
+            cliente.setApellidos(record.getString("apellidos"));
+            cliente.setNumeroDocumento(record.getString("numeroDocumento"));
+            cliente.setSexo(record.getString("sexo"));
+            cliente.setTelefono(record.getString("telefono"));
+            cliente.setFechaNacimiento(LocalDate.parse(record.getString("fechaNacimiento")));
+            cliente.setDireccion(record.getString("direccion"));
+            cliente.setFotoPerfil(record.getString("fotoPerfil"));
+            cliente.setNotificacionPorCorreo(Boolean.parseBoolean(record.getString("notificacionPorCorreo")));
+            cliente.setNotificacionPorSMS(Boolean.parseBoolean(record.getString("notificacionPorSMS")));
+            cliente.setNotificacionPorWhatsApp(Boolean.parseBoolean(record.getString("notificacionPorWhatsApp")));
+            cliente.setActivo(Boolean.parseBoolean(record.getString("activo")));
+
+            cliente.setFechaCreacion(LocalDateTime.now());
+
+            String fechaDesact = record.getString("fechaDesactivacion");
+            if (fechaDesact != null && !fechaDesact.isEmpty()) {
+                cliente.setFechaDesactivacion(LocalDateTime.parse(fechaDesact));
+            }
+
+            // Asociar Usuario
+            // Asociar Usuario
+            String idUsuarioStr = record.getString("idUsuario");
+            Usuario usuario;
+
+            if (idUsuarioStr != null && !idUsuarioStr.isBlank()) {
+                Integer idUsuario = Integer.parseInt(idUsuarioStr);
+                usuario = usuarioRepository.findById(idUsuario)
+                        .orElseThrow(() -> new RuntimeException("Usuario con ID " + idUsuario + " no encontrado"));
+            } else {
+                // Generación automática
+                String nombres = record.getString("nombres").trim();
+                String apellidos = record.getString("apellidos").trim();
+                String correo = (nombres + "." + apellidos + "@salud360.com")
+                        .toLowerCase()
+                        .replaceAll("\\s+", "")
+                        .replaceAll("[^a-z0-9.@]", "");
+
+                String contrasenha = passwordEncoder.encode(apellidos + "123");
+
+                Rol rolAdmin = rolRepository.findByNombre("Cliente Miembro")
+                        .orElseThrow(() -> new RuntimeException("Rol 'Cliente Miembro' no encontrado"));
+
+                usuario = new Usuario();
+                usuario.setCorreo(correo);
+                usuario.setContrasenha(contrasenha);
+                usuario.setRol(rolAdmin);
+                usuario.setActivo(true);
+
+                usuarioRepository.save(usuario);
+            }
+
+            cliente.setUsuario(usuario);
+
+            // Asociar TipoDocumento
+            Integer idTipoDocumento = Integer.parseInt(record.getString("idTipoDocumento"));
+            TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento)
+                    .orElseThrow(() -> new RuntimeException("TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
+            cliente.setTipoDocumento(tipoDocumento);
+
+            listaClientes.add(cliente);
+        });
+
+        clienteRepository.saveAll(listaClientes);
+        return true;
+    }
     //YA NO LO USAMOS PORQUE SE ACTUALIZA EN actualizarClienteVistaPer
 //    @Override
 //    public UsuarioVistaClienteDTO actualizarFotoPerfil(Integer idUsuario, String fotoPerfil) {

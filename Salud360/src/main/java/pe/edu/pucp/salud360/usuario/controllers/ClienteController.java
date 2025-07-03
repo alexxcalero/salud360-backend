@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
@@ -134,6 +135,14 @@ public class ClienteController {
         return pagos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(pagos);
     }
 
-
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaClientes(@RequestParam("file") MultipartFile file) throws Exception {
+        Boolean cargado = clienteService.cargarMasivamanteCliente(file);
+        if (cargado) {
+            return "Archivo cargado satisfactoriamente";
+        } else {
+            return "Archivo no cargado";
+        }
+    }
 
 }
