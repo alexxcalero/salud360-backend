@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseDTO;
 import pe.edu.pucp.salud360.servicio.services.ClaseService;
 
@@ -68,4 +69,16 @@ public class ClaseController {
         else
             return ResponseEntity.notFound().build();
     }
+
+
+    //CON FE
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaLocal(@RequestParam ("file") MultipartFile file) throws Exception {
+        Boolean cargado = claseService.cargarMasivamante(file);
+        if(cargado){
+            return "Archivo cargado satisfactoriamente";
+        }else
+            return "Archivo no cargado";
+    }
+
 }
