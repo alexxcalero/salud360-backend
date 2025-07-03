@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.membresia.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.membresia.dtos.PagoDTO;
 import pe.edu.pucp.salud360.membresia.services.PagoService;
 
@@ -41,5 +42,15 @@ public class PagoController {
     public ResponseEntity<Void> eliminarPago(@PathVariable Integer id) {
         pagoService.eliminarPago(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaPagos(@RequestParam("file") MultipartFile file) throws Exception {
+        Boolean cargado = pagoService.cargarMasivamantePago(file);
+        if (cargado) {
+            return "Archivo cargado satisfactoriamente";
+        } else {
+            return "Archivo no cargado";
+        }
     }
 }

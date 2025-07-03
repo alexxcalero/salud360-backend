@@ -1,27 +1,39 @@
 package pe.edu.pucp.salud360.membresia.services.servicesImp;
 
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.common.record.Record;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
+import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
+import pe.edu.pucp.salud360.membresia.models.MedioDePago;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
+import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Objects;
+
 
 @Service
 public class AfiliacionServiceImp implements AfiliacionService {
@@ -43,6 +55,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
     @Autowired
     private ComunidadRepository comunidadRepository;
+
 
     @Override
     public AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto) {
@@ -162,6 +175,61 @@ public class AfiliacionServiceImp implements AfiliacionService {
         af.setEstado("Activado");
         af.setFechaReactivacion(LocalDate.now()); // o LocalDateTime.now() si prefieres
         afiliacionRepository.save(af);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamanteAfiliacion(MultipartFile file) throws IOException {
+        List<Afiliacion> listaAfiliaciones = new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        settings.setLineSeparatorDetectionEnabled(true);
+        settings.getFormat().setDelimiter(',');
+        settings.setIgnoreLeadingWhitespaces(true);
+        settings.setIgnoreTrailingWhitespaces(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
+
+        parseAllRecords.forEach(record -> {
+            Afiliacion afiliacion = new Afiliacion();
+
+            afiliacion.setEstado(record.getString("estado"));
+            afiliacion.setFechaAfiliacion(LocalDateTime.parse(record.getString("fechaAfiliacion")));
+
+            String fechaDesafiliacion = record.getString("fechaDesafiliacion");
+            if (fechaDesafiliacion != null && !fechaDesafiliacion.isEmpty()) {
+                afiliacion.setFechaDesafiliacion(LocalDateTime.parse(fechaDesafiliacion));
+            }
+
+            String fechaReactivacion = record.getString("fechaReactivacion");
+            if (fechaReactivacion != null && !fechaReactivacion.isEmpty()) {
+                afiliacion.setFechaReactivacion(LocalDate.parse(fechaReactivacion));
+            }
+
+            // Asociar Membresia
+            Integer idMembresia = Integer.parseInt(record.getString("idMembresia"));
+            Membresia membresia = membresiaRepository.findById(idMembresia)
+                    .orElseThrow(() -> new RuntimeException("Membresía con ID " + idMembresia + " no encontrada"));
+            afiliacion.setMembresia(membresia);
+
+            // Asociar MedioDePago
+            Integer idMedioDePago = Integer.parseInt(record.getString("idMedioDePago"));
+            MedioDePago medio = medioDePagoRepository.findById(idMedioDePago)
+                    .orElseThrow(() -> new RuntimeException("MedioDePago con ID " + idMedioDePago + " no encontrado"));
+            afiliacion.setMedioDePago(medio);
+
+            // Asociar Cliente
+            Integer idCliente = Integer.parseInt(record.getString("idCliente"));
+            Cliente cliente = clienteRepository.findById(idCliente)
+                    .orElseThrow(() -> new RuntimeException("Cliente con ID " + idCliente + " no encontrado"));
+            afiliacion.setCliente(cliente);
+
+            listaAfiliaciones.add(afiliacion);
+        });
+
+        afiliacionRepository.saveAll(listaAfiliaciones);
         return true;
     }
 

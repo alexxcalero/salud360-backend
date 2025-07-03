@@ -1,8 +1,10 @@
 package pe.edu.pucp.salud360.membresia.services;
 
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface AfiliacionService {
@@ -16,6 +18,7 @@ public interface AfiliacionService {
     AfiliacionResumenDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto);
     boolean desafiliar(Integer id, Integer ndias);
     boolean reactivarAfiliacion(Integer idAfiliacion);
+    Boolean cargarMasivamanteAfiliacion(MultipartFile file) throws IOException;
 
 }
 

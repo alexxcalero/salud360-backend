@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.services.MedicoService;
@@ -67,5 +68,15 @@ public class MedicoController {
             return new ResponseEntity<>(medicoBuscado, HttpStatus.OK);
         else
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaMedicos(@RequestParam("file") MultipartFile file) throws Exception {
+        Boolean cargado = medicoService.cargarMasivamanteMedico(file);
+        if (cargado) {
+            return "Archivo cargado satisfactoriamente";
+        } else {
+            return "Archivo no cargado";
+        }
     }
 }
