@@ -17,8 +17,12 @@ import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.models.Pago;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.PagoRepository;
+import pe.edu.pucp.salud360.servicio.models.CitaMedica;
+import pe.edu.pucp.salud360.servicio.models.Clase;
 import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
+import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
+import pe.edu.pucp.salud360.servicio.repositories.ClaseRepository;
 import pe.edu.pucp.salud360.servicio.repositories.LocalRepository;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
@@ -51,6 +55,10 @@ public class ReporteServiceImp implements ReporteService {
     private ServicioRepository servicioRepository;
     @Autowired
     private LocalRepository localRepository;
+    @Autowired
+    private CitaMedicaRepository citaMedicaRepository;
+    @Autowired
+    private ClaseRepository claseRepository;
 
     @Override
     public ReporteDTO generarReporteUsuarios(ReporteUsuarioRequestDTO filtro) {
@@ -164,37 +172,63 @@ public class ReporteServiceImp implements ReporteService {
         ReporteDTO reporte = new ReporteDTO();
         reporte.setFechaCreacion(LocalDateTime.now());
 
-        List<Servicio> servicios = servicioRepository.findAll();
         StringBuilder htmlBuilder = new StringBuilder();
-        htmlBuilder.append("<p>Listado de servicios:</p>");
+        htmlBuilder.append("<html><head>");
+        htmlBuilder.append("<style>");
+        htmlBuilder.append("body { font-family: Arial, sans-serif; padding: 20px; }");
+        htmlBuilder.append("table { border-collapse: collapse; width: 100%; margin-top: 20px; }");
+        htmlBuilder.append("th, td { border: 1px solid #aaa; padding: 8px; text-align: left; }");
+        htmlBuilder.append("</style>");
+        htmlBuilder.append("</head><body>");
+
+        htmlBuilder.append("<h2>Reporte global de reservas (citas médicas y clases)</h2>");
         htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
-        htmlBuilder.append("<table>");
-        htmlBuilder.append("<tr><th>IDServicios</th><th>Servicios</th><th>Comunidad</th></tr>");
-        for (Servicio servicio : servicios) {
-            List<Comunidad> comunidades = servicio.getComunidad();
-            List<String> c = new ArrayList<>();
-            for(Comunidad com : comunidades){
-                c.add(com.getNombre());
-            }
-            boolean esLocal=false;
-            for(Local local : servicio.getLocales()){
-                if (Objects.equals(local.getIdLocal(), filtro.getIdLocal())) {
-                    esLocal = true;
-                    break;
-                }
-            }
-            if(filtro.getIdLocal() == null) esLocal = true;
-            if(servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
-                    servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && esLocal) {
-                htmlBuilder.append("<tr>");
-                htmlBuilder.append("<td>").append(servicio.getIdServicio()).append("</td>");
-                htmlBuilder.append("<td>").append(servicio.getNombre()).append("</td>");
-                htmlBuilder.append("<td>").append(String.join("\n ", c)).append("</td>");
-                htmlBuilder.append("</tr>");
+
+        //Dataset para gráfico
+        DefaultPieDataset pieDataset = new DefaultPieDataset();
+
+        //Recorrer TODAS las clases
+        List<Clase> clases = claseRepository.findAll();
+        for (Clase clase : clases) {
+            int cantidad = clase.getReservas() != null ? clase.getReservas().size() : 0;
+            if (cantidad > 0) {
+                pieDataset.setValue("Clase: " + clase.getNombre(), cantidad);
             }
         }
-        htmlBuilder.append("</table>");
-        String titulo = "Reporte de Servicios";
+
+        //Recorrer TODAS las citas médicas
+        List<CitaMedica> citas = citaMedicaRepository.findAll();
+        for (CitaMedica cita : citas) {
+            // Asumiendo que cada cita médica representa una reserva individual
+            pieDataset.setValue("Cita: " + cita.getMedico().getEspecialidad(), 1);  // O usar alguna propiedad relevante
+        }
+
+        //Crear gráfico circular
+        String base64PieChart = "";
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            JFreeChart pieChart = ChartFactory.createPieChart(
+                    "Distribución de reservas por tipo",
+                    pieDataset,
+                    true, true, false
+            );
+            ChartUtils.writeChartAsPNG(baos, pieChart, 700, 450);
+            byte[] bytes = baos.toByteArray();
+            base64PieChart = Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (!base64PieChart.isEmpty()) {
+            htmlBuilder.append("<h3>Distribución de reservas</h3>");
+            htmlBuilder.append("<img src='data:image/png;base64,")
+                    .append(base64PieChart)
+                    .append("' width='700'/>");
+        }
+
+        htmlBuilder.append("</body></html>");
+
+        //Convertir HTML a PDF
+        String titulo = "Reporte de Reservas Global";
         String contenidoHTML = htmlBuilder.toString();
         byte[] pdfBytes = ReportePDFGenerator.generarReporteHTML(titulo, contenidoHTML);
         reporte.setPdf(pdfBytes);
@@ -204,6 +238,7 @@ public class ReporteServiceImp implements ReporteService {
         return reporte;
     }
 
+
     @Override
     public ReporteDTO generarReporteLocales(ReporteLocalRequestDTO filtro) {
         ReporteDTO reporte = new ReporteDTO();
@@ -211,8 +246,9 @@ public class ReporteServiceImp implements ReporteService {
 
         List<Local> locales = localRepository.findAll();
         Map<String, Integer> conteoServicios = new HashMap<>();
-        StringBuilder htmlBuilder = new StringBuilder();
+        Map<String, Integer> conteoReservasPorLocal = new HashMap<>();
 
+        StringBuilder htmlBuilder = new StringBuilder();
         htmlBuilder.append("<html><head>");
         htmlBuilder.append("<style>");
         htmlBuilder.append("body { font-family: Arial, sans-serif; padding: 20px; }");
@@ -225,7 +261,7 @@ public class ReporteServiceImp implements ReporteService {
         htmlBuilder.append("<p>").append(filtro.getDescripcion()).append("</p>");
 
         htmlBuilder.append("<table>");
-        htmlBuilder.append("<tr><th>IDLocal</th><th>Nombre</th><th>Servicios</th></tr>");
+        htmlBuilder.append("<tr><th>IDLocal</th><th>Nombre</th><th>Servicios</th><th>N° Reservas</th></tr>");
 
         for (Local local : locales) {
             Servicio servicio = local.getServicio();
@@ -235,53 +271,94 @@ public class ReporteServiceImp implements ReporteService {
             if (servicio.getFechaCreacion().isAfter(filtro.getFechaInicio().atStartOfDay()) &&
                     servicio.getFechaCreacion().isBefore(filtro.getFechaFin().atStartOfDay()) && filtros) {
 
+                // Contar reservas sumando reservas de todas las clases del local
+                int totalReservas = 0;
+                if (local.getClases() != null) {
+                    for (Clase clase : local.getClases()) {
+                        if (clase.getReservas() != null) {
+                            totalReservas += clase.getReservas().size();
+                        }
+                    }
+                }
+
                 htmlBuilder.append("<tr>");
                 htmlBuilder.append("<td>").append(local.getIdLocal()).append("</td>");
                 htmlBuilder.append("<td>").append(local.getNombre()).append("</td>");
                 htmlBuilder.append("<td>").append(servicio.getNombre()).append("</td>");
+                htmlBuilder.append("<td>").append(totalReservas).append("</td>");
                 htmlBuilder.append("</tr>");
 
                 conteoServicios.merge(servicio.getNombre(), 1, Integer::sum);
+                conteoReservasPorLocal.put(local.getNombre(), totalReservas);
             }
         }
 
         htmlBuilder.append("</table>");
 
-// 👇 Generar gráfico como imagen base64
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
+        // 👇 Gráfico: Distribución de locales por servicio
+        DefaultCategoryDataset datasetServicios = new DefaultCategoryDataset();
         for (Map.Entry<String, Integer> entry : conteoServicios.entrySet()) {
-            dataset.addValue(entry.getValue(), "Servicios", entry.getKey());
+            datasetServicios.addValue(entry.getValue(), "Servicios", entry.getKey());
         }
 
-        JFreeChart chart = ChartFactory.createBarChart(
-                "Distribución de locales por servicio",
-                "Servicio",
-                "Cantidad",
-                dataset,
-                PlotOrientation.VERTICAL,
-                false, true, false
-        );
-        String base64Image = "";
+        String base64ImageServicios = "";
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            JFreeChart chart = ChartFactory.createBarChart(
+                    "Distribución de locales por servicio",
+                    "Servicio",
+                    "Cantidad",
+                    datasetServicios,
+                    PlotOrientation.VERTICAL,
+                    false, true, false
+            );
             ChartUtils.writeChartAsPNG(baos, chart, 600, 400);
             byte[] bytes = baos.toByteArray();
-            base64Image = Base64.getEncoder().encodeToString(bytes);
+            base64ImageServicios = Base64.getEncoder().encodeToString(bytes);
         } catch (Exception e) {
             e.printStackTrace();
-            base64Image = "";
         }
-        if (!base64Image.isEmpty()) {
+
+        if (!base64ImageServicios.isEmpty()) {
             htmlBuilder.append("<h3>Distribución de locales por servicio</h3>");
             htmlBuilder.append("<img src='data:image/png;base64,")
-                    .append(base64Image)
+                    .append(base64ImageServicios)
+                    .append("' width='600'/>");
+        }
+
+        // 👇 Gráfico: Distribución de reservas por local
+        DefaultCategoryDataset datasetReservas = new DefaultCategoryDataset();
+        for (Map.Entry<String, Integer> entry : conteoReservasPorLocal.entrySet()) {
+            datasetReservas.addValue(entry.getValue(), "Reservas", entry.getKey());
+        }
+
+        String base64ImageReservas = "";
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            JFreeChart chart = ChartFactory.createBarChart(
+                    "Reservas por local",
+                    "Local",
+                    "N° Reservas",
+                    datasetReservas,
+                    PlotOrientation.VERTICAL,
+                    false, true, false
+            );
+            ChartUtils.writeChartAsPNG(baos, chart, 600, 400);
+            byte[] bytes = baos.toByteArray();
+            base64ImageReservas = Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (!base64ImageReservas.isEmpty()) {
+            htmlBuilder.append("<h3>Cantidad de reservas por local</h3>");
+            htmlBuilder.append("<img src='data:image/png;base64,")
+                    .append(base64ImageReservas)
                     .append("' width='600'/>");
         }
 
         htmlBuilder.append("</body></html>");
 
-// 👉 Convertir HTML a PDF
-        String titulo = "Reporte de Servicios con Gráfico Integrado";
+        // 👉 Convertir HTML a PDF
+        String titulo = "Reporte de Locales con Servicios y Reservas";
         String contenidoHTML = htmlBuilder.toString();
         byte[] pdfBytes = ReportePDFGenerator.generarReporteHTML(titulo, contenidoHTML);
 
@@ -290,6 +367,7 @@ public class ReporteServiceImp implements ReporteService {
         reporte.setIdPagos(Collections.singletonList(12));
         return reporte;
     }
+
 
     @Override
     public ReporteDTO generarBoleta(PagoDTO pago){

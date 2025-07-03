@@ -1,19 +1,28 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
 
+import com.univocity.parsers.common.record.Record;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
+import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 import pe.edu.pucp.salud360.servicio.services.ServicioService;
 import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -112,5 +121,34 @@ public class ServicioServiceImp implements ServicioService {
         }
 
         return servicioMapper.mapToVistaAdminDTO(servicio);
+    }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamante(MultipartFile file) throws IOException {
+        //LOGICA DEL VIDEO
+        List<Servicio> listaServicios= new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords= parser.parseAllRecords(inputStream);
+        parseAllRecords.forEach(record -> {
+            Servicio servicio = new Servicio();
+            //Lectura de los parametros que aparecen en el CSV
+            //nombre,direccion,telefono,tipo_servicio,id_servicio,descripcion
+            servicio.setNombre(record.getString("nombre"));
+            servicio.setDescripcion(record.getString("descripcion"));
+            servicio.setTipo(record.getString("tipo"));
+
+            //Datos crudos que debemos insertar
+            servicio.setActivo(true);
+            servicio.setFechaCreacion(LocalDateTime.now());
+            //Agregamos el local
+            listaServicios.add(servicio);
+        });
+        //El safeAll
+        servicioRepository.saveAll(listaServicios);
+        return true;
     }
 }

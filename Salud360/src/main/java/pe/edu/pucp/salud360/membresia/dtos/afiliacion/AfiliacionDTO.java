@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.mediopago.MedioDePagoResumenDTO;
 import pe.edu.pucp.salud360.membresia.dtos.membresia.MembresiaResumenDTO;
+import pe.edu.pucp.salud360.usuario.dtos.clienteDTO.ClienteResumenDTO;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ public class AfiliacionDTO {
     private LocalDateTime fechaDesafiliacion;
     private LocalDate fechaReactivacion;
     private MedioDePagoResumenDTO medioDePago;
-    private UsuarioResumenDTO usuario;
+    private ClienteResumenDTO usuario;
     private ComunidadResumenDTO comunidad;
 }
 

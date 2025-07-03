@@ -1,11 +1,17 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
+import com.univocity.parsers.common.record.Record;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapperHelper;
 import pe.edu.pucp.salud360.servicio.models.CitaMedica;
+import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Reserva;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
@@ -15,6 +21,8 @@ import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.usuario.repositories.MedicoRepository;
 import pe.edu.pucp.salud360.servicio.services.CitaMedicaService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -189,6 +197,49 @@ public List<CitaMedicaDTO> listarCitasMedicasTodas() {
         return citaMedicaRepository.findById(id)
                 .map(c -> CitaMedicaMapperHelper.mapToDTOIncluyendoArchivo(citaMedicaMapper, c))
                 .orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamante(MultipartFile file) throws IOException {
+        //LOGICA DEL VIDEO
+        List<CitaMedica> listaCitasMedicas= new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords= parser.parseAllRecords(inputStream);
+        parseAllRecords.forEach(record -> {
+            CitaMedica citaMedica = new CitaMedica();
+            //Lectura de los parametros que aparecen en el CSV
+
+            citaMedica.setFecha(LocalDate.parse(record.getString("fecha"))); // formato: YYYY-MM-DD
+            citaMedica.setHoraInicio(LocalTime.parse(record.getString("hora_inicio"))); // formato: HH:mm:ss
+            citaMedica.setHoraFin(LocalTime.parse(record.getString("hora_fin")));
+
+            // COMO TENEMOS QUE ASOCIAR UN ID DE UN MEDICO Y SERVICIO LO BUSCAMOS:
+            // Buscar médico
+            Integer idMedico = Integer.parseInt(record.getString("id_medico"));
+            Medico medico = medicoRepository.findById(idMedico)
+                    .orElseThrow(() -> new RuntimeException("Médico con ID " + idMedico + " no encontrado"));
+            citaMedica.setMedico(medico);
+
+            // Buscar servicio
+            Integer idServicio = Integer.parseInt(record.getString("id_servicio"));
+            Servicio servicio = servicioRepository.findById(idServicio)
+                    .orElseThrow(() -> new RuntimeException("Servicio con ID " + idServicio + " no encontrado"));
+            citaMedica.setServicio(servicio);
+
+            //Datos crudos que debemos insertar
+            citaMedica.setActivo(true);
+            citaMedica.setFechaCreacion(LocalDateTime.now());
+            citaMedica.setEstado("Disponible");
+            //Agregamos el local
+            listaCitasMedicas.add(citaMedica);
+        });
+        //El safeAll
+        citaMedicaRepository.saveAll(listaCitasMedicas);
+        return true;
     }
 
 }
