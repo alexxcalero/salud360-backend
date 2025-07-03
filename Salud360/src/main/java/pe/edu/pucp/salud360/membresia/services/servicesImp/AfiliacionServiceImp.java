@@ -7,7 +7,9 @@ import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
+import pe.edu.pucp.salud360.membresia.models.Membresia;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
+import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
@@ -33,6 +35,9 @@ public class AfiliacionServiceImp implements AfiliacionService {
     @Autowired
     private AfiliacionMapper afiliacionMapper;
 
+    @Autowired
+    private MembresiaRepository membresiaRepository;
+
     @Override
     public AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto) {
         Afiliacion afiliacion = new Afiliacion();
@@ -42,7 +47,9 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
         afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
-
+        Optional<Membresia> m = membresiaRepository.findById(dto.getMembresia().getIdMembresia());
+        if (m.isPresent())
+            afiliacion.setMembresia(membresiaRepository.findById(dto.getMembresia().getIdMembresia()).get());
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
 

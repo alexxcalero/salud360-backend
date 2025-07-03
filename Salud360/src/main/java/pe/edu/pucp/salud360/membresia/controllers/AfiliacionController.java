@@ -32,7 +32,7 @@ public class AfiliacionController {
         //a
     }
 
-    @PutMapping("/afiliaciones/{id}/suspender")
+    @PutMapping("/{id}/suspender")
     public ResponseEntity<?> suspenderAfiliacion(@PathVariable Integer id, @RequestParam int dias) {
         return ResponseEntity.ok(afiliacionService.desafiliar(id, dias));
     }
