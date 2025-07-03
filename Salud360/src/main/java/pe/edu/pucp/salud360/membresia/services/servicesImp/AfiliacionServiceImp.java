@@ -3,6 +3,7 @@ package pe.edu.pucp.salud360.membresia.services.servicesImp;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
 import pe.edu.pucp.salud360.membresia.mappers.AfiliacionMapper;
@@ -17,6 +18,7 @@ import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,11 +47,22 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
-        afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
+        afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdCliente()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
         Optional<Membresia> m = membresiaRepository.findById(dto.getMembresia().getIdMembresia());
-        if (m.isPresent())
+        Comunidad c = new Comunidad();
+        if (m.isPresent()) {
             afiliacion.setMembresia(membresiaRepository.findById(dto.getMembresia().getIdMembresia()).get());
+            c = afiliacion.getMembresia().getComunidad();
+        }
+        List<Afiliacion> afs = afiliacionRepository.findAll();
+        for(Afiliacion af : afs){
+            if(Objects.equals(af.getMembresia().getComunidad().getIdComunidad(), c.getIdComunidad()) &&
+                    Objects.equals(af.getCliente().getIdCliente(), afiliacion.getCliente().getIdCliente()) &&
+                    Objects.equals(af.getEstado(), "Activado")){
+                return afiliacionMapper.mapToAfiliacionDTO(af);
+            }
+        }
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
 
@@ -128,7 +141,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
         afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
         if(dto.getUsuario() != null)
-            afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdUsuario()).orElse(null));
+            afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdCliente()).orElse(null));
         if(dto.getMedioDePago() != null)
             afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
 
