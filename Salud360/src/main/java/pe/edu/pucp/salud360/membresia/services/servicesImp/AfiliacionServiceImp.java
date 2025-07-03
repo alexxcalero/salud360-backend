@@ -50,7 +50,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdCliente()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
         Optional<Membresia> m = membresiaRepository.findById(dto.getMembresia().getIdMembresia());
-        Comunidad c;
+        Comunidad c = new Comunidad();
         if (m.isPresent()) {
             afiliacion.setMembresia(membresiaRepository.findById(dto.getMembresia().getIdMembresia()).get());
             c = afiliacion.getMembresia().getComunidad();
