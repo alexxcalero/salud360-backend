@@ -4,9 +4,11 @@ import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.control.models.ReglasDeNegocio;
 import pe.edu.pucp.salud360.control.repositories.ReglasDeNegocioRepository;
 import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
@@ -22,6 +24,7 @@ import pe.edu.pucp.salud360.servicio.services.ClaseService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -204,12 +207,46 @@ public class ClaseServiceImp implements ClaseService {
             clase.setCantAsistentes(0);
             clase.setEstado("Disponible");
             clase.setFechaCreacion(LocalDateTime.now());
+
+            //Realizamos validaciones para el cruce de horario de clases
+            //DETECTA CRUCES DENTRO DEL CSV
+            for (Clase otra : listaClases) {
+                if (clase.getFecha().equals(otra.getFecha())
+                        && clase.getLocal().getIdLocal().equals(otra.getLocal().getIdLocal())
+                        && seCruzan(clase.getHoraInicio(), clase.getHoraFin(), otra.getHoraInicio(), otra.getHoraFin())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Cruce entre clases nuevas en el archivo CSV en la fecha " + clase.getFecha() + " para el local " + clase.getLocal().getNombre());
+                }
+            }
+
+            // DETECTA CRUCES TENIENDO EN CUENTA CLASES YA EXISTENTES
+            List<Clase> clasesExistentes = claseRepository.findByLocalIdLocalAndFecha(idLocal, clase.getFecha());
+            for (Clase existente : clasesExistentes) {
+                if (seCruzan(clase.getHoraInicio(), clase.getHoraFin(), existente.getHoraInicio(), existente.getHoraFin())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "La clase '" + clase.getNombre() + "' se cruza con una ya existente en la fecha " + clase.getFecha() + " para el local " + local.getNombre());
+                }
+            }
+
+            //REVISAMOS SI LAS DURACIONES DE LAS CLASES SON DE 1 HORA EXACTAMENTE
+            Duration duracion = Duration.between(clase.getHoraInicio(), clase.getHoraFin());
+            if (!duracion.equals(Duration.ofHours(1))) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "La clase '" + clase.getNombre() + "' debe durar exactamente 1 hora.");
+            }
+
+
+
             //Agregamos el local
             listaClases.add(clase);
         });
         //El safeAll
         claseRepository.saveAll(listaClases);
         return true;
+    }
+    //PARA VERIFICAR CRUCES DE HORAS EXISTENTES CON LOS DE CARGA MASIVA
+    private boolean seCruzan(LocalTime inicio1, LocalTime fin1, LocalTime inicio2, LocalTime fin2) {
+        return inicio1.isBefore(fin2) && fin1.isAfter(inicio2);
     }
 
 }

@@ -4,16 +4,15 @@ import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapperHelper;
-import pe.edu.pucp.salud360.servicio.models.CitaMedica;
-import pe.edu.pucp.salud360.servicio.models.Local;
-import pe.edu.pucp.salud360.servicio.models.Reserva;
-import pe.edu.pucp.salud360.servicio.models.Servicio;
+import pe.edu.pucp.salud360.servicio.models.*;
 import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 import pe.edu.pucp.salud360.usuario.models.Medico;
@@ -23,6 +22,7 @@ import pe.edu.pucp.salud360.servicio.services.CitaMedicaService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -234,12 +234,59 @@ public List<CitaMedicaDTO> listarCitasMedicasTodas() {
             citaMedica.setActivo(true);
             citaMedica.setFechaCreacion(LocalDateTime.now());
             citaMedica.setEstado("Disponible");
-            //Agregamos el local
+            //Realizamos validaciones para el cruce de horario de clases
+            //DETECTA CRUCES DENTRO DEL CSV
+            for (CitaMedica otra : listaCitasMedicas) {
+                if (citaMedica.getFecha().equals(otra.getFecha()) &&
+                        citaMedica.getMedico().getIdMedico().equals(otra.getMedico().getIdMedico()) &&
+                        seCruzan(
+                                citaMedica.getHoraInicio(),
+                                citaMedica.getHoraFin(),
+                                otra.getHoraInicio(),
+                                otra.getHoraFin())) {
+
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Cruce entre citas nuevas en el archivo CSV en la fecha " + citaMedica.getFecha() + " para el médico " + citaMedica.getMedico().getNombres());
+                }
+            }
+
+            // DETECTA CRUCES TENIENDO EN CUENTA CLASES YA EXISTENTES
+            List<CitaMedica> citasExistentes = citaMedicaRepository
+                    .findByMedicoIdMedicoAndFecha(idMedico, citaMedica.getFecha());
+
+            for (CitaMedica existente : citasExistentes) {
+                if (seCruzan(
+                        citaMedica.getHoraInicio(),
+                        citaMedica.getHoraFin(),
+                        existente.getHoraInicio(),
+                        existente.getHoraFin())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "La cita del médico '" + citaMedica.getMedico().getNombres() +
+                                    "' se cruza con una ya existente en la fecha " + citaMedica.getFecha());
+                }
+            }
+
+            //REVISAMOS SI LAS DURACIONES DE LAS CITAS SON DE 1 HORA EXACTAMENTE
+            Duration duracion = Duration.between(citaMedica.getHoraInicio(), citaMedica.getHoraFin());
+            if (!duracion.equals(Duration.ofHours(1))) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Las citas médicas deben durar exactamente 1 hora. Verifique la fecha "
+                                + citaMedica.getFecha() + " entre " + citaMedica.getHoraInicio() + " y " + citaMedica.getHoraFin());
+            }
+
+
+            //Agregamos la cita
             listaCitasMedicas.add(citaMedica);
         });
         //El safeAll
         citaMedicaRepository.saveAll(listaCitasMedicas);
         return true;
     }
+
+    //PARA VERIFICAR CRUCES DE HORAS EXISTENTES CON LOS DE CARGA MASIVA
+    private boolean seCruzan(LocalTime inicio1, LocalTime fin1, LocalTime inicio2, LocalTime fin2) {
+        return inicio1.isBefore(fin2) && fin1.isAfter(inicio2);
+    }
+
 
 }
