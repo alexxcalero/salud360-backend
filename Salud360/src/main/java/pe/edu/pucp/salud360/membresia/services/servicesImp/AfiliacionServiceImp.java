@@ -82,6 +82,10 @@ public class AfiliacionServiceImp implements AfiliacionService {
         }
         c.getClientes().add(afiliacion.getCliente());
         c.setCantMiembros(c.getCantMiembros()+1);
+        if (m.isPresent()){
+            Membresia neom = m.get();
+            neom.setCantUsuarios(neom.getCantUsuarios()+1);
+        }
         comunidadRepository.save(c);
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
