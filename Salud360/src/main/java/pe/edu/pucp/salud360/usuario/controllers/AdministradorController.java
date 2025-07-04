@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorResumenDTO;
@@ -125,5 +126,15 @@ public class AdministradorController {
             return new ResponseEntity<>(clienteBuscado, HttpStatus.OK);
         else
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaAdministradores(@RequestParam("file") MultipartFile file) throws Exception {
+        Boolean cargado = administradorService.cargarMasivamanteAdmin(file);
+        if (cargado) {
+            return "Archivo cargado satisfactoriamente";
+        } else {
+            return "Archivo no cargado";
+        }
     }
 }

@@ -4,6 +4,7 @@ package pe.edu.pucp.salud360.membresia.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadResumenDTO;
 import pe.edu.pucp.salud360.comunidad.services.ComunidadService;
@@ -92,6 +93,16 @@ public class AfiliacionController {
     @PutMapping("/{id}/reactivar")
     public ResponseEntity<Boolean> reactivarAfiliacion(@PathVariable Integer id) {
         return ResponseEntity.ok(afiliacionService.reactivarAfiliacion(id));
+    }
+
+    @PostMapping("/cargaMasiva")
+    public String cargaMasivaAfiliaciones(@RequestParam("file") MultipartFile file) throws Exception {
+        Boolean cargado = afiliacionService.cargarMasivamanteAfiliacion(file);
+        if (cargado) {
+            return "Archivo cargado satisfactoriamente";
+        } else {
+            return "Archivo no cargado";
+        }
     }
 
 }

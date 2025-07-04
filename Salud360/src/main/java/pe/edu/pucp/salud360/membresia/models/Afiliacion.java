@@ -1,10 +1,7 @@
 package pe.edu.pucp.salud360.membresia.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pe.edu.pucp.salud360.control.models.Reporte;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 
@@ -14,6 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

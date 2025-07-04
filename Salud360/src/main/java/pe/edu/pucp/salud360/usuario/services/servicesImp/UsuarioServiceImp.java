@@ -1,17 +1,28 @@
 package pe.edu.pucp.salud360.usuario.services.servicesImp;
 
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.autenticacion.models.ActualizarContrasenhaRequest;
 import pe.edu.pucp.salud360.autenticacion.models.ActualizarCorreoRequest;
 import pe.edu.pucp.salud360.usuario.dtos.usuarioDTO.UsuarioResumenDTO;
 import pe.edu.pucp.salud360.usuario.mappers.UsuarioMapper;
+import pe.edu.pucp.salud360.usuario.models.Rol;
 import pe.edu.pucp.salud360.usuario.models.Usuario;
+import pe.edu.pucp.salud360.usuario.repositories.RolRepository;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 import pe.edu.pucp.salud360.usuario.services.UsuarioService;
+import com.univocity.parsers.common.record.Record;
 
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +32,7 @@ public class UsuarioServiceImp implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RolRepository rolRepository;
 
     @Override
     public UsuarioResumenDTO buscarUsuarioPorCorreo(String correo) {
@@ -82,6 +94,37 @@ public class UsuarioServiceImp implements UsuarioService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    @Transactional
+    public Boolean cargarMasivamanteUsuario(MultipartFile file) throws IOException {
+        List<Usuario> listaUsuarios = new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.setHeaderExtractionEnabled(true);
+        CsvParser parser = new CsvParser(settings);
+        List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
+
+        parseAllRecords.forEach(record -> {
+            Usuario usuario = new Usuario();
+
+            // correo, contrasenha, activo, id_rol
+            usuario.setCorreo(record.getString("correo"));
+            usuario.setContrasenha(record.getString("contrasenha"));
+            usuario.setActivo(Boolean.parseBoolean(record.getString("activo")));
+
+            // Buscar el rol
+            Integer idRol = Integer.parseInt(record.getString("id_rol"));
+            Rol rol = rolRepository.findById(idRol)
+                    .orElseThrow(() -> new RuntimeException("Rol con ID " + idRol + " no encontrado"));
+            usuario.setRol(rol);
+
+            listaUsuarios.add(usuario);
+        });
+
+        usuarioRepository.saveAll(listaUsuarios);
+        return true;
     }
 
     /*
