@@ -50,5 +50,9 @@ public class MedioDePagoController {
         return ResponseEntity.ok(mediosDePago);
     }
 
+    @PostMapping("/verificar")
+    public Boolean VerificarTarjeta(@RequestBody MedioDePagoDTO dto) {
+        return medioDePagoService.verificarDatosSensibles(dto);
+    }
 }
 

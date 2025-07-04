@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.comunidad.repositories.ComunidadRepository;
+import pe.edu.pucp.salud360.membresia.dtos.PeriodoDTO;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionDTO;
 import pe.edu.pucp.salud360.membresia.dtos.afiliacion.AfiliacionResumenDTO;
@@ -17,8 +18,10 @@ import pe.edu.pucp.salud360.membresia.mappers.MedioDePagoMapper;
 import pe.edu.pucp.salud360.membresia.models.Afiliacion;
 import pe.edu.pucp.salud360.membresia.models.MedioDePago;
 import pe.edu.pucp.salud360.membresia.models.Membresia;
+import pe.edu.pucp.salud360.membresia.models.Periodo;
 import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
+import pe.edu.pucp.salud360.membresia.repositories.PeriodoRepository;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
@@ -30,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Objects;
@@ -56,7 +60,10 @@ public class AfiliacionServiceImp implements AfiliacionService {
     @Autowired
     private ComunidadRepository comunidadRepository;
 
+    @Autowired
+    private PeriodoRepository periodoRepository;
 
+    @org.springframework.transaction.annotation.Transactional
     @Override
     public AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto) {
         Afiliacion afiliacion = new Afiliacion();
@@ -80,6 +87,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
                 return afiliacionMapper.mapToAfiliacionDTO(af);
             }
         }
+        // Para mantener la relación comunidad - cliente
         c.getClientes().add(afiliacion.getCliente());
         c.setCantMiembros(c.getCantMiembros()+1);
         if (m.isPresent()){
@@ -87,6 +95,17 @@ public class AfiliacionServiceImp implements AfiliacionService {
             neom.setCantUsuarios(neom.getCantUsuarios()+1);
         }
         comunidadRepository.save(c);
+
+        // LA FE ES LO ULTIMO QUE SE PIERDE Y YA NO TENGO NADA MAS
+        Periodo nuevoPeriodo = new Periodo();
+        nuevoPeriodo.setFechaInicio(LocalDate.now());
+        nuevoPeriodo.setFechaFin(LocalDate.now().plusMonths(1));
+        nuevoPeriodo.setCantReservas(0);
+        nuevoPeriodo.setAfiliacion(afiliacion);
+
+        Periodo periodo = periodoRepository.save(nuevoPeriodo);
+        afiliacion.setPeriodo(new ArrayList<Periodo>());
+        afiliacion.getPeriodo().add(periodo);
         return afiliacionMapper.mapToAfiliacionDTO(afiliacionRepository.save(afiliacion));
     }
 

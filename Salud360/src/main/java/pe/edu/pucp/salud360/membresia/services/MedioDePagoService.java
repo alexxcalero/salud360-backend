@@ -13,5 +13,6 @@ public interface MedioDePagoService {
     boolean eliminar(Integer id);
     MedioDePagoDTO actualizar(Integer id, MedioDePagoDTO dto);
     List<MedioDePagoResumenDTO> listarPorUsuario(Integer idUsuario);
+    Boolean verificarDatosSensibles(MedioDePagoDTO dto);
 }
 
