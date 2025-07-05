@@ -99,7 +99,7 @@ INSERT INTO ingesoft.comunidad (
     true,
     CURRENT_TIMESTAMP,
     NULL,
-    0,
+    1,
     0.0
 ),
 (
@@ -287,7 +287,7 @@ INSERT INTO ingesoft.membresia (
 	nombre, precio, tipo, id_comunidad
 ) VALUES
 -- Comunidad 1: Psicología
-(true, 0, true,
+(true, 1, true,
 'Acceso limitado a servicios y recursos de la comunidad de Psicología. Incluye 20 usos al mes.',
 CURRENT_TIMESTAMP, NULL,
 20, 'Membresía Mensual Psicología',
@@ -436,8 +436,8 @@ INSERT INTO ingesoft.afiliacion (id_cliente, id_medio_de_pago, id_membresia, fec
 INSERT INTO ingesoft.comunidad_cliente (id_cliente, id_comunidad)
 VALUES (1, 1);
 
-INSERT INTO ingesoft.periodo (id_periodo, afiliacion, cant_reservas, fecha_inicio, fecha_fin)
-VALUES (1, 1, 0, '2025-06-01', '2025-06-30');
+INSERT INTO ingesoft.periodo (afiliacion, cant_reservas, fecha_inicio, fecha_fin)
+VALUES (1, 0, '2025-06-01', '2025-06-30');
 
 INSERT INTO ingesoft.testimonio (
     comentario, calificacion, activo, fecha_creacion, fecha_desactivacion,

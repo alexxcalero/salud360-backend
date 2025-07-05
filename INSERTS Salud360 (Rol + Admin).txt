@@ -1,0 +1,45 @@
+INSERT INTO ingesoft.rol (
+    activo,
+    fecha_creacion,
+    fecha_desactivacion,
+    descripcion,
+    nombre
+) VALUES
+(true, NOW(), NULL, 'Rol con privilegios administrativos completos', 'Admin'),
+(true, NOW(), NULL, 'Usuario registrado que aún no ha adquirido una membresía', 'Cliente Visitante'),
+(true, NOW(), NULL, 'Usuario registrado con una o más membresías activas', 'Cliente Miembro');
+
+
+INSERT INTO ingesoft.tipo_documento (
+    activo,
+    fecha_creacion,
+    fecha_desactivacion,
+    nombre
+) VALUES
+(true, NOW(), NULL, 'DNI'),
+(true, NOW(), NULL, 'Carnet de Extranjería'),
+(true, NOW(), NULL, 'Pasaporte');
+
+
+INSERT INTO ingesoft.usuario (
+    id_rol, correo, contrasenha, activo
+) VALUES (
+    1, 'fabianmr2806@hotmail.com', '$2a$10$h8MRopzlGo4kFkVQdHlc5ez0Z3aR2m5NuSVNGWgUzgA7Rma4kqHlu', true
+);
+
+INSERT INTO ingesoft.administrador (
+    id_usuario, id_tipo_documento, numero_documento, nombres, apellidos,
+    sexo, fecha_creacion, fecha_desactivacion,
+    notificacion_por_correo, notificacion_por_whats_app, notificacion_porsms,
+    telefono, foto_perfil, activo
+) VALUES (
+    1, 1, '47123131', 'Fabián', 'Montenegro',
+    'Masculino', CURRENT_TIMESTAMP, NULL,
+    true, true, true,
+    '987654321', NULL, true
+);
+
+insert into ingesoft.reglas_de_negocio
+(max_capacidad, max_dias_suspension, max_reservas, max_tiempo_cancelacion)
+values
+(10, 10, 10, 10);
