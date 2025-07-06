@@ -24,6 +24,7 @@ import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
@@ -134,16 +135,30 @@ public class ComunidadServiceImp implements ComunidadService {
                 Membresia membresia;
 
                 if (m.getIdMembresia() != null) {
-                    // Ya existe, buscar
+                    // Solo es referencia, no se debe editar
+                    boolean esSoloReferencia = m.getNombre() == null && m.getTipo() == null;
+
                     membresia = membresiaRepository.findById(m.getIdMembresia()).orElse(null);
                     if (membresia == null) continue;
 
                     idsDesdeFrontend.add(m.getIdMembresia());
 
-                    // Bloquear edicion si tiene usuarios asociados
-                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
-                        throw new IllegalStateException("No se puede editar la membresía '" + membresia.getNombre() + "' porque tiene usuarios asociados.");
+                    if (esSoloReferencia) {
+                        // No modificar nada, solo conservar
+                        membresiasActualizadas.add(membresia);
+                        continue;
                     }
+
+                    // Validar si tiene usuarios antes de modificar
+                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
+                        boolean antesSinTope = !membresia.getConTope();
+                        boolean despuesConTope = Boolean.TRUE.equals(m.getConTope());
+
+                        if (antesSinTope && despuesConTope) {
+                            throw new IllegalStateException("No se puede activar el tope de reservas en la membresía '" + membresia.getNombre() + "' porque ya tiene usuarios asociados.");
+                        }
+                    }
+
                 } else {
                     // Nueva membresía
                     membresia = new Membresia();
@@ -167,6 +182,7 @@ public class ComunidadServiceImp implements ComunidadService {
                 membresia.setDescripcion(m.getDescripcion());
 
                 membresiasActualizadas.add(membresia);
+
             }
 
             // Eliminar las membresías no incluidas
@@ -189,6 +205,23 @@ public class ComunidadServiceImp implements ComunidadService {
 
         // 2. Actualizar servicios
         if (dto.getServicios() != null) {
+            List<Servicio> serviciosActuales = comunidad.getServicios();
+            List<Integer> idsNuevos = dto.getServicios().stream()
+                    .map(ServicioResumenDTO::getIdServicio)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            for (Servicio servicio : serviciosActuales) {
+                if (!idsNuevos.contains(servicio.getIdServicio())) {
+                    // Verifica si el servicio tiene reservas asociadas
+                    boolean tieneReservas = verificarSiElServicioTieneReservasEnLaComunidad(servicio);
+                    if (tieneReservas) {
+                        throw new IllegalStateException("No se puede eliminar el servicio '" + servicio.getNombre() + "' porque tiene reservas activas.");
+                    }
+                }
+            }
+
+            // Si llegamos aca, significa que normal podemos actualizar los servicios
             List<Servicio> nuevosServicios = dto.getServicios().stream().map(s ->
                     Servicio.builder()
                             .idServicio(s.getIdServicio())
@@ -201,6 +234,39 @@ public class ComunidadServiceImp implements ComunidadService {
 
         return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
 
+    }
+
+    private boolean verificarSiElServicioTieneReservasEnLaComunidad(Servicio servicio) {
+        List<CitaMedica> citas = servicio.getCitasMedicas() != null ? servicio.getCitasMedicas() : null;
+        List<Local> locales = servicio.getLocales() != null ? servicio.getLocales() : null;
+
+        if(citas != null) {
+            for(CitaMedica c : citas) {
+                if(c.getReservas() != null) {
+                    for(Reserva r : c.getReservas()) {
+                        if(r.getEstado().equals("Confirmada")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            for(Local l : locales) {
+                if(l.getClases() != null) {
+                    for(Clase clase : l.getClases()) {
+                        if(clase.getReservas() != null) {
+                            for(Reserva r : clase.getReservas()) {
+                                if(r.getEstado().equals("Confirmada")) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
