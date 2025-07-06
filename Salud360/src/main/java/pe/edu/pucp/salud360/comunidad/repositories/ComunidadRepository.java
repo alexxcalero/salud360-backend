@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface ComunidadRepository extends JpaRepository<Comunidad, Integer> {
+
+    List<Comunidad> findByNombreAndDescripcionAndProposito(String nombre, String descripcion,String proposito);
+
     @Query(value = """
     SELECT * FROM ingesoft.comunidad c
     WHERE c.id_comunidad NOT IN (
@@ -58,4 +61,6 @@ WHERE cc.id_cliente = :idCliente
 AND (a.estado IS NULL OR a.estado IN ('Activado'))
 """, nativeQuery = true)
     List<Comunidad> findComunidadesActivasDeCliente(@Param("idCliente") Integer idCliente);
+
+
 }

@@ -1,9 +1,13 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
@@ -168,6 +172,28 @@ public class LocalServiceImp implements LocalService {
             local.setServicio(servicio);
 
             local.setDescripcion(record.getString("descripcion"));
+
+            //VERIFICAMOS QUE NO EXISTAN DATOS DUPLICADOS EN EL CSV
+            for (Local otroLocal : listaLocales) {
+                if (local.getNombre().equals(otroLocal.getNombre()) &&
+                        local.getDireccion().equals(otroLocal.getDireccion())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Local duplicado en el archivo CSV con nombre " + local.getNombre());
+                }
+            }
+            // VERIFICAMOS SI NO HAY DUPLICIDAD DE DATOS CON AQUELLOS REGISTRADOS EN LA BD
+            List<Local> localesExistentes = localRepository.
+                    findByNombreAndDireccion(local.getNombre(),local.getDireccion());
+
+            for (Local localExistente : localesExistentes) {
+                    if (local.getNombre().equals(localExistente.getNombre()) &&
+                        local.getDireccion().equals(localExistente.getDireccion())){
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "El local '" + local.getNombre() +
+                                    "' ya se encuentra registrado en la base de datos");
+                }
+            }
+
 
             //Datos crudos que debemos insertar
             local.setActivo(true);

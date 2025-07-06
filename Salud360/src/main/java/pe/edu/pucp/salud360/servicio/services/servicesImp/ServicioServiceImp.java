@@ -5,14 +5,17 @@ import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioVistaClienteDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ServicioMapper;
+import pe.edu.pucp.salud360.servicio.models.CitaMedica;
 import pe.edu.pucp.salud360.servicio.models.Local;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
@@ -140,6 +143,32 @@ public class ServicioServiceImp implements ServicioService {
             servicio.setNombre(record.getString("nombre"));
             servicio.setDescripcion(record.getString("descripcion"));
             servicio.setTipo(record.getString("tipo"));
+
+
+            //VERIFICAMOS QUE NO EXISTAN DATOS DUPLICADOS EN EL CSV
+            for (Servicio otroServicio : listaServicios) {
+                if (servicio.getNombre().equals(otroServicio.getNombre()) &&
+                        servicio.getDescripcion().equals(otroServicio.getDescripcion()) && servicio.getTipo().equals(otroServicio.getTipo())) {
+
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Servicio duplicado en el archivo CSV con nombre " + servicio.getNombre());
+                }
+            }
+            // VERIFICAMOS SI NO HAY DUPLICIDAD DE DATOS CON AQUELLOS REGISTRADOS EN LA BD
+            List<Servicio> serviciosExistentes = servicioRepository.
+                    findByNombreAndDescripcionAndTipo(servicio.getNombre(),servicio.getDescripcion(),servicio.getTipo());
+
+            for (Servicio servicioExistente : serviciosExistentes) {
+                if (servicio.getNombre().equals(servicioExistente.getNombre()) &&
+                        servicio.getDescripcion().equals(servicioExistente.getDescripcion()) && servicio.getTipo().equals(servicioExistente.getTipo())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "El servicio '" + servicio.getNombre() +
+                                    "' ya se encuentra registrado en la base de datos ");
+                }
+            }
+
+
+
 
             //Datos crudos que debemos insertar
             servicio.setActivo(true);
