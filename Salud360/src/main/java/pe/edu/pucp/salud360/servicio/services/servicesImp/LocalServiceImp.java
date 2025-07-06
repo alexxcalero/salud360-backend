@@ -1,20 +1,19 @@
 package pe.edu.pucp.salud360.servicio.services.servicesImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalDTO;
 import pe.edu.pucp.salud360.servicio.dto.LocalDTO.LocalVistaAdminDTO;
 import pe.edu.pucp.salud360.servicio.mappers.LocalMapper;
+import pe.edu.pucp.salud360.servicio.models.Clase;
 import pe.edu.pucp.salud360.servicio.models.Local;
+import pe.edu.pucp.salud360.servicio.models.Reserva;
 import pe.edu.pucp.salud360.servicio.models.Servicio;
 import pe.edu.pucp.salud360.servicio.repositories.LocalRepository;
 import pe.edu.pucp.salud360.servicio.repositories.ServicioRepository;
 import pe.edu.pucp.salud360.servicio.services.LocalService;
-
 
 
 import java.time.LocalDateTime;
@@ -96,6 +95,16 @@ public class LocalServiceImp implements LocalService {
         Optional<Local> optional = localRepository.findById(id);
         if (optional.isPresent()) {
             Local local = optional.get();
+
+            List<Clase> clases = local.getClases();
+            for(Clase c : clases) {
+                List<Reserva> reservas = c.getReservas();
+                for(Reserva r : reservas) {
+                    if(r.getEstado().equals("Confirmada"))
+                        throw new IllegalStateException("No se puede eliminar esta local, debido a que ya tiene clases o citas reservadas por un cliente.");
+                }
+            }
+
             local.setActivo(false);
             local.setFechaDesactivacion(LocalDateTime.now());
             localRepository.save(local);
