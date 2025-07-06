@@ -436,8 +436,8 @@ INSERT INTO ingesoft.afiliacion (id_cliente, id_medio_de_pago, id_membresia, fec
 INSERT INTO ingesoft.comunidad_cliente (id_cliente, id_comunidad)
 VALUES (1, 1);
 
-INSERT INTO ingesoft.periodo (afiliacion, cant_reservas, fecha_inicio, fecha_fin)
-VALUES (1, 0, '2025-06-01', '2025-06-30');
+INSERT INTO ingesoft.periodo (afiliacion, cant_reservas, fecha_inicio, fecha_fin, ha_sido_suspendida)
+VALUES (1, 0, '2025-06-01', '2025-06-30', false);
 
 INSERT INTO ingesoft.testimonio (
     comentario, calificacion, activo, fecha_creacion, fecha_desactivacion,
