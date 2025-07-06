@@ -133,16 +133,30 @@ public class ComunidadServiceImp implements ComunidadService {
                 Membresia membresia;
 
                 if (m.getIdMembresia() != null) {
-                    // Ya existe, buscar
+                    // Solo es referencia, no se debe editar
+                    boolean esSoloReferencia = m.getNombre() == null && m.getTipo() == null;
+
                     membresia = membresiaRepository.findById(m.getIdMembresia()).orElse(null);
                     if (membresia == null) continue;
 
                     idsDesdeFrontend.add(m.getIdMembresia());
 
-                    // Bloquear edicion si tiene usuarios asociados
-                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
-                        throw new IllegalStateException("No se puede editar la membresía '" + membresia.getNombre() + "' porque tiene usuarios asociados.");
+                    if (esSoloReferencia) {
+                        // No modificar nada, solo conservar
+                        membresiasActualizadas.add(membresia);
+                        continue;
                     }
+
+                    // Validar si tiene usuarios antes de modificar
+                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
+                        boolean antesSinTope = !membresia.getConTope();
+                        boolean despuesConTope = Boolean.TRUE.equals(m.getConTope());
+
+                        if (antesSinTope && despuesConTope) {
+                            throw new IllegalStateException("No se puede activar el tope de reservas en la membresía '" + membresia.getNombre() + "' porque ya tiene usuarios asociados.");
+                        }
+                    }
+
                 } else {
                     // Nueva membresía
                     membresia = new Membresia();
@@ -166,6 +180,7 @@ public class ComunidadServiceImp implements ComunidadService {
                 membresia.setDescripcion(m.getDescripcion());
 
                 membresiasActualizadas.add(membresia);
+
             }
 
             // Eliminar las membresías no incluidas
