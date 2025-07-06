@@ -5,6 +5,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.common.record.Record;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
@@ -23,14 +24,21 @@ import pe.edu.pucp.salud360.membresia.repositories.AfiliacionRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
 import pe.edu.pucp.salud360.membresia.repositories.PeriodoRepository;
 import pe.edu.pucp.salud360.membresia.services.AfiliacionService;
+import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
+import pe.edu.pucp.salud360.servicio.models.*;
+import pe.edu.pucp.salud360.servicio.repositories.CitaMedicaRepository;
+import pe.edu.pucp.salud360.servicio.repositories.ClaseRepository;
+import pe.edu.pucp.salud360.servicio.repositories.ReservaRepository;
 import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.membresia.repositories.MedioDePagoRepository;
+import pe.edu.pucp.salud360.usuario.services.ClienteService;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,34 +46,50 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Objects;
 
-
 @Service
+@RequiredArgsConstructor
 public class AfiliacionServiceImp implements AfiliacionService {
 
-    @Autowired
-    private AfiliacionRepository afiliacionRepository;
+    private final AfiliacionRepository afiliacionRepository;
+    private final AfiliacionMapper afiliacionMapper;
 
-    @Autowired
-    private ClienteRepository clienteRepository;
+    private final PeriodoRepository periodoRepository;
 
-    @Autowired
-    private MedioDePagoRepository medioDePagoRepository;
+    private final MembresiaRepository membresiaRepository;
 
-    @Autowired
-    private AfiliacionMapper afiliacionMapper;
+    private final ComunidadRepository comunidadRepository;
 
-    @Autowired
-    private MembresiaRepository membresiaRepository;
+    private final ClienteRepository clienteRepository;
+    private final ClienteService clienteService;
 
-    @Autowired
-    private ComunidadRepository comunidadRepository;
+    private final MedioDePagoRepository medioDePagoRepository;
 
-    @Autowired
-    private PeriodoRepository periodoRepository;
+    private final ReservaMapper reservaMapper;
+    private final ReservaRepository reservaRepository;
 
-    @org.springframework.transaction.annotation.Transactional
+    private final ClaseRepository claseRepository;
+    private final CitaMedicaRepository citaMedicaRepository;
+
+    @Transactional
     @Override
     public AfiliacionResumenDTO crearAfiliacion(AfiliacionDTO dto) {
+        // Toy dudando, pero creo que si va a funcar
+        Cliente cliente = clienteRepository.findById(dto.getUsuario().getIdCliente())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Comunidad com = comunidadRepository.findById(dto.getComunidad().getIdComunidad())
+                .orElseThrow(() -> new RuntimeException("Comunidad no encontrada"));
+
+        List<Afiliacion> afiliacionesExistentes = cliente.getAfiliaciones();
+        for(Afiliacion afi : afiliacionesExistentes) {
+            if(afi.getMembresia().getComunidad().getIdComunidad().equals(com.getIdComunidad())) {
+                if(afi.getEstado().equals("Activado") || afi.getEstado().equals("Suspendido")) {
+                    throw new IllegalStateException("Ya posees una membresia para esta comunidad.");
+                }
+            }
+        }
+        // Con fe
+
         Afiliacion afiliacion = new Afiliacion();
         afiliacion.setEstado(dto.getEstado());
         afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
@@ -101,6 +125,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
         nuevoPeriodo.setFechaInicio(LocalDate.now());
         nuevoPeriodo.setFechaFin(LocalDate.now().plusMonths(1));
         nuevoPeriodo.setCantReservas(0);
+        nuevoPeriodo.setHaSidoSuspendida(false);
         nuevoPeriodo.setAfiliacion(afiliacion);
 
         Periodo periodo = periodoRepository.save(nuevoPeriodo);
@@ -139,16 +164,84 @@ public class AfiliacionServiceImp implements AfiliacionService {
         return true;
     }
 
-
     @Override
     public boolean desafiliar(Integer id, Integer ndias){
         if(afiliacionRepository.existsById(id)){
             Optional<Afiliacion> afiliacion = afiliacionRepository.findById(id);
-            Afiliacion af = afiliacion.get();
-            af.setEstado("Suspendido");
-            af.setFechaReactivacion(LocalDate.now().plusDays(ndias));
-            afiliacionRepository.save(af);
-            return true;
+            if (afiliacion.isPresent()) {
+                Afiliacion af = afiliacion.get();
+
+                List<Periodo> periodos = af.getPeriodo();
+                if(periodos == null || periodos.isEmpty()) {
+                    throw new IllegalStateException("La afiliación no tiene periodos asociados.");
+                }
+
+                Periodo periodoActual = periodos.getLast();
+                // Para que no suspendan a cada rato la membresia
+                if(periodoActual.getHaSidoSuspendida()) {
+                    throw new IllegalStateException("La membresía solo puede ser suspendida una vez en un periodo.");
+                }
+
+                // Verificar la cantidad de dias que va a suspender la membresia
+                LocalDate fechaFinPeriodo = periodoActual.getFechaFin();
+                LocalDate fechaActual = LocalDate.now();
+                if(fechaFinPeriodo.isBefore(fechaActual)) {
+                    throw new IllegalStateException("La membresía ya ha vencido.");
+                }
+
+                long diasRestantes = ChronoUnit.DAYS.between(fechaActual, fechaFinPeriodo);
+                if (ndias > diasRestantes) {
+                    throw new IllegalStateException("No se puede suspender por más días de los que quedan en la membresía actual (" + diasRestantes + " días).");
+                }
+
+                // Validar si ya está suspendido
+                if (af.getEstado().equals("Suspendido")) {
+                    throw new IllegalStateException("La afiliación ya se encuentra suspendida.");
+                }
+
+                // Si pasa todo esto, se suspende la membresia
+                af.setEstado("Suspendido");
+                af.setFechaReactivacion(LocalDate.now().plusDays(ndias));
+                periodoActual.setFechaFin(periodoActual.getFechaFin().plusDays(ndias));  // Agrego dias al periodo actual
+                periodoActual.setHaSidoSuspendida(true);  // Cambio el estado de la variable que indica si la afiliacion ha sido suspendida
+                periodoRepository.save(periodoActual);
+                afiliacionRepository.save(af);
+
+                // Ahora voy a manejar las reservas existentes para la afiliacion
+                Cliente cliente = clienteRepository.findById(af.getCliente().getIdCliente())
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                Membresia membresia = af.getMembresia();
+                Comunidad comunidad = membresia.getComunidad();
+
+                List<Reserva> reservas = clienteService.listarReservasPorCliente(cliente.getIdCliente())
+                                            .stream()
+                                            .map(reservaMapper::mapToModel)
+                                            .filter(reserva -> reserva.getComunidad().getIdComunidad().equals(comunidad.getIdComunidad()))
+                                            .toList();
+
+                for(Reserva r : reservas) {
+                    r.setEstado("Cancelada");
+                    r.setFechaCancelacion(LocalDateTime.now());
+                    if(r.getCitaMedica() != null) {
+                        r.getCitaMedica().setEstado("Disponible");
+                        r.getCitaMedica().setCliente(null);
+                        cliente.getCitasMedicas().remove(r.getCitaMedica());
+                        citaMedicaRepository.save(r.getCitaMedica());
+                    } else {
+                        r.getClase().setCantAsistentes(r.getClase().getCantAsistentes() - 1);
+
+                        if(r.getClase().getEstado().equals("Completa"))
+                            r.getClase().setEstado("Disponible");
+
+                        r.getClase().getClientes().remove(cliente);
+                        cliente.getClases().remove(r.getClase());
+                        claseRepository.save(r.getClase());
+                    }
+                    reservaRepository.save(r);
+                }
+
+                return true;
+            }
         }
         return false;
     }
@@ -167,11 +260,6 @@ public class AfiliacionServiceImp implements AfiliacionService {
                 .map(afiliacionMapper::mapToAfiliacionDTO)
                 .collect(Collectors.toList());
     }
-
-
-
-
-
 
     @Override
     public AfiliacionResumenDTO actualizarAfiliacion(Integer id, AfiliacionDTO dto) {
