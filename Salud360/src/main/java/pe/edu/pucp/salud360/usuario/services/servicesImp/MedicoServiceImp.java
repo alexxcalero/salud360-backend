@@ -5,8 +5,10 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.common.record.Record;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.medicoDTO.MedicoVistaAdminDTO;
 import pe.edu.pucp.salud360.usuario.mappers.MedicoMapper;
@@ -132,6 +134,7 @@ public class MedicoServiceImp implements MedicoService {
         settings.getFormat().setDelimiter(',');
         settings.setIgnoreLeadingWhitespaces(true);
         settings.setIgnoreTrailingWhitespaces(true);
+
         CsvParser parser = new CsvParser(settings);
         List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
 
@@ -153,10 +156,36 @@ public class MedicoServiceImp implements MedicoService {
                 medico.setFechaDesactivacion(LocalDateTime.parse(fechaDesact));
             }
 
+            // Validación de duplicidad dentro del mismo CSV
+            for (Medico otro : listaMedicos) {
+                if (medico.getNombres().equalsIgnoreCase(otro.getNombres()) &&
+                        medico.getNumeroDocumento().equals(otro.getNumeroDocumento())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Médico duplicado en el archivo CSV con nombre " + medico.getNombres() +
+                                    " y documento " + medico.getNumeroDocumento());
+                }
+            }
+
+            // Validación contra la BD
+            List<Medico> medicosExistentes = medicoRepository.findByNombresAndNumeroDocumento(
+                    medico.getNombres(), medico.getNumeroDocumento()
+            );
+
+            for (Medico existente : medicosExistentes) {
+                if (medico.getNombres().equalsIgnoreCase(existente.getNombres()) &&
+                        medico.getNumeroDocumento().equals(existente.getNumeroDocumento())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "El médico '" + medico.getNombres() +
+                                    "' con documento " + medico.getNumeroDocumento() +
+                                    " ya se encuentra registrado en la base de datos");
+                }
+            }
+
             // Asociar TipoDocumento
             Integer idTipoDocumento = Integer.parseInt(record.getString("idTipoDocumento"));
             TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento)
-                    .orElseThrow(() -> new RuntimeException("TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
             medico.setTipoDocumento(tipoDocumento);
 
             listaMedicos.add(medico);
@@ -165,4 +194,5 @@ public class MedicoServiceImp implements MedicoService {
         medicoRepository.saveAll(listaMedicos);
         return true;
     }
+
 }

@@ -14,4 +14,6 @@ public interface AdministradorRepository extends JpaRepository<Administrador, In
     List<Administrador> buscarPorNombreCompleto(@Param("cadena") String cadena);
 
     Optional<Administrador> findByUsuario(Usuario usuario);
+    List<Administrador> findByNombresAndNumeroDocumento(String nombres, String numeroDocumento);
+
 }

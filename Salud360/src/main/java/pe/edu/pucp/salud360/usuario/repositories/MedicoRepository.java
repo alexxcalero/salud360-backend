@@ -19,4 +19,7 @@ public interface MedicoRepository extends JpaRepository<Medico, Integer> {
 
     @Query("SELECT m FROM Medico m WHERE CONCAT(LOWER(m.nombres), ' ', LOWER(m.apellidos)) LIKE LOWER(CONCAT('%', :nombreCompleto, '%')) AND LOWER(m.especialidad) LIKE LOWER(CONCAT('%', :especialidad, '%')) ORDER BY m.idMedico")
     List<Medico> buscarPorNombreYEspecialidad(@Param("nombreCompleto") String nombreCompleto, @Param("especialidad") String especialidad);
+
+    List<Medico> findByNombresAndNumeroDocumento(String nombres, String numeroDocumento);
+
 }
