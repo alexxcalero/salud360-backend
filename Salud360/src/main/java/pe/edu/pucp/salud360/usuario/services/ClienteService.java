@@ -25,6 +25,7 @@ public interface ClienteService {
     ClienteVistaAdminDTO buscarClientePorId(Integer idCliente);
     ClienteLogueadoDTO buscarClienteLogueadoPorId(Integer idCliente);
 
+    List<ReservaDTO> listarReservas(Integer idCliente);
     List<ReservaDTO> listarReservasPorCliente(Integer idCliente, Integer idComunidad);
 
     Boolean cargarMasivamanteCliente(MultipartFile file) throws IOException;

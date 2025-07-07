@@ -239,6 +239,18 @@ public class ClienteServiceImp implements ClienteService {
         }
     }
 
+    @Override
+    public List<ReservaDTO> listarReservas(Integer idCliente) {
+        Cliente cliente = clienteRepository.findById(idCliente)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrada"));
+
+        List<Reserva> reservas = cliente.getReservas();
+
+        return reservas.stream()
+                .map(reservaMapper::mapToDTO)
+                .toList();
+    }
+
     // id de comunidad
     @Override
     public List<ReservaDTO> listarReservasPorCliente(Integer idCliente, Integer idComunidad) {
