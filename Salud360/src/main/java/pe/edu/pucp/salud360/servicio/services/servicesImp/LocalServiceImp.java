@@ -163,7 +163,14 @@ public class LocalServiceImp implements LocalService {
             //nombre,direccion,telefono,tipo_servicio,id_servicio,descripcion
             local.setNombre(record.getString("nombre"));
             local.setDireccion(record.getString("direccion"));
-            local.setTelefono(record.getString("telefono"));
+            String telefono = record.getString("telefono");
+
+            if (!telefono.matches("\\d{9}")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El teléfono '" + telefono + "' no es válido. Debe tener exactamente 9 dígitos numéricos.");
+            }
+
+            local.setTelefono(telefono);
             local.setTipoServicio(record.getString("tipo_servicio"));
             // COMO TENEMOS QUE ASOCIAR UN ID DE UN SERVICIO EXISTENTE, LO BUSCAMOS
             Integer idServicio = Integer.parseInt(record.getString("id_servicio"));
