@@ -31,6 +31,9 @@ public class Afiliacion {
     @Column(name = "fechaDesafiliacion", unique = false, nullable = true, updatable = true)
     private LocalDateTime fechaDesafiliacion;
 
+    @Column(name = "fechaSuspension", unique = false, nullable = true, updatable = true)
+    private LocalDateTime fechaSuspension;
+
     @Column(name = "fechaReactivacion", unique = false, nullable = true, updatable = true)
     private LocalDate fechaReactivacion;
 

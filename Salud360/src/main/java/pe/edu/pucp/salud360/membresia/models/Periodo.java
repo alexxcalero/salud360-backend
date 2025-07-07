@@ -25,6 +25,9 @@ public class Periodo {
     @Column(name = "fechaFin", unique = false, nullable = false, updatable = true)
     private LocalDate fechaFin;
 
+    @Column(name = "diasSuspendidos", unique = false, nullable = true, updatable = true)
+    private Integer diasSuspendidos;
+
     @Column(name = "haSidoSuspendida", unique = false, nullable = false, updatable = true)
     private Boolean haSidoSuspendida;
 

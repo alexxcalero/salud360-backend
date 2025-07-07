@@ -92,9 +92,10 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
         Afiliacion afiliacion = new Afiliacion();
         afiliacion.setEstado(dto.getEstado());
-        afiliacion.setFechaAfiliacion(dto.getFechaAfiliacion());
-        afiliacion.setFechaDesafiliacion(dto.getFechaDesafiliacion());
-        afiliacion.setFechaReactivacion(dto.getFechaReactivacion());
+        afiliacion.setFechaAfiliacion(LocalDateTime.now());
+        afiliacion.setFechaDesafiliacion(null);
+        afiliacion.setFechaReactivacion(null);
+        afiliacion.setFechaSuspension(null);
         afiliacion.setCliente(clienteRepository.findById(dto.getUsuario().getIdCliente()).orElse(null));
         afiliacion.setMedioDePago(medioDePagoRepository.findById(dto.getMedioDePago().getIdMedioDePago()).orElse(null));
         Optional<Membresia> m = membresiaRepository.findById(dto.getMembresia().getIdMembresia());
@@ -123,8 +124,15 @@ public class AfiliacionServiceImp implements AfiliacionService {
         // LA FE ES LO ULTIMO QUE SE PIERDE Y YA NO TENGO NADA MAS
         Periodo nuevoPeriodo = new Periodo();
         nuevoPeriodo.setFechaInicio(LocalDate.now());
-        nuevoPeriodo.setFechaFin(LocalDate.now().plusMonths(1));
+
+        if(afiliacion.getMembresia().getTipo().equals("Mensual")) {
+            nuevoPeriodo.setFechaFin(LocalDate.now().plusMonths(1));
+        } else {
+            nuevoPeriodo.setFechaFin(LocalDate.now().plusYears(1));
+        }
+
         nuevoPeriodo.setCantReservas(0);
+        nuevoPeriodo.setDiasSuspendidos(null);
         nuevoPeriodo.setHaSidoSuspendida(false);
         nuevoPeriodo.setAfiliacion(afiliacion);
 
@@ -260,8 +268,10 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
                 // Si pasa todo esto, se suspende la membresia
                 af.setEstado("Suspendido");
+                af.setFechaSuspension(LocalDateTime.now());
                 af.setFechaReactivacion(LocalDate.now().plusDays(ndias));
                 periodoActual.setFechaFin(periodoActual.getFechaFin().plusDays(ndias));  // Agrego dias al periodo actual
+                periodoActual.setDiasSuspendidos(ndias);
                 periodoActual.setHaSidoSuspendida(true);  // Cambio el estado de la variable que indica si la afiliacion ha sido suspendida
                 periodoRepository.save(periodoActual);
                 afiliacionRepository.save(af);
@@ -338,8 +348,27 @@ public class AfiliacionServiceImp implements AfiliacionService {
         Afiliacion af = afiliacionRepository.findById(idAfiliacion)
                 .orElseThrow(() -> new EntityNotFoundException("Afiliación no encontrada"));
 
+        LocalDate hoy = LocalDate.now();
+        LocalDate fechaOriginalReactivacion = af.getFechaReactivacion();
+
+        if (fechaOriginalReactivacion == null || !fechaOriginalReactivacion.isAfter(hoy)) {
+            // Ya se reactivó o debería reactivarse automáticamente hoy o antes
+            throw new IllegalStateException("La afiliación ya debería estar reactivada o no tiene una fecha válida.");
+        }
+
+        // Calcular los días de suspensión que NO se respetaron
+        long diasRecortados = ChronoUnit.DAYS.between(hoy, fechaOriginalReactivacion);
+
+        Periodo periodoActual = af.getPeriodo().getLast();
+
+        // Acortar la fechaFin original si se reactiva antes de lo previsto
+        if (diasRecortados > 0) {
+            periodoActual.setFechaFin(periodoActual.getFechaFin().minusDays(diasRecortados));
+            periodoRepository.save(periodoActual);
+        }
+
         af.setEstado("Activado");
-        af.setFechaReactivacion(LocalDate.now()); // o LocalDateTime.now() si prefieres
+        af.setFechaReactivacion(hoy); // o LocalDateTime.now() si prefieres
         afiliacionRepository.save(af);
         return true;
     }

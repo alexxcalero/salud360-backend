@@ -51,6 +51,12 @@ public class ClienteController {
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/{idCliente}/reservas")
+    public ResponseEntity<List<ReservaDTO>> listarReservas(@PathVariable("idCliente") Integer idCliente) {
+        List<ReservaDTO> lista = clienteService.listarReservas(idCliente);
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
     @GetMapping("/{idCliente}/reservas/{idComunidad}")
     public ResponseEntity<List<ReservaDTO>> listarReservasPorCliente(@PathVariable("idCliente") Integer idCliente, @PathVariable("idComunidad") Integer idComunidad) {
         List<ReservaDTO> lista = clienteService.listarReservasPorCliente(idCliente, idComunidad);
