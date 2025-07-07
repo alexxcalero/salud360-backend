@@ -42,6 +42,7 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
         List<MedioDePago> mediosDePago = medioDePagoRepository.findByCliente_IdCliente(idUsuario);
         return mediosDePago.stream()
             .map(medioDePagoMapper::mapToMedioDePagoDTO)
+            .filter(m -> m.getTipo().contains("tarjeta"))
             .collect(Collectors.toList());
     }
     
