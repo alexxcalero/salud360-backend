@@ -44,9 +44,6 @@ public class Afiliacion {
     @OneToMany(mappedBy = "afiliacion")
     private List<Pago> pagos;
 
-    @OneToMany(mappedBy = "afiliacion")
-    private List<Solicitud> solicitudes;
-
     @ManyToOne
     @JoinColumn(name = "idMedioDePago")
     private MedioDePago medioDePago;

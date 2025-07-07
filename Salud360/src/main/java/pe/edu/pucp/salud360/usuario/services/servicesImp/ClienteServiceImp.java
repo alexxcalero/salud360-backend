@@ -5,10 +5,13 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.common.record.Record;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
@@ -53,8 +56,6 @@ public class ClienteServiceImp implements ClienteService {
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
     private final ReservaMapper reservaMapper;
-
-
 
     @Override
     @Transactional
@@ -237,19 +238,21 @@ public class ClienteServiceImp implements ClienteService {
             return null;
         }
     }
-  
+
+    // id de comunidad
     @Override
-    public List<ReservaDTO> listarReservasPorCliente(Integer idCliente) {
+    public List<ReservaDTO> listarReservasPorCliente(Integer idCliente, Integer idComunidad) {
         Cliente cliente = clienteRepository.findById(idCliente)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrada"));
 
         List<Reserva> reservas = cliente.getReservas();
 
         return reservas.stream()
+                .filter(reserva -> reserva.getComunidad() != null &&
+                        reserva.getComunidad().getIdComunidad().equals(idComunidad))
                 .map(reservaMapper::mapToDTO)
                 .toList();
     }
-
 
     @Override
     @Transactional
@@ -272,7 +275,16 @@ public class ClienteServiceImp implements ClienteService {
             cliente.setApellidos(record.getString("apellidos"));
             cliente.setNumeroDocumento(record.getString("numeroDocumento"));
             cliente.setSexo(record.getString("sexo"));
-            cliente.setTelefono(record.getString("telefono"));
+
+
+
+            String telefono = record.getString("telefono");
+            if (!telefono.matches("\\d{9}")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El teléfono '" + telefono + "' no es válido. Debe tener exactamente 9 dígitos numéricos.");
+            }
+            cliente.setTelefono(telefono);
+
             cliente.setFechaNacimiento(LocalDate.parse(record.getString("fechaNacimiento")));
             cliente.setDireccion(record.getString("direccion"));
             cliente.setFotoPerfil(record.getString("fotoPerfil"));
@@ -283,12 +295,42 @@ public class ClienteServiceImp implements ClienteService {
 
             cliente.setFechaCreacion(LocalDateTime.now());
 
+
+
             String fechaDesact = record.getString("fechaDesactivacion");
             if (fechaDesact != null && !fechaDesact.isEmpty()) {
                 cliente.setFechaDesactivacion(LocalDateTime.parse(fechaDesact));
             }
 
-            // Asociar Usuario
+            // VERIFICAMOS QUE NO EXISTAN DATOS DUPLICADOS EN EL CSV
+            for (Cliente otroCliente : listaClientes) {
+                if (
+                        cliente.getNombres().equalsIgnoreCase(otroCliente.getNombres()) &&
+                                cliente.getNumeroDocumento().equals(otroCliente.getNumeroDocumento())
+                ) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Cliente duplicado en el archivo CSV con nombre " + cliente.getNombres() +
+                                    " y documento " + cliente.getNumeroDocumento());
+                }
+            }
+
+            // VERIFICAMOS SI NO HAY DUPLICIDAD DE DATOS CON AQUELLOS REGISTRADOS EN LA BD
+            List<Cliente> clientesExistentes = clienteRepository.findByNombresAndNumeroDocumento(
+                    cliente.getNombres(), cliente.getNumeroDocumento()
+            );
+
+            for (Cliente clienteExistente : clientesExistentes) {
+                if (
+                        cliente.getNombres().equalsIgnoreCase(clienteExistente.getNombres()) &&
+                                cliente.getNumeroDocumento().equals(clienteExistente.getNumeroDocumento())
+                ) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "El cliente '" + cliente.getNombres() +
+                                    "' con documento " + cliente.getNumeroDocumento() +
+                                    " ya se encuentra registrado en la base de datos");
+                }
+            }
+
             // Asociar Usuario
             String idUsuarioStr = record.getString("idUsuario");
             Usuario usuario;
@@ -296,20 +338,20 @@ public class ClienteServiceImp implements ClienteService {
             if (idUsuarioStr != null && !idUsuarioStr.isBlank()) {
                 Integer idUsuario = Integer.parseInt(idUsuarioStr);
                 usuario = usuarioRepository.findById(idUsuario)
-                        .orElseThrow(() -> new RuntimeException("Usuario con ID " + idUsuario + " no encontrado"));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuario con ID " + idUsuario + " no encontrado"));
             } else {
                 // Generación automática
                 String nombres = record.getString("nombres").trim();
-                String apellidos = record.getString("apellidos").trim();
-                String correo = (nombres + "." + apellidos + "@salud360.com")
+                String numeroDocumento = record.getString("numeroDocumento").trim();
+                String correo = (nombres + "." + numeroDocumento + "@salud360.com")
                         .toLowerCase()
                         .replaceAll("\\s+", "")
                         .replaceAll("[^a-z0-9.@]", "");
 
-                String contrasenha = passwordEncoder.encode(apellidos + "123");
+                String contrasenha = passwordEncoder.encode(numeroDocumento + "123");
 
                 Rol rolAdmin = rolRepository.findByNombre("Cliente Miembro")
-                        .orElseThrow(() -> new RuntimeException("Rol 'Cliente Miembro' no encontrado"));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"Rol 'Cliente Miembro' no encontrado"));
 
                 usuario = new Usuario();
                 usuario.setCorreo(correo);
@@ -325,13 +367,36 @@ public class ClienteServiceImp implements ClienteService {
             // Asociar TipoDocumento
             Integer idTipoDocumento = Integer.parseInt(record.getString("idTipoDocumento"));
             TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento)
-                    .orElseThrow(() -> new RuntimeException("TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
             cliente.setTipoDocumento(tipoDocumento);
+
+
+
+
+
 
             listaClientes.add(cliente);
         });
 
-        clienteRepository.saveAll(listaClientes);
+
+
+
+        try {
+            clienteRepository.saveAll(listaClientes);
+        } catch (DataIntegrityViolationException e) {
+            // Extraemos el mensaje más claro posible
+            if (e.getRootCause() != null && e.getRootCause().getMessage().contains("usuario_correo_key")) {
+                throw new ResponseStatusException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Ya existe un usuario registrado con ese correo.");
+            } else {
+                throw new ResponseStatusException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Error interno al guardar los clientes. Verifique que no haya datos duplicados.");
+            }
+        }
+
+
         return true;
     }
     //YA NO LO USAMOS PORQUE SE ACTUALIZA EN actualizarClienteVistaPer

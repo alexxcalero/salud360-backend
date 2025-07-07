@@ -4,9 +4,11 @@ import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.awsS3.S3UrlGenerator;
 import pe.edu.pucp.salud360.comunidad.dto.comunidad.ComunidadDTO;
 import pe.edu.pucp.salud360.comunidad.mappers.ComunidadMapper;
@@ -22,6 +24,7 @@ import pe.edu.pucp.salud360.membresia.repositories.MembresiaRepository;
 import pe.edu.pucp.salud360.servicio.dto.CitaMedicaDTO.CitaMedicaResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ClaseDTO.ClaseResumenDTO;
 import pe.edu.pucp.salud360.servicio.dto.ReservaDTO.ReservaDTO;
+import pe.edu.pucp.salud360.servicio.dto.ServicioDTO.ServicioResumenDTO;
 import pe.edu.pucp.salud360.servicio.mappers.CitaMedicaMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ClaseMapper;
 import pe.edu.pucp.salud360.servicio.mappers.ReservaMapper;
@@ -132,16 +135,30 @@ public class ComunidadServiceImp implements ComunidadService {
                 Membresia membresia;
 
                 if (m.getIdMembresia() != null) {
-                    // Ya existe, buscar
+                    // Solo es referencia, no se debe editar
+                    boolean esSoloReferencia = m.getNombre() == null && m.getTipo() == null;
+
                     membresia = membresiaRepository.findById(m.getIdMembresia()).orElse(null);
                     if (membresia == null) continue;
 
                     idsDesdeFrontend.add(m.getIdMembresia());
 
-                    // Bloquear edicion si tiene usuarios asociados
-                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
-                        throw new IllegalStateException("No se puede editar la membresía '" + membresia.getNombre() + "' porque tiene usuarios asociados.");
+                    if (esSoloReferencia) {
+                        // No modificar nada, solo conservar
+                        membresiasActualizadas.add(membresia);
+                        continue;
                     }
+
+                    // Validar si tiene usuarios antes de modificar
+                    if (membresia.getCantUsuarios() != null && membresia.getCantUsuarios() > 0) {
+                        boolean antesSinTope = !membresia.getConTope();
+                        boolean despuesConTope = Boolean.TRUE.equals(m.getConTope());
+
+                        if (antesSinTope && despuesConTope) {
+                            throw new IllegalStateException("No se puede activar el tope de reservas en la membresía '" + membresia.getNombre() + "' porque ya tiene usuarios asociados.");
+                        }
+                    }
+
                 } else {
                     // Nueva membresía
                     membresia = new Membresia();
@@ -165,6 +182,7 @@ public class ComunidadServiceImp implements ComunidadService {
                 membresia.setDescripcion(m.getDescripcion());
 
                 membresiasActualizadas.add(membresia);
+
             }
 
             // Eliminar las membresías no incluidas
@@ -187,6 +205,23 @@ public class ComunidadServiceImp implements ComunidadService {
 
         // 2. Actualizar servicios
         if (dto.getServicios() != null) {
+            List<Servicio> serviciosActuales = comunidad.getServicios();
+            List<Integer> idsNuevos = dto.getServicios().stream()
+                    .map(ServicioResumenDTO::getIdServicio)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            for (Servicio servicio : serviciosActuales) {
+                if (!idsNuevos.contains(servicio.getIdServicio())) {
+                    // Verifica si el servicio tiene reservas asociadas
+                    boolean tieneReservas = verificarSiElServicioTieneReservasEnLaComunidad(servicio);
+                    if (tieneReservas) {
+                        throw new IllegalStateException("No se puede eliminar el servicio '" + servicio.getNombre() + "' porque tiene reservas activas.");
+                    }
+                }
+            }
+
+            // Si llegamos aca, significa que normal podemos actualizar los servicios
             List<Servicio> nuevosServicios = dto.getServicios().stream().map(s ->
                     Servicio.builder()
                             .idServicio(s.getIdServicio())
@@ -199,6 +234,39 @@ public class ComunidadServiceImp implements ComunidadService {
 
         return comunidadMapper.mapToDTO(comunidadRepository.save(comunidad));
 
+    }
+
+    private boolean verificarSiElServicioTieneReservasEnLaComunidad(Servicio servicio) {
+        List<CitaMedica> citas = servicio.getCitasMedicas() != null ? servicio.getCitasMedicas() : null;
+        List<Local> locales = servicio.getLocales() != null ? servicio.getLocales() : null;
+
+        if(citas != null) {
+            for(CitaMedica c : citas) {
+                if(c.getReservas() != null) {
+                    for(Reserva r : c.getReservas()) {
+                        if(r.getEstado().equals("Confirmada")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            for(Local l : locales) {
+                if(l.getClases() != null) {
+                    for(Clase clase : l.getClases()) {
+                        if(clase.getReservas() != null) {
+                            for(Reserva r : clase.getReservas()) {
+                                if(r.getEstado().equals("Confirmada")) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -388,6 +456,31 @@ public class ComunidadServiceImp implements ComunidadService {
             comunidad.setDescripcion(record.getString("descripcion"));
             comunidad.setProposito(record.getString("proposito"));
 
+            ReglasDeNegocio regla = reglasDeNegocioRepository.findById(1)
+                    .orElseThrow(() -> new RuntimeException("No se encontró la regla de negocio con ID 1"));
+            Integer capacidadMaxima = regla.getMaxCapacidad();
+            //VERIFICAMOS QUE NO EXISTAN DATOS DUPLICADOS EN EL CSV
+            for (Comunidad otraComunidad : listaComunidades) {
+                if (comunidad.getNombre().equals(otraComunidad.getNombre()) &&
+                        comunidad.getDescripcion().equals(otraComunidad.getDescripcion()) &&
+                        comunidad.getProposito().equals(otraComunidad.getProposito())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Comunidad duplicado en el archivo CSV con nombre " + comunidad.getNombre());
+                }
+            }
+            // VERIFICAMOS SI NO HAY DUPLICIDAD DE DATOS CON AQUELLOS REGISTRADOS EN LA BD
+            List<Comunidad> comunidadesExistentes = comunidadRepository.
+                    findByNombreAndDescripcionAndProposito(comunidad.getNombre(),comunidad.getDescripcion(),comunidad.getProposito());
+
+            for (Comunidad comunidadExistente : comunidadesExistentes) {
+                if (comunidad.getNombre().equals(comunidadExistente.getNombre()) &&
+                        comunidad.getDescripcion().equals(comunidadExistente.getDescripcion()) &&
+                        comunidad.getProposito().equals(comunidadExistente.getProposito())){
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "La comunidad '" + comunidad.getNombre() +
+                                    "' ya se encuentra registrado en la base de datos");
+                }
+            }
 
 //          COMO PODEMOS ASOCIAR VARIOS SERVICIOS A UNA COMUNIDAD:
             String idsServiciosStr = record.getString("id_servicios"); // ej. "1,2,3"
@@ -404,6 +497,49 @@ public class ComunidadServiceImp implements ComunidadService {
                 comunidad.setServicios(new ArrayList<>(servicios));
             }
 
+            // ASOCIAMOS MEMBRESIAS DESDE EL CSV
+            String membresiasStr = record.getString("membresias");
+            if (membresiasStr == null || membresiasStr.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Cada comunidad debe tener al menos una membresía asociada.");
+            }
+
+            List<Membresia> membresias = Arrays.stream(membresiasStr.split("\\|"))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(m -> {
+                        String[] partes = m.split("-");
+                        if (partes.length < 5) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Formato inválido en membresía: se esperan 5 campos separados por '-'");
+                        }
+
+                        Membresia mem = new Membresia();
+                        mem.setNombre(partes[0].trim());
+                        mem.setTipo(partes[1].trim());
+                        mem.setConTope(partes[2].trim().equalsIgnoreCase("Si"));
+
+
+
+                        mem.setPrecio(Double.parseDouble(partes[3].trim()));
+                        mem.setDescripcion(partes[4].trim());
+                        mem.setFechaCreacion(LocalDateTime.now());
+                        mem.setActivo(true);
+                        mem.setCantUsuarios(0);
+
+                        if(partes[2].trim().equalsIgnoreCase("Si")){
+                            mem.setMaxReservas(capacidadMaxima);
+                        }else
+                            mem.setMaxReservas(-1);
+
+                        mem.setComunidad(comunidad); // Importante para establecer relación bidireccional
+
+                        return mem;
+                    })
+                    .collect(Collectors.toList());
+            //Lo añadimos
+            comunidad.setMembresias(membresias);
+
 
             //Datos crudos que debemos insertar
             comunidad.setActivo(true);
@@ -415,6 +551,14 @@ public class ComunidadServiceImp implements ComunidadService {
         });
         //El safeAll
         comunidadRepository.saveAll(listaComunidades);
+        // Guardar membresías por comunidad
+        for (Comunidad comunidad : listaComunidades) {
+            List<Membresia> membresias = comunidad.getMembresias();
+            if (membresias != null && !membresias.isEmpty()) {
+                membresiaRepository.saveAll(membresias);
+            }
+        }
+
         return true;
     }
 

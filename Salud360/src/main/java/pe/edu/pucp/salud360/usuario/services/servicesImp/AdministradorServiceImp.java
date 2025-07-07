@@ -4,10 +4,12 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.common.record.Record;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorLogueadoDTO;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorRegistroDTO;
 import pe.edu.pucp.salud360.usuario.dtos.administradorDTO.AdministradorResumenDTO;
@@ -168,21 +170,51 @@ public class AdministradorServiceImp implements AdministradorService {
             admin.setApellidos(record.getString("apellidos"));
             admin.setNumeroDocumento(record.getString("numeroDocumento"));
             admin.setSexo(record.getString("sexo"));
-            admin.setTelefono(record.getString("telefono"));
+
+            String telefono = record.getString("telefono");
+            if (!telefono.matches("\\d{9}")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El teléfono '" + telefono + "' no es válido. Debe tener exactamente 9 dígitos numéricos.");
+            }
+            admin.setTelefono(telefono);
+
             admin.setFotoPerfil(record.getString("fotoPerfil"));
             admin.setNotificacionPorCorreo(Boolean.parseBoolean(record.getString("notificacionPorCorreo")));
             admin.setNotificacionPorSMS(Boolean.parseBoolean(record.getString("notificacionPorSMS")));
             admin.setNotificacionPorWhatsApp(Boolean.parseBoolean(record.getString("notificacionPorWhatsApp")));
             admin.setActivo(Boolean.parseBoolean(record.getString("activo")));
-
-            // Fecha actual como creación
             admin.setFechaCreacion(LocalDateTime.now());
 
-            // Puede venir o no
             String fechaDesact = record.getString("fechaDesactivacion");
             if (fechaDesact != null && !fechaDesact.isEmpty()) {
                 admin.setFechaDesactivacion(LocalDateTime.parse(fechaDesact));
             }
+
+
+            // Validar duplicidad dentro del CSV
+            for (Administrador otroAdmin : listaAdministradores) {
+                if (admin.getNombres().equalsIgnoreCase(otroAdmin.getNombres()) &&
+                        admin.getNumeroDocumento().equals(otroAdmin.getNumeroDocumento())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Administrador duplicado en el archivo CSV con nombre " + admin.getNombres() +
+                                    " y documento " + admin.getNumeroDocumento());
+                }
+            }
+
+            // Validar duplicidad en BD
+            List<Administrador> existentes = administradorRepository.findByNombresAndNumeroDocumento(
+                    admin.getNombres(), admin.getNumeroDocumento());
+
+            for (Administrador existente : existentes) {
+                if (admin.getNombres().equalsIgnoreCase(existente.getNombres()) &&
+                        admin.getNumeroDocumento().equals(existente.getNumeroDocumento())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "El administrador '" + admin.getNombres() +
+                                    "' con documento " + admin.getNumeroDocumento() +
+                                    " ya se encuentra registrado en la base de datos");
+                }
+            }
+
 
             // Asociar Usuario
             String idUsuarioStr = record.getString("idUsuario");
@@ -191,20 +223,27 @@ public class AdministradorServiceImp implements AdministradorService {
             if (idUsuarioStr != null && !idUsuarioStr.isBlank()) {
                 Integer idUsuario = Integer.parseInt(idUsuarioStr);
                 usuario = usuarioRepository.findById(idUsuario)
-                        .orElseThrow(() -> new RuntimeException("Usuario con ID " + idUsuario + " no encontrado"));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "Usuario con ID " + idUsuario + " no encontrado"));
             } else {
-                // Generación automática
-                String nombres = record.getString("nombres").trim();
-                String apellidos = record.getString("apellidos").trim();
+                String nombres = admin.getNombres().trim();
+                String apellidos = admin.getApellidos().trim();
                 String correo = (nombres + "." + apellidos + "@salud360.com")
                         .toLowerCase()
                         .replaceAll("\\s+", "")
                         .replaceAll("[^a-z0-9.@]", "");
 
+                // Verificar si el correo ya existe antes de intentar guardar
+                if (usuarioRepository.findByCorreo(correo).isPresent()) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "El correo '" + correo + "' ya está registrado en el sistema.");
+                }
+
                 String contrasenha = passwordEncoder.encode(apellidos + "123");
 
                 Rol rolAdmin = rolRepository.findByNombre("Admin")
-                        .orElseThrow(() -> new RuntimeException("Rol 'Admin' no encontrado"));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "Rol 'Admin' no encontrado"));
 
                 usuario = new Usuario();
                 usuario.setCorreo(correo);
@@ -217,12 +256,12 @@ public class AdministradorServiceImp implements AdministradorService {
 
             admin.setUsuario(usuario);
 
-
-            // Asociar TipoDocumento
             Integer idTipoDocumento = Integer.parseInt(record.getString("idTipoDocumento"));
             TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(idTipoDocumento)
-                    .orElseThrow(() -> new RuntimeException("TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "TipoDocumento con ID " + idTipoDocumento + " no encontrado"));
             admin.setTipoDocumento(tipoDocumento);
+
 
             listaAdministradores.add(admin);
         });
@@ -230,4 +269,5 @@ public class AdministradorServiceImp implements AdministradorService {
         administradorRepository.saveAll(listaAdministradores);
         return true;
     }
+
 }

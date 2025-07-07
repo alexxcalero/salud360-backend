@@ -13,6 +13,7 @@ import pe.edu.pucp.salud360.usuario.models.Cliente;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
@@ -41,6 +42,7 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
         List<MedioDePago> mediosDePago = medioDePagoRepository.findByCliente_IdCliente(idUsuario);
         return mediosDePago.stream()
             .map(medioDePagoMapper::mapToMedioDePagoDTO)
+            .filter(m -> m.getTipo().contains("tarjeta"))
             .collect(Collectors.toList());
     }
     
@@ -93,6 +95,20 @@ public class MedioDePagoServiceImp implements MedioDePagoService {
         dto.setIdMedioDePago(id);
         MedioDePago m = medioDePagoMapper.mapToModel(dto);
         return medioDePagoMapper.mapToDTO(medioDePagoRepository.save(m));
+    }
+
+    @Override
+    public Boolean verificarDatosSensibles(MedioDePagoDTO dto) {
+        if(!medioDePagoRepository.existsById(dto.getIdMedioDePago())) return true;
+        Optional<MedioDePago> m = medioDePagoRepository.findById(dto.getIdMedioDePago());
+
+        if(m.isEmpty()) return false;
+
+        MedioDePago m2 = medioDePagoMapper.mapToModel(dto);
+        return
+                m.get().getCvv() == m2.getCvv() &&
+                        m.get().getVencimiento().getMonth() == m2.getVencimiento().getMonth() &&
+                        m.get().getVencimiento().getYear() == m2.getVencimiento().getYear();
     }
 }
 
