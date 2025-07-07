@@ -213,7 +213,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
                 Membresia membresia = af.getMembresia();
                 Comunidad comunidad = membresia.getComunidad();
 
-                List<Reserva> reservas = clienteService.listarReservasPorCliente(cliente.getIdCliente())
+                List<Reserva> reservas = clienteService.listarReservasPorCliente(cliente.getIdCliente(), comunidad.getIdComunidad())
                                             .stream()
                                             .map(reservaMapper::mapToModel)
                                             .filter(reserva -> reserva.getComunidad().getIdComunidad().equals(comunidad.getIdComunidad()))
