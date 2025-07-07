@@ -1,5 +1,7 @@
 package pe.edu.pucp.salud360.control.services.servicesImp;
 
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.stereotype.Service;
 import pe.edu.pucp.salud360.comunidad.models.Comunidad;
@@ -31,6 +33,8 @@ import pe.edu.pucp.salud360.usuario.models.Usuario;
 import pe.edu.pucp.salud360.usuario.repositories.ClienteRepository;
 import pe.edu.pucp.salud360.usuario.repositories.UsuarioRepository;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -211,6 +215,11 @@ public class ReporteServiceImp implements ReporteService {
                     pieDataset,
                     true, true, false
             );
+
+            // Mostrar porcentajes en las etiquetas del gráfico
+            PiePlot plot = (PiePlot) pieChart.getPlot();
+            plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1} ({2})", NumberFormat.getNumberInstance(), new DecimalFormat("0.00%")));
+
             ChartUtils.writeChartAsPNG(baos, pieChart, 700, 450);
             byte[] bytes = baos.toByteArray();
             base64PieChart = Base64.getEncoder().encodeToString(bytes);
