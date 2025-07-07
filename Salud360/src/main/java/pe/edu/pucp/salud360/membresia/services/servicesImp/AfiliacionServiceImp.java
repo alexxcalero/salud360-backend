@@ -117,8 +117,13 @@ public class AfiliacionServiceImp implements AfiliacionService {
         if (m.isPresent()){
             Membresia neom = m.get();
             neom.setCantUsuarios(neom.getCantUsuarios()+1);
+            membresiaRepository.save(neom);
         }
         comunidadRepository.save(c);
+        List<Comunidad> cs = cliente.getComunidades();
+        cs.add(c);
+        cliente.setComunidades(cs);
+        clienteRepository.save(cliente);
 
         // LA FE ES LO ULTIMO QUE SE PIERDE Y YA NO TENGO NADA MAS
         Periodo nuevoPeriodo = new Periodo();
