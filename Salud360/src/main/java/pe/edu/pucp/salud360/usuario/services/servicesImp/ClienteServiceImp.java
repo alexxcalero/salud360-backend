@@ -235,7 +235,8 @@ public class ClienteServiceImp implements ClienteService {
             return null;
         }
     }
-  
+
+    // id de comunidad
     @Override
     public List<ReservaDTO> listarReservasPorCliente(Integer idCliente, Integer idComunidad) {
         Cliente cliente = clienteRepository.findById(idCliente)

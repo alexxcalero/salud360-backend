@@ -60,6 +60,7 @@ public class ServicioServiceImp implements ServicioService {
         return servicioMapper.mapToDTO(servicioRepository.save(servicio));
     }
 
+    // verificar reservas hechas para no eliminar el servicio
     @Override
     public void eliminarServicio(Integer id) {
         Optional<Servicio> optional = servicioRepository.findById(id);
