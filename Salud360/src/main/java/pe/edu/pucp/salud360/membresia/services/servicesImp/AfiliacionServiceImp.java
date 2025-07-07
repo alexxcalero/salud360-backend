@@ -154,12 +154,71 @@ public class AfiliacionServiceImp implements AfiliacionService {
 
     @Override
     public boolean eliminarAfiliacion(Integer idAfiliacion) {
-        Afiliacion afiliacion = afiliacionRepository.findById(idAfiliacion)
+        Afiliacion af = afiliacionRepository.findById(idAfiliacion)
                 .orElseThrow(() -> new EntityNotFoundException("Afiliación no encontrada"));
 
-        afiliacion.setEstado("Cancelado");
-        afiliacion.setFechaDesafiliacion(LocalDateTime.now());
-        afiliacionRepository.save(afiliacion);
+        List<Periodo> periodos = af.getPeriodo();
+        if(periodos == null || periodos.isEmpty()) {
+            throw new IllegalStateException("La afiliación no tiene periodos asociados.");
+        }
+
+        Periodo periodoActual = periodos.getLast();
+
+        // Verificar la cantidad de dias que va a suspender la membresia
+        LocalDate fechaFinPeriodo = periodoActual.getFechaFin();
+        LocalDate fechaActual = LocalDate.now();
+        if(fechaFinPeriodo.isBefore(fechaActual)) {
+            throw new IllegalStateException("La membresía ya ha vencido.");
+        }
+
+        // Validar si ya esta cancelada
+        if (af.getEstado().equals("Cancelado")) {
+            throw new IllegalStateException("La afiliación ya se encuentra cancelada.");
+        }
+
+        // Si pasa todo esto, se cancela la afiliacion
+        af.setEstado("Cancelado");
+        af.setFechaDesafiliacion(LocalDateTime.now());
+
+        Membresia membresia = af.getMembresia();
+        Comunidad comunidad = membresia.getComunidad();
+
+        membresia.setCantUsuarios(membresia.getCantUsuarios() - 1);
+        comunidad.setCantMiembros(comunidad.getCantMiembros() - 1);
+
+        // Ahora voy a manejar las reservas existentes para la afiliacion
+        Cliente cliente = clienteRepository.findById(af.getCliente().getIdCliente())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        List<Reserva> reservas = reservaRepository.findByClienteAndComunidad(cliente.getIdCliente(), comunidad.getIdComunidad());
+        for(Reserva r : reservas) {
+            r.setEstado("Cancelada");
+            r.setFechaCancelacion(LocalDateTime.now());
+            if(r.getCitaMedica() != null) {
+                r.getCitaMedica().setEstado("Disponible");
+                r.getCitaMedica().setCliente(null);
+                cliente.getCitasMedicas().remove(r.getCitaMedica());
+                citaMedicaRepository.save(r.getCitaMedica());
+            } else {
+                r.getClase().setCantAsistentes(r.getClase().getCantAsistentes() - 1);
+
+                if(r.getClase().getEstado().equals("Completa"))
+                    r.getClase().setEstado("Disponible");
+
+                r.getClase().getClientes().remove(cliente);
+                cliente.getClases().remove(r.getClase());
+                claseRepository.save(r.getClase());
+            }
+            reservaRepository.save(r);
+        }
+
+        comunidad.getClientes().remove(cliente);
+        cliente.getComunidades().remove(comunidad);
+        cliente.getAfiliaciones().remove(af);
+
+        comunidadRepository.save(comunidad);
+        membresiaRepository.save(membresia);
+        afiliacionRepository.save(af);
 
         return true;
     }
@@ -213,12 +272,7 @@ public class AfiliacionServiceImp implements AfiliacionService {
                 Membresia membresia = af.getMembresia();
                 Comunidad comunidad = membresia.getComunidad();
 
-                List<Reserva> reservas = clienteService.listarReservasPorCliente(cliente.getIdCliente(), comunidad.getIdComunidad())
-                                            .stream()
-                                            .map(reservaMapper::mapToModel)
-                                            .filter(reserva -> reserva.getComunidad().getIdComunidad().equals(comunidad.getIdComunidad()))
-                                            .toList();
-
+                List<Reserva> reservas = reservaRepository.findByClienteAndComunidad(cliente.getIdCliente(), comunidad.getIdComunidad());
                 for(Reserva r : reservas) {
                     r.setEstado("Cancelada");
                     r.setFechaCancelacion(LocalDateTime.now());
