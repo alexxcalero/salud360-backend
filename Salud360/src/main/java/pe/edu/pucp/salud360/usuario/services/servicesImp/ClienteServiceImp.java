@@ -54,8 +54,6 @@ public class ClienteServiceImp implements ClienteService {
     private final PasswordEncoder passwordEncoder;
     private final ReservaMapper reservaMapper;
 
-
-
     @Override
     @Transactional
     public ClienteLogueadoDTO crearClientePorRegistro(ClienteRegistroDTO clienteDTO) {
@@ -237,19 +235,21 @@ public class ClienteServiceImp implements ClienteService {
             return null;
         }
     }
-  
+
+    // id de comunidad
     @Override
-    public List<ReservaDTO> listarReservasPorCliente(Integer idCliente) {
+    public List<ReservaDTO> listarReservasPorCliente(Integer idCliente, Integer idComunidad) {
         Cliente cliente = clienteRepository.findById(idCliente)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrada"));
 
         List<Reserva> reservas = cliente.getReservas();
 
         return reservas.stream()
+                .filter(reserva -> reserva.getComunidad() != null &&
+                        reserva.getComunidad().getIdComunidad().equals(idComunidad))
                 .map(reservaMapper::mapToDTO)
                 .toList();
     }
-
 
     @Override
     @Transactional
